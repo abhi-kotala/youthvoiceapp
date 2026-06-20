@@ -82,6 +82,30 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          device_id: string
+          fcm_token: string
+          id: string
+          last_seen_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          fcm_token: string
+          id?: string
+          last_seen_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          fcm_token?: string
+          id?: string
+          last_seen_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           comment_id: string

@@ -24,10 +24,15 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border bg-secondary">
-      <div className="mx-auto max-w-5xl px-4 py-6 text-sm text-muted-foreground">
-        Built by a high schooler. Results from each poll are delivered to our
-        city council and mayor's office. No accounts required — your voice
-        still counts.
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-muted-foreground">
+        <p>
+          Built by a high schooler. Results from each poll are delivered to our
+          city council and mayor's office. No accounts required — your voice
+          still counts.
+        </p>
+        <Link to="/admin" className="text-xs opacity-60 hover:underline">
+          Admin
+        </Link>
       </div>
     </footer>
   );

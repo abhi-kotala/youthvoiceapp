@@ -70,9 +70,9 @@ function HomePage() {
             For people who can't vote yet
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            The issues happening in our city.
+            There are issues happening in our city.
             <br />
-            Make your voice count anyway.
+            Make your voice heard.
           </h1>
           <p className="mt-4 max-w-2xl text-base text-muted-foreground">
             Vote on real political proposals in our community, debate them in a

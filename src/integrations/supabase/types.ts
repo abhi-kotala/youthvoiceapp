@@ -14,7 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          body: string
+          created_at: string
+          device_id: string
+          display_name: string
+          hidden: boolean
+          id: string
+          issue_id: string
+          stance: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          device_id: string
+          display_name?: string
+          hidden?: boolean
+          id?: string
+          issue_id: string
+          stance: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          device_id?: string
+          display_name?: string
+          hidden?: boolean
+          id?: string
+          issue_id?: string
+          stance?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issues: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          comment_id: string
+          created_at: string
+          device_id: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          device_id: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          choice: string
+          created_at: string
+          device_id: string
+          id: string
+          issue_id: string
+        }
+        Insert: {
+          choice: string
+          created_at?: string
+          device_id: string
+          id?: string
+          issue_id: string
+        }
+        Update: {
+          choice?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          issue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

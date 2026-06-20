@@ -64,6 +64,19 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
+
+    // Fan out a push notification to all subscribers. Don't fail the request if push errors.
+    try {
+      const { broadcastPush } = await import("@/lib/fcm.server");
+      await broadcastPush({
+        title: "New issue on CivicVoice",
+        body: row.title,
+        url: `/issue/${row.id}`,
+      });
+    } catch (e) {
+      console.error("broadcastPush failed", e);
+    }
+
     return { issue: row };
   });
 

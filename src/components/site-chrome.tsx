@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { NotificationsButton } from "@/components/notifications-button";
 
 export function SiteHeader() {
   return (
@@ -10,12 +11,15 @@ export function SiteHeader() {
             Under-18 Poll
           </span>
         </Link>
-        <Link
-          to="/"
-          className="text-sm font-medium underline-offset-4 hover:underline"
-        >
-          All Issues
-        </Link>
+        <div className="flex items-center gap-3">
+          <NotificationsButton />
+          <Link
+            to="/"
+            className="text-sm font-medium underline-offset-4 hover:underline"
+          >
+            All Issues
+          </Link>
+        </div>
       </div>
     </header>
   );

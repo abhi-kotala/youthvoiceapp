@@ -34,6 +34,35 @@ const STANCE_CLASSES: Record<Stance, string> = {
 };
 
 export const Route = createFileRoute("/issue/$id")({
+  head: ({ params }) => ({
+    meta: [
+      { title: "Vote on this city issue — CivicVoice" },
+      {
+        name: "description",
+        content:
+          "Cast your vote and join the structured debate. Your voice goes straight to the city council.",
+      },
+      {
+        property: "og:title",
+        content: "Vote on this city issue — CivicVoice",
+      },
+      {
+        property: "og:description",
+        content:
+          "Cast your vote and join the structured debate. Your voice goes straight to the city council.",
+      },
+      {
+        property: "og:url",
+        content: `https://city-voice-forum.lovable.app/issue/${params.id}`,
+      },
+    ],
+    links: [
+      {
+        rel: "canonical",
+        href: `https://city-voice-forum.lovable.app/issue/${params.id}`,
+      },
+    ],
+  }),
   component: IssuePage,
 });
 

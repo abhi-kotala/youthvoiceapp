@@ -28,6 +28,10 @@ export const Route = createFileRoute("/")({
         content:
           "Can't vote yet? You can still be heard. Weigh in on the issues shaping our city.",
       },
+      { property: "og:url", content: "https://city-voice-forum.lovable.app/" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://city-voice-forum.lovable.app/" },
     ],
   }),
   component: HomePage,

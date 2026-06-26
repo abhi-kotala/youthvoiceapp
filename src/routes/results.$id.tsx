@@ -14,6 +14,35 @@ type Issue = {
 type Stance = "agree" | "disagree" | "neutral";
 
 export const Route = createFileRoute("/results/$id")({
+  head: ({ params }) => ({
+    meta: [
+      { title: "Poll results — CivicVoice" },
+      {
+        name: "description",
+        content:
+          "See how the community voted and read the debate. Results shared with the city council and mayor.",
+      },
+      {
+        property: "og:title",
+        content: "Poll results — CivicVoice",
+      },
+      {
+        property: "og:description",
+        content:
+          "See how the community voted and read the debate. Results shared with the city council and mayor.",
+      },
+      {
+        property: "og:url",
+        content: `https://city-voice-forum.lovable.app/results/${params.id}`,
+      },
+    ],
+    links: [
+      {
+        rel: "canonical",
+        href: `https://city-voice-forum.lovable.app/results/${params.id}`,
+      },
+    ],
+  }),
   component: ResultsPage,
 });
 

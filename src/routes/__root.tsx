@@ -79,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "CivicVoice — Where under-18s weigh in on city issues" },
       { name: "description", content: "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor." },
+      { name: "google-site-verification", content: "tJZNB1qnzhhZde7G3eL2_onTGiAQSxKw8PHBAPR23vU" },
       { name: "author", content: "CivicVoice" },
       { property: "og:title", content: "CivicVoice — Where under-18s weigh in on city issues" },
       { property: "og:description", content: "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor." },

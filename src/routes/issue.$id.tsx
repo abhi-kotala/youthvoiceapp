@@ -244,16 +244,25 @@ function IssuePage() {
                 </div>
               </div>
             ))}
-            <p className="pt-1 text-xs text-muted-foreground">
-              {tally.total} total {tally.total === 1 ? "vote" : "votes"} ·{" "}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <p className="text-xs text-muted-foreground">
+                {tally.total} total {tally.total === 1 ? "vote" : "votes"}
+              </p>
               <Link
                 to="/results/$id"
                 params={{ id: issue.id }}
-                className="underline"
+                className="text-xs underline"
               >
                 shareable results page
               </Link>
-            </p>
+              <ShareButton
+                title={issue.title}
+                text="Vote and debate on this city issue on CivicVoice."
+                url={`https://city-voice-forum.lovable.app/issue/${issue.id}`}
+                variant="outline"
+                className="text-xs px-3 py-1.5"
+              />
+            </div>
           </div>
         </section>
 

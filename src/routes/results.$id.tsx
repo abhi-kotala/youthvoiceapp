@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { ShareButton, CopyLinkButton } from "@/components/share-button";
 
 type Issue = {
   id: string;
@@ -174,17 +175,15 @@ function ResultsPage() {
               >
                 View debate thread
               </Link>
-              <button
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    navigator.clipboard?.writeText(window.location.href);
-                    alert("Results link copied. Paste it into your email to the council.");
-                  }
-                }}
-                className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-secondary"
-              >
-                Copy shareable link
-              </button>
+              <ShareButton
+                title={`Results: ${issue.title}`}
+                text="See how the community voted on this city issue."
+                url={`https://city-voice-forum.lovable.app/results/${issue.id}`}
+                variant="outline"
+              />
+              <CopyLinkButton
+                url={`https://city-voice-forum.lovable.app/results/${issue.id}`}
+              />
             </div>
           </>
         )}

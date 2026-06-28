@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { getDeviceId } from "@/lib/device-id";
+import { ShareButton } from "@/components/share-button";
 
 type Stance = "agree" | "disagree" | "neutral";
 

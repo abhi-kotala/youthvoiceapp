@@ -84,10 +84,12 @@ function IssuePage() {
   const [composerBody, setComposerBody] = useState("");
   const [posting, setPosting] = useState(false);
 
+  const myVoteKey = `civicvoice_vote_${id}`;
+
   const reload = useCallback(async () => {
     const [{ data: iss }, { data: votes }, { data: cmts }] = await Promise.all([
       supabase.from("issues").select("*").eq("id", id).maybeSingle(),
-      supabase.from("votes").select("choice, device_id").eq("issue_id", id),
+      supabase.from("votes").select("choice").eq("issue_id", id),
       supabase
         .from("comments")
         .select("id, display_name, stance, body, created_at")
@@ -102,17 +104,19 @@ function IssuePage() {
     }
     setIssue(iss as Issue);
     const t = { agree: 0, disagree: 0, neutral: 0, total: 0 };
-    let mine: Stance | null = null;
-    (votes ?? []).forEach((v: { choice: string; device_id: string }) => {
+    (votes ?? []).forEach((v: { choice: string }) => {
       t[v.choice as Stance] += 1;
       t.total += 1;
-      if (v.device_id === deviceId) mine = v.choice as Stance;
     });
     setTally(t);
-    setMyVote(mine);
+    const localMine =
+      typeof window !== "undefined"
+        ? (localStorage.getItem(myVoteKey) as Stance | null)
+        : null;
+    setMyVote(localMine);
     setComments((cmts ?? []) as Comment[]);
     setLoading(false);
-  }, [id, deviceId]);
+  }, [id, myVoteKey]);
 
   useEffect(() => {
     reload();
@@ -120,12 +124,9 @@ function IssuePage() {
 
   async function castVote(choice: Stance) {
     setMyVote(choice);
-    await supabase
-      .from("votes")
-      .upsert(
-        { issue_id: id, device_id: deviceId, choice },
-        { onConflict: "issue_id,device_id" }
-      );
+    if (typeof window !== "undefined") localStorage.setItem(myVoteKey, choice);
+    const { castVote: castVoteFn } = await import("@/lib/votes.functions");
+    await castVoteFn({ data: { issueId: id, deviceId, choice } });
     reload();
   }
 

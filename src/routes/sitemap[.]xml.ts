@@ -26,7 +26,9 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/about", changefreq: "monthly", priority: "0.7" },
         ];
+
 
         for (const issue of issues ?? []) {
           const lastmod = issue.created_at

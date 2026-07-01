@@ -167,7 +167,7 @@ function ResultsPage() {
               </p>
             </section>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3 print:hidden">
               <Link
                 to="/issue/$id"
                 params={{ id: issue.id }}
@@ -175,6 +175,12 @@ function ResultsPage() {
               >
                 View debate thread
               </Link>
+              <button
+                onClick={() => window.print()}
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium"
+              >
+                Print / Save as PDF
+              </button>
               <ShareButton
                 title={`Results: ${issue.title}`}
                 text="See how the community voted on this city issue."
@@ -185,6 +191,7 @@ function ResultsPage() {
                 url={`https://city-voice-forum.lovable.app/results/${issue.id}`}
               />
             </div>
+
           </>
         )}
       </main>

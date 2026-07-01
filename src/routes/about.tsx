@@ -102,7 +102,7 @@ function AboutPage() {
             View current polls
           </Link>
           <a
-            href="mailto:"
+            href="mailto:abhi.kotala561@gmail.com"
             className="rounded-md border border-border px-4 py-2 text-sm font-medium"
           >
             Contact the creator

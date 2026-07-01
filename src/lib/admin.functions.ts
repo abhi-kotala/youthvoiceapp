@@ -1,24 +1,86 @@
 import { createServerFn } from "@tanstack/react-start";
 
-function checkPasscode(passcode: string) {
-  const expected = process.env.ADMIN_PASSCODE;
-  if (!expected) throw new Error("Admin passcode not configured");
-  if (passcode !== expected) throw new Error("Invalid passcode");
+const SESSION_TTL_HOURS = 8;
+
+async function getAdmin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
 }
 
-export const adminVerify = createServerFn({ method: "POST" })
+async function checkSession(token: string) {
+  if (!token) throw new Error("Not signed in");
+  const admin = await getAdmin();
+  const { data, error } = await admin
+    .from("admin_sessions")
+    .select("token, expires_at")
+    .eq("token", token)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Session expired");
+  if (new Date(data.expires_at).getTime() < Date.now()) {
+    await admin.from("admin_sessions").delete().eq("token", token);
+    throw new Error("Session expired");
+  }
+}
+
+function randomToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function timingSafeEqualStr(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}
+
+export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((d: { passcode: string }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
+    const expected = process.env.ADMIN_PASSCODE;
+    if (!expected) throw new Error("Admin passcode not configured");
+    if (!timingSafeEqualStr(data.passcode, expected)) {
+      throw new Error("Invalid passcode");
+    }
+    const admin = await getAdmin();
+    const token = randomToken();
+    const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000).toISOString();
+    const { error } = await admin
+      .from("admin_sessions")
+      .insert({ token, expires_at: expiresAt });
+    if (error) throw new Error(error.message);
+    // Best-effort cleanup of expired rows.
+    await admin.from("admin_sessions").delete().lt("expires_at", new Date().toISOString());
+    return { token, expiresAt };
+  });
+
+export const adminVerify = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    return { ok: true };
+  });
+
+export const adminLogout = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    if (!data.token) return { ok: true };
+    const admin = await getAdmin();
+    await admin.from("admin_sessions").delete().eq("token", data.token);
     return { ok: true };
   });
 
 export const adminListReports = createServerFn({ method: "POST" })
-  .inputValidator((d: { passcode: string }) => d)
+  .inputValidator((d: { token: string }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: reports, error } = await supabaseAdmin
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: reports, error } = await admin
       .from("reports")
       .select("id, reason, created_at, comment_id, comments(id, body, stance, display_name, hidden, issue_id, issues(title))")
       .order("created_at", { ascending: false });
@@ -27,11 +89,11 @@ export const adminListReports = createServerFn({ method: "POST" })
   });
 
 export const adminSetCommentHidden = createServerFn({ method: "POST" })
-  .inputValidator((d: { passcode: string; commentId: string; hidden: boolean }) => d)
+  .inputValidator((d: { token: string; commentId: string; hidden: boolean }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { error } = await admin
       .from("comments")
       .update({ hidden: data.hidden })
       .eq("id", data.commentId);
@@ -40,21 +102,21 @@ export const adminSetCommentHidden = createServerFn({ method: "POST" })
   });
 
 export const adminDismissReport = createServerFn({ method: "POST" })
-  .inputValidator((d: { passcode: string; reportId: string }) => d)
+  .inputValidator((d: { token: string; reportId: string }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("reports").delete().eq("id", data.reportId);
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { error } = await admin.from("reports").delete().eq("id", data.reportId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 export const adminCreateIssue = createServerFn({ method: "POST" })
-  .inputValidator((d: { passcode: string; title: string; description: string; category: string }) => d)
+  .inputValidator((d: { token: string; title: string; description: string; category: string }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: row, error } = await admin
       .from("issues")
       .insert({
         title: data.title.trim(),
@@ -65,7 +127,6 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Fan out a push notification to all subscribers. Don't fail the request if push errors.
     try {
       const { broadcastPush } = await import("@/lib/fcm.server");
       await broadcastPush({
@@ -83,7 +144,7 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
 export const adminUpdateIssue = createServerFn({ method: "POST" })
   .inputValidator(
     (d: {
-      passcode: string;
+      token: string;
       id: string;
       title: string;
       description: string;
@@ -92,9 +153,9 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
     }) => d,
   )
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { error } = await admin
       .from("issues")
       .update({
         title: data.title.trim(),
@@ -108,11 +169,11 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
   });
 
 export const adminDeleteIssue = createServerFn({ method: "POST" })
-  .inputValidator((d: { passcode: string; id: string }) => d)
+  .inputValidator((d: { token: string; id: string }) => d)
   .handler(async ({ data }) => {
-    checkPasscode(data.passcode);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("issues").delete().eq("id", data.id);
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { error } = await admin.from("issues").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

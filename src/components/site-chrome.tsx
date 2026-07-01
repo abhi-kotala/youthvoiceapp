@@ -14,12 +14,19 @@ export function SiteHeader() {
         <div className="flex items-center gap-3">
           <NotificationsButton />
           <Link
+            to="/about"
+            className="hidden text-sm font-medium underline-offset-4 hover:underline sm:inline"
+          >
+            About
+          </Link>
+          <Link
             to="/"
             className="text-sm font-medium underline-offset-4 hover:underline"
           >
-            All Issues
+            Issues
           </Link>
         </div>
+
       </div>
     </header>
   );

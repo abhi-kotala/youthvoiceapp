@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import {
+  adminLogin,
   adminVerify,
+  adminLogout,
   adminListReports,
   adminSetCommentHidden,
   adminDismissReport,
@@ -12,7 +14,7 @@ import {
 } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
-const PASS_KEY = "civicvoice_admin_pass";
+const TOKEN_KEY = "civicvoice_admin_token";
 
 type Issue = {
   id: string;
@@ -47,20 +49,19 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
   const [passcode, setPasscode] = useState("");
-  const [authed, setAuthed] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const saved = typeof window !== "undefined" ? localStorage.getItem(PASS_KEY) : null;
+    const saved = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
     if (!saved) return;
     (async () => {
       try {
-        await adminVerify({ data: { passcode: saved } });
-        setPasscode(saved);
-        setAuthed(true);
+        await adminVerify({ data: { token: saved } });
+        setToken(saved);
       } catch {
-        localStorage.removeItem(PASS_KEY);
+        localStorage.removeItem(TOKEN_KEY);
       }
     })();
   }, []);
@@ -70,9 +71,10 @@ function AdminPage() {
     setBusy(true);
     setError(null);
     try {
-      await adminVerify({ data: { passcode } });
-      localStorage.setItem(PASS_KEY, passcode);
-      setAuthed(true);
+      const { token: t } = await adminLogin({ data: { passcode } });
+      localStorage.setItem(TOKEN_KEY, t);
+      setToken(t);
+      setPasscode("");
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -80,10 +82,17 @@ function AdminPage() {
     }
   }
 
-  function logout() {
-    localStorage.removeItem(PASS_KEY);
-    setPasscode("");
-    setAuthed(false);
+  async function logout() {
+    const t = token;
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    if (t) {
+      try {
+        await adminLogout({ data: { token: t } });
+      } catch {
+        /* ignore */
+      }
+    }
   }
 
   return (
@@ -92,7 +101,7 @@ function AdminPage() {
       <main className="mx-auto max-w-4xl px-4 py-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Admin</h1>
-          {authed && (
+          {token && (
             <button
               onClick={logout}
               className="text-sm text-muted-foreground hover:underline"
@@ -102,7 +111,7 @@ function AdminPage() {
           )}
         </div>
 
-        {!authed ? (
+        {!token ? (
           <form onSubmit={login} className="mt-6 max-w-sm rounded-lg border border-border bg-card p-5">
             <label className="text-sm font-medium">Admin passcode</label>
             <input
@@ -122,7 +131,7 @@ function AdminPage() {
             </button>
           </form>
         ) : (
-          <AdminDashboard passcode={passcode} />
+          <AdminDashboard token={token} />
         )}
       </main>
       <SiteFooter />
@@ -130,7 +139,7 @@ function AdminPage() {
   );
 }
 
-function AdminDashboard({ passcode }: { passcode: string }) {
+function AdminDashboard({ token }: { token: string }) {
   const [tab, setTab] = useState<"reports" | "issues">("reports");
   return (
     <div className="mt-6">
@@ -152,36 +161,36 @@ function AdminDashboard({ passcode }: { passcode: string }) {
       </div>
       <div className="mt-6">
         {tab === "reports" ? (
-          <ReportsPanel passcode={passcode} />
+          <ReportsPanel token={token} />
         ) : (
-          <IssuesPanel passcode={passcode} />
+          <IssuesPanel token={token} />
         )}
       </div>
     </div>
   );
 }
 
-function ReportsPanel({ passcode }: { passcode: string }) {
+function ReportsPanel({ token }: { token: string }) {
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const res = await adminListReports({ data: { passcode } });
+    const res = await adminListReports({ data: { token } });
     setReports((res.reports ?? []) as unknown as ReportRow[]);
     setLoading(false);
-  }, [passcode]);
+  }, [token]);
 
   useEffect(() => {
     reload();
   }, [reload]);
 
   async function hide(commentId: string, hidden: boolean) {
-    await adminSetCommentHidden({ data: { passcode, commentId, hidden } });
+    await adminSetCommentHidden({ data: { token, commentId, hidden } });
     reload();
   }
   async function dismiss(reportId: string) {
-    await adminDismissReport({ data: { passcode, reportId } });
+    await adminDismissReport({ data: { token, reportId } });
     reload();
   }
 
@@ -240,7 +249,7 @@ function ReportsPanel({ passcode }: { passcode: string }) {
   );
 }
 
-function IssuesPanel({ passcode }: { passcode: string }) {
+function IssuesPanel({ token }: { token: string }) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Issue | null>(null);
@@ -262,7 +271,7 @@ function IssuesPanel({ passcode }: { passcode: string }) {
 
   async function remove(id: string) {
     if (!window.confirm("Delete this issue? All votes and comments will also be removed.")) return;
-    await adminDeleteIssue({ data: { passcode, id } });
+    await adminDeleteIssue({ data: { token, id } });
     reload();
   }
 
@@ -282,7 +291,7 @@ function IssuesPanel({ passcode }: { passcode: string }) {
 
       {(creating || editing) && (
         <IssueForm
-          passcode={passcode}
+          token={token}
           initial={editing}
           onClose={() => {
             setCreating(false);
@@ -339,12 +348,12 @@ function IssuesPanel({ passcode }: { passcode: string }) {
 }
 
 function IssueForm({
-  passcode,
+  token,
   initial,
   onClose,
   onSaved,
 }: {
-  passcode: string;
+  token: string;
   initial: Issue | null;
   onClose: () => void;
   onSaved: () => void;
@@ -363,10 +372,10 @@ function IssueForm({
     try {
       if (initial) {
         await adminUpdateIssue({
-          data: { passcode, id: initial.id, title, description, category, status },
+          data: { token, id: initial.id, title, description, category, status },
         });
       } else {
-        await adminCreateIssue({ data: { passcode, title, description, category } });
+        await adminCreateIssue({ data: { token, title, description, category } });
       }
       onSaved();
     } catch (e) {

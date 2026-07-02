@@ -15,7 +15,7 @@ export function SiteHeader() {
           <NotificationsButton />
           <Link
             to="/about"
-            className="hidden text-sm font-medium underline-offset-4 hover:underline sm:inline"
+            className="text-sm font-medium underline-offset-4 hover:underline"
           >
             About
           </Link>

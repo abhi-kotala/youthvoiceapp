@@ -17,7 +17,7 @@ type Stance = "agree" | "disagree" | "neutral";
 export const Route = createFileRoute("/results/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: "Poll results — CivicVoice" },
+      { title: "Poll results — YouthVoice" },
       {
         name: "description",
         content:
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/results/$id")({
       },
       {
         property: "og:title",
-        content: "Poll results — CivicVoice",
+        content: "Poll results — YouthVoice",
       },
       {
         property: "og:description",

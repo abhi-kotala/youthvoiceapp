@@ -131,7 +131,7 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
     try {
       const { broadcastPush } = await import("@/lib/fcm.server");
       await broadcastPush({
-        title: "New issue on CivicVoice",
+        title: "New issue on YouthVoice",
         body: row.title,
         url: `/issue/${row.id}`,
       });

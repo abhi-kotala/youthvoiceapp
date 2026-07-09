@@ -171,7 +171,26 @@ function HomePage() {
                 {groups.map((g) =>
                   g.items.length === 0 ? null : (
                     <section key={g.name}>
-                      <h2 className="mb-4 text-xl font-semibold">{g.name}</h2>
+                      <div className="relative mb-4 overflow-hidden rounded-xl border border-border">
+                        <img
+                          src={CITY_META[g.name].img}
+                          alt={`${g.name} illustration`}
+                          loading="lazy"
+                          width={1280}
+                          height={640}
+                          className="h-32 w-full object-cover sm:h-40"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/40 to-transparent" />
+                        <div className="absolute inset-0 flex flex-col justify-center px-5">
+                          <h2 className="text-2xl font-bold tracking-tight">
+                            {CITY_META[g.name].emoji} {g.name}
+                          </h2>
+                          <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                            {CITY_META[g.name].tagline} · {g.items.length}{" "}
+                            {g.items.length === 1 ? "issue" : "issues"} open
+                          </p>
+                        </div>
+                      </div>
                       <ul className="grid gap-4 sm:grid-cols-2">
                         {g.items.map((i) => {
                           const t =

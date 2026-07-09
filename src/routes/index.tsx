@@ -86,23 +86,46 @@ function HomePage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      <section className="border-b border-border bg-secondary">
-        <div className="mx-auto max-w-5xl px-4 py-12">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-            For people who can't vote yet
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            There are issues happening in our city.
-            <br />
-            Make your voice heard.
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 grid grid-cols-3 opacity-40">
+          <img src={fargoImg} alt="" className="h-full w-full object-cover" />
+          <img src={westFargoImg} alt="" className="h-full w-full object-cover" />
+          <img src={moorheadImg} alt="" className="h-full w-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-20">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent backdrop-blur">
+            <span>👋</span> Hey Fargo–Moorhead
+          </div>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+            Your city.{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Your voice.
+            </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-            Vote on real political proposals in our community, debate them in a
-            structured thread, and we'll deliver the results to the city council
-            and mayor.
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Vote on the real issues shaping Fargo, West Fargo, and Moorhead —
+            debate them with your neighbors, and we'll hand the results
+            straight to the city council and mayor. No accounts. No noise.
+            Just your voice.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {(["Fargo", "West Fargo", "Moorhead"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => {
+                  setCity(c);
+                  document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                {CITY_META[c].emoji} {c}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
+
 
       <main className="mx-auto max-w-5xl px-4 py-10">
         <div className="mb-6 flex flex-wrap items-center gap-2">

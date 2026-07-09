@@ -43,7 +43,7 @@ type ReportRow = {
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
-    meta: [{ title: "Admin — CivicVoice" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Admin — YouthVoice" }, { name: "robots", content: "noindex" }],
   }),
   component: AdminPage,
 });

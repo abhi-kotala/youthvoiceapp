@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import fargoImg from "@/assets/city-fargo.jpg";
+import westFargoImg from "@/assets/city-west-fargo.jpg";
+import moorheadImg from "@/assets/city-moorhead.jpg";
 
 type Issue = {
   id: string;
@@ -15,7 +18,17 @@ type Issue = {
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
 
+const CITY_META: Record<
+  "Fargo" | "West Fargo" | "Moorhead",
+  { img: string; emoji: string; tagline: string }
+> = {
+  Fargo: { img: fargoImg, emoji: "🎭", tagline: "Downtown, the theatre, and everything in between." },
+  "West Fargo": { img: westFargoImg, emoji: "🌳", tagline: "Growing neighborhoods and community spaces." },
+  Moorhead: { img: moorheadImg, emoji: "🍂", tagline: "Across the river, campuses and community." },
+};
+
 type Tally = { agree: number; disagree: number; neutral: number; total: number };
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -73,26 +86,50 @@ function HomePage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      <section className="border-b border-border bg-secondary">
-        <div className="mx-auto max-w-5xl px-4 py-12">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-            For people who can't vote yet
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            There are issues happening in our city.
-            <br />
-            Make your voice heard.
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 grid grid-cols-3 opacity-40">
+          <img src={fargoImg} alt="" className="h-full w-full object-cover" />
+          <img src={westFargoImg} alt="" className="h-full w-full object-cover" />
+          <img src={moorheadImg} alt="" className="h-full w-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-20">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent backdrop-blur">
+            <span>👋</span> Hey Fargo–Moorhead
+          </div>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+            Your city.{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Your voice.
+            </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-            Vote on real political proposals in our community, debate them in a
-            structured thread, and we'll deliver the results to the city council
-            and mayor.
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Vote on the real issues shaping Fargo, West Fargo, and Moorhead —
+            debate them with your neighbors, and we'll hand the results
+            straight to the city council and mayor. No accounts. No noise.
+            Just your voice.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {(["Fargo", "West Fargo", "Moorhead"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => {
+                  setCity(c);
+                  document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                {CITY_META[c].emoji} {c}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
+
+      <main id="issues" className="mx-auto max-w-5xl px-4 py-10">
         <div className="mb-6 flex flex-wrap items-center gap-2">
+
           {CITIES.map((c) => {
             const count =
               c === "All" ? issues.length : issues.filter((i) => i.city === c).length;
@@ -134,7 +171,26 @@ function HomePage() {
                 {groups.map((g) =>
                   g.items.length === 0 ? null : (
                     <section key={g.name}>
-                      <h2 className="mb-4 text-xl font-semibold">{g.name}</h2>
+                      <div className="relative mb-4 overflow-hidden rounded-xl border border-border">
+                        <img
+                          src={CITY_META[g.name].img}
+                          alt={`${g.name} illustration`}
+                          loading="lazy"
+                          width={1280}
+                          height={640}
+                          className="h-32 w-full object-cover sm:h-40"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/40 to-transparent" />
+                        <div className="absolute inset-0 flex flex-col justify-center px-5">
+                          <h2 className="text-2xl font-bold tracking-tight">
+                            {CITY_META[g.name].emoji} {g.name}
+                          </h2>
+                          <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                            {CITY_META[g.name].tagline} · {g.items.length}{" "}
+                            {g.items.length === 1 ? "issue" : "issues"} open
+                          </p>
+                        </div>
+                      </div>
                       <ul className="grid gap-4 sm:grid-cols-2">
                         {g.items.map((i) => {
                           const t =

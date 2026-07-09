@@ -112,7 +112,7 @@ export const adminDismissReport = createServerFn({ method: "POST" })
   });
 
 export const adminCreateIssue = createServerFn({ method: "POST" })
-  .inputValidator((d: { token: string; title: string; description: string; category: string }) => d)
+  .inputValidator((d: { token: string; title: string; description: string; category: string; city?: string }) => d)
   .handler(async ({ data }) => {
     await checkSession(data.token);
     const admin = await getAdmin();
@@ -122,6 +122,7 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
         title: data.title.trim(),
         description: data.description.trim(),
         category: data.category.trim() || "General",
+        city: (data.city ?? "Fargo").trim() || "Fargo",
       })
       .select()
       .single();
@@ -150,6 +151,7 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
       description: string;
       category: string;
       status: string;
+      city?: string;
     }) => d,
   )
   .handler(async ({ data }) => {
@@ -162,6 +164,7 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
         description: data.description.trim(),
         category: data.category.trim() || "General",
         status: data.status,
+        city: (data.city ?? "Fargo").trim() || "Fargo",
       })
       .eq("id", data.id);
     if (error) throw new Error(error.message);

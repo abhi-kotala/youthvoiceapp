@@ -22,6 +22,7 @@ type Issue = {
   description: string;
   category: string;
   status: string;
+  city: string;
 };
 
 type ReportRow = {
@@ -259,7 +260,7 @@ function IssuesPanel({ token }: { token: string }) {
     setLoading(true);
     const { data } = await supabase
       .from("issues")
-      .select("id, title, description, category, status")
+      .select("id, title, description, category, status, city")
       .order("created_at", { ascending: false });
     setIssues((data ?? []) as Issue[]);
     setLoading(false);
@@ -314,7 +315,7 @@ function IssuesPanel({ token }: { token: string }) {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-accent">
-                    {i.category} · {i.status}
+                    {i.category} · {i.city} · {i.status}
                   </div>
                   <h3 className="mt-1 font-semibold">{i.title}</h3>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
@@ -362,6 +363,7 @@ function IssueForm({
   const [description, setDescription] = useState(initial?.description ?? "");
   const [category, setCategory] = useState(initial?.category ?? "General");
   const [status, setStatus] = useState(initial?.status ?? "open");
+  const [city, setCity] = useState(initial?.city ?? "Fargo");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -372,10 +374,10 @@ function IssueForm({
     try {
       if (initial) {
         await adminUpdateIssue({
-          data: { token, id: initial.id, title, description, category, status },
+          data: { token, id: initial.id, title, description, category, status, city },
         });
       } else {
-        await adminCreateIssue({ data: { token, title, description, category } });
+        await adminCreateIssue({ data: { token, title, description, category, city } });
       }
       onSaved();
     } catch (e) {
@@ -406,6 +408,15 @@ function IssueForm({
           placeholder="Category (e.g. Transportation)"
           className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="Fargo">Fargo</option>
+          <option value="West Fargo">West Fargo</option>
+          <option value="Moorhead">Moorhead</option>
+        </select>
         {initial && (
           <select
             value={status}

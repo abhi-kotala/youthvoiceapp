@@ -127,8 +127,9 @@ function HomePage() {
       </section>
 
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
+      <main id="issues" className="mx-auto max-w-5xl px-4 py-10">
         <div className="mb-6 flex flex-wrap items-center gap-2">
+
           {CITIES.map((c) => {
             const count =
               c === "All" ? issues.length : issues.filter((i) => i.city === c).length;

@@ -92,43 +92,89 @@ function HomePage() {
       </section>
 
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h2 className="mb-4 text-xl font-semibold">Open issues</h2>
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {CITIES.map((c) => {
+            const count =
+              c === "All" ? issues.length : issues.filter((i) => i.city === c).length;
+            const active = city === c;
+            return (
+              <button
+                key={c}
+                onClick={() => setCity(c)}
+                className={[
+                  "rounded-full border px-3 py-1 text-sm font-medium transition",
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:bg-secondary",
+                ].join(" ")}
+              >
+                {c} <span className="ml-1 opacity-70">{count}</span>
+              </button>
+            );
+          })}
+        </div>
 
         {loading ? (
           <p className="text-muted-foreground">Loading issues…</p>
-        ) : issues.length === 0 ? (
-          <p className="text-muted-foreground">No issues yet.</p>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {issues.map((i) => {
-              const t = tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 };
-              return (
-                <li key={i.id}>
-                  <Link
-                    to="/issue/$id"
-                    params={{ id: i.id }}
-                    className="block h-full rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md"
-                  >
-                    <div className="text-xs font-semibold uppercase tracking-wider text-accent">
-                      {i.category}
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold leading-snug">
-                      {i.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                      {i.description}
-                    </p>
-                    <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{t.total} {t.total === 1 ? "vote" : "votes"}</span>
-                      <span className="font-medium text-primary">Weigh in →</span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          (() => {
+            const groups =
+              city === "All"
+                ? (["Fargo", "West Fargo", "Moorhead"] as const).map((name) => ({
+                    name,
+                    items: issues.filter((i) => i.city === name),
+                  }))
+                : [{ name: city, items: issues.filter((i) => i.city === city) }];
+            const anyItems = groups.some((g) => g.items.length > 0);
+            if (!anyItems) {
+              return <p className="text-muted-foreground">No issues yet for {city}.</p>;
+            }
+            return (
+              <div className="space-y-10">
+                {groups.map((g) =>
+                  g.items.length === 0 ? null : (
+                    <section key={g.name}>
+                      <h2 className="mb-4 text-xl font-semibold">{g.name}</h2>
+                      <ul className="grid gap-4 sm:grid-cols-2">
+                        {g.items.map((i) => {
+                          const t =
+                            tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 };
+                          return (
+                            <li key={i.id}>
+                              <Link
+                                to="/issue/$id"
+                                params={{ id: i.id }}
+                                className="block h-full rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md"
+                              >
+                                <div className="text-xs font-semibold uppercase tracking-wider text-accent">
+                                  {i.category} · {i.city}
+                                </div>
+                                <h3 className="mt-2 text-lg font-semibold leading-snug">
+                                  {i.title}
+                                </h3>
+                                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                                  {i.description}
+                                </p>
+                                <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                                  <span>
+                                    {t.total} {t.total === 1 ? "vote" : "votes"}
+                                  </span>
+                                  <span className="font-medium text-primary">Weigh in →</span>
+                                </div>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  ),
+                )}
+              </div>
+            );
+          })()
         )}
       </main>
+
 
       <SiteFooter />
     </div>

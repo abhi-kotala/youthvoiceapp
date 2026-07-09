@@ -8,8 +8,12 @@ type Issue = {
   title: string;
   description: string;
   category: string;
+  city: string;
   created_at: string;
 };
+
+const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
+type CityFilter = (typeof CITIES)[number];
 
 type Tally = { agree: number; disagree: number; neutral: number; total: number };
 
@@ -41,6 +45,7 @@ function HomePage() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [tallies, setTallies] = useState<Record<string, Tally>>({});
   const [loading, setLoading] = useState(true);
+  const [city, setCity] = useState<CityFilter>("All");
 
   useEffect(() => {
     (async () => {
@@ -48,7 +53,7 @@ function HomePage() {
         .from("issues")
         .select("*")
         .order("created_at", { ascending: false });
-      setIssues(rows ?? []);
+      setIssues((rows ?? []) as Issue[]);
 
       const { data: voteRows } = await supabase
         .from("votes")

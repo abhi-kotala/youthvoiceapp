@@ -7,7 +7,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <Link to="/" className="flex items-baseline gap-2">
           <span className="font-display text-2xl font-extrabold tracking-tight">
-            Civic<span className="text-accent">Voice</span>
+            Youth<span className="text-accent">Voice</span>
           </span>
           <span className="hidden text-xs uppercase tracking-widest opacity-70 sm:inline">
             Under-18 Poll

@@ -37,7 +37,7 @@ const STANCE_CLASSES: Record<Stance, string> = {
 export const Route = createFileRoute("/issue/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: "Vote on this city issue — YouthVoice" },
+      { title: "Vote on this city issue — Youth Voice" },
       {
         name: "description",
         content:
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/issue/$id")({
       },
       {
         property: "og:title",
-        content: "Vote on this city issue — YouthVoice",
+        content: "Vote on this city issue — Youth Voice",
       },
       {
         property: "og:description",
@@ -258,7 +258,7 @@ function IssuePage() {
               </Link>
               <ShareButton
                 title={issue.title}
-                text="Vote and debate on this city issue on YouthVoice."
+                text="Vote and debate on this city issue on Youth Voice."
                 url={`https://city-voice-forum.lovable.app/issue/${issue.id}`}
                 variant="outline"
                 className="text-xs px-3 py-1.5"

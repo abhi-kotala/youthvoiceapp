@@ -77,11 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "YouthVoice — Where under-18s weigh in on city issues" },
+      { title: "Youth Voice — Where under-18s weigh in on city issues" },
       { name: "description", content: "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor." },
       { name: "google-site-verification", content: "tJZNB1qnzhhZde7G3eL2_onTGiAQSxKw8PHBAPR23vU" },
-      { name: "author", content: "YouthVoice" },
-      { property: "og:title", content: "YouthVoice — Where under-18s weigh in on city issues" },
+      { name: "author", content: "Youth Voice" },
+      { property: "og:title", content: "Youth Voice — Where under-18s weigh in on city issues" },
       { property: "og:description", content: "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -89,7 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0ea5e9" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "YouthVoice" },
+      { name: "apple-mobile-web-app-title", content: "Youth Voice" },
     ],
     links: [
       {

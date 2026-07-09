@@ -4,17 +4,17 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About YouthVoice — For city officials" },
+      { title: "About Youth Voice — For city officials" },
       {
         name: "description",
         content:
-          "YouthVoice is a nonpartisan platform that gives under-18 residents of Fargo, West Fargo, and Moorhead a way to weigh in on local issues. Built for city officials to hear from the next generation of voters.",
+          "Youth Voice is a nonpartisan platform that gives under-18 residents of Fargo, West Fargo, and Moorhead a way to weigh in on local issues. Built for city officials to hear from the next generation of voters.",
       },
-      { property: "og:title", content: "About YouthVoice — For city officials" },
+      { property: "og:title", content: "About Youth Voice — For city officials" },
       {
         property: "og:description",
         content:
-          "How the YouthVoice under-18 poll works, and how results reach the city council and mayor's office.",
+          "How the Youth Voice under-18 poll works, and how results reach the city council and mayor's office.",
       },
       { property: "og:url", content: "https://city-voice-forum.lovable.app/about" },
     ],
@@ -35,7 +35,7 @@ function AboutPage() {
           A voice for the residents who can't vote yet.
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          YouthVoice is a nonpartisan community poll built by a Fargo/West
+          Youth Voice is a nonpartisan community poll built by a Fargo/West
           Fargo high schooler. It gives under-18 residents a structured way
           to weigh in on the local issues shaping their city — and delivers
           those results directly to the officials making the decisions.
@@ -78,7 +78,7 @@ function AboutPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Roughly 22% of Fargo's population is under 18. They can't vote,
             but they ride the buses, walk the sidewalks, and live under
-            every policy passed today. YouthVoice makes their input
+            every policy passed today. Youth Voice makes their input
             legible and easy to consider alongside the rest of the public
             record.
           </p>

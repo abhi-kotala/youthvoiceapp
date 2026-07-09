@@ -33,13 +33,13 @@ type Tally = { agree: number; disagree: number; neutral: number; total: number }
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "YouthVoice — Where under-18s weigh in on city issues" },
+      { title: "Youth Voice — Where under-18s weigh in on city issues" },
       {
         name: "description",
         content:
           "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor.",
       },
-      { property: "og:title", content: "YouthVoice — Under-18 city polls" },
+      { property: "og:title", content: "Youth Voice — Under-18 city polls" },
       {
         property: "og:description",
         content:

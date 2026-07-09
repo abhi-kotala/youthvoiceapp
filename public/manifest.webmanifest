@@ -1,6 +1,6 @@
 {
-  "name": "CivicVoice — Where under-18s weigh in on city issues",
-  "short_name": "CivicVoice",
+  "name": "YouthVoice — Where under-18s weigh in on city issues",
+  "short_name": "YouthVoice",
   "description": "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor.",
   "start_url": "/",
   "scope": "/",

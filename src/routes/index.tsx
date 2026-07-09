@@ -45,10 +45,15 @@ export const Route = createFileRoute("/")({
         content:
           "Can't vote yet? You can still be heard. Weigh in on the issues shaping our city.",
       },
-      { property: "og:url", content: "https://city-voice-forum.lovable.app/" },
+      { property: "og:url", content: "https://youthvoiceapp.lovable.app/" },
+      { property: "og:image", content: "https://youthvoiceapp.lovable.app/icon-512.png" },
+      { property: "og:image:width", content: "512" },
+      { property: "og:image:height", content: "512" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/icon-512.png" },
     ],
     links: [
-      { rel: "canonical", href: "https://city-voice-forum.lovable.app/" },
+      { rel: "canonical", href: "https://youthvoiceapp.lovable.app/" },
     ],
   }),
   component: HomePage,

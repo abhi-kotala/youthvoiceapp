@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/chat")({
         const result = streamText({
           model: gateway("openai/gpt-5.5"),
           system: SYSTEM_PROMPT,
-          messages: convertToModelMessages(messages as UIMessage[]),
+          messages: await convertToModelMessages(messages as UIMessage[]),
         });
 
         return result.toUIMessageStreamResponse({

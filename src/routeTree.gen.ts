@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -46,12 +47,18 @@ const IssueIdRoute = IssueIdRouteImport.update({
   path: '/issue/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/sitemap.xml'
+    | '/api/chat'
     | '/issue/$id'
     | '/results/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/admin' | '/sitemap.xml' | '/issue/$id' | '/results/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/sitemap.xml'
+    | '/api/chat'
+    | '/issue/$id'
+    | '/results/$id'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/admin'
     | '/sitemap.xml'
+    | '/api/chat'
     | '/issue/$id'
     | '/results/$id'
   fileRoutesById: FileRoutesById
@@ -98,6 +116,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiChatRoute: typeof ApiChatRoute
   IssueIdRoute: typeof IssueIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
 }
@@ -146,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IssueIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -154,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiChatRoute: ApiChatRoute,
   IssueIdRoute: IssueIdRoute,
   ResultsIdRoute: ResultsIdRoute,
 }

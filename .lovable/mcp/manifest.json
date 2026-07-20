@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "youth-voice-mcp",
+      "version": "0.1.0",
+      "title": "Youth Voice"
+    },
+    "tools": [
+      {
+        "name": "list_issues",
+        "title": "List issues",
+        "description": "List public civic issues on Youth Voice. Optionally filter by city (Fargo, West Fargo, Moorhead) or status (open, closed).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "city": {
+              "description": "Filter issues by city.",
+              "type": "string",
+              "enum": [
+                "Fargo",
+                "West Fargo",
+                "Moorhead"
+              ]
+            },
+            "status": {
+              "description": "Filter issues by status.",
+              "type": "string",
+              "enum": [
+                "open",
+                "closed"
+              ]
+            },
+            "limit": {
+              "description": "Max results (default 50).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_issue",
+        "title": "Get issue with poll results",
+        "description": "Fetch one civic issue by id, along with its aggregated poll tallies (agree, disagree, neutral).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "issue_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Issue UUID."
+            }
+          },
+          "required": [
+            "issue_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_comments",
+        "title": "List debate comments",
+        "description": "List visible (non-hidden) debate comments for a specific issue on Youth Voice. Returns each comment's stance, body, display name, and timestamp.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "issue_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Issue UUID."
+            },
+            "limit": {
+              "description": "Max results (default 100).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "issue_id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

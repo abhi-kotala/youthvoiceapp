@@ -15,35 +15,33 @@ type Issue = {
 type Stance = "agree" | "disagree" | "neutral";
 
 export const Route = createFileRoute("/results/$id")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Poll results — Youth Voice" },
-      {
-        name: "description",
-        content:
-          "See how the community voted and read the debate. Results shared with the city council and mayor.",
-      },
-      {
-        property: "og:title",
-        content: "Poll results — Youth Voice",
-      },
-      {
-        property: "og:description",
-        content:
-          "See how the community voted and read the debate. Results shared with the city council and mayor.",
-      },
-      {
-        property: "og:url",
-        content: `https://city-voice-forum.lovable.app/results/${params.id}`,
-      },
-    ],
-    links: [
-      {
-        rel: "canonical",
-        href: `https://city-voice-forum.lovable.app/results/${params.id}`,
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("issues")
+      .select("id, title")
+      .eq("id", params.id)
+      .maybeSingle();
+    return { issue: data as { id: string; title: string } | null };
+  },
+  head: ({ params, loaderData }) => {
+    const base = loaderData?.issue?.title ?? "Poll results";
+    const short = base.length > 45 ? base.slice(0, 42) + "…" : base;
+    const pageTitle = `Results: ${short} — Youth Voice`.slice(0, 60);
+    const desc =
+      "See how the community voted and read the debate. Results shared with the city council and mayor.";
+    const url = `https://youthvoiceapp.lovable.app/results/${params.id}`;
+    return {
+      meta: [
+        { title: pageTitle },
+        { name: "description", content: desc },
+        { property: "og:title", content: pageTitle },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ResultsPage,
 });
 

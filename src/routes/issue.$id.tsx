@@ -296,17 +296,27 @@ function IssuePage() {
                 </button>
               ))}
             </div>
+            <label htmlFor="composer-name" className="sr-only">
+              Display name (optional)
+            </label>
             <input
+              id="composer-name"
               value={composerName}
               onChange={(e) => setComposerName(e.target.value)}
               placeholder="Display name (optional)"
+              aria-label="Display name (optional)"
               maxLength={40}
               className="mt-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
+            <label htmlFor="composer-body" className="sr-only">
+              Share your argument
+            </label>
             <textarea
+              id="composer-body"
               value={composerBody}
               onChange={(e) => setComposerBody(e.target.value)}
               placeholder="Share your argument…"
+              aria-label="Share your argument"
               maxLength={1000}
               rows={3}
               className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"

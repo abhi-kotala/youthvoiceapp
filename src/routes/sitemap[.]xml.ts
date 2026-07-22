@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
-const BASE_URL = "https://city-voice-forum.lovable.app";
+const BASE_URL = "https://youthvoiceapp.lovable.app";
 
 interface SitemapEntry {
   path: string;
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/about", changefreq: "monthly", priority: "0.7" },
+          { path: "/guide/get-involved", changefreq: "monthly", priority: "0.7" },
         ];
 
 

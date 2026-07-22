@@ -8,7 +8,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Youth Voice is a nonpartisan platform that gives under-18 residents of Fargo, West Fargo, and Moorhead a way to weigh in on local issues. Built for city officials to hear from the next generation of voters.",
+          "Nonpartisan under-18 poll for Fargo, West Fargo, and Moorhead. Results delivered to city council and mayors.",
       },
       { property: "og:title", content: "About Youth Voice — For city officials" },
       {
@@ -16,9 +16,23 @@ export const Route = createFileRoute("/about")({
         content:
           "How the Youth Voice under-18 poll works, and how results reach the city council and mayor's office.",
       },
-      { property: "og:url", content: "https://city-voice-forum.lovable.app/about" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://youthvoiceapp.lovable.app/about" },
     ],
-    links: [{ rel: "canonical", href: "https://city-voice-forum.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://youthvoiceapp.lovable.app/about" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "About Youth Voice",
+          url: "https://youthvoiceapp.lovable.app/about",
+          description:
+            "Nonpartisan under-18 poll for Fargo, West Fargo, and Moorhead. Results delivered to city council and mayors.",
+        }),
+      },
+    ],
   }),
   component: AboutPage,
 });

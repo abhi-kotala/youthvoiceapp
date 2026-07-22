@@ -35,35 +35,49 @@ const STANCE_CLASSES: Record<Stance, string> = {
 };
 
 export const Route = createFileRoute("/issue/$id")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Vote on this city issue — Youth Voice" },
-      {
-        name: "description",
-        content:
-          "Cast your vote and join the structured debate. Your voice goes straight to the city council.",
-      },
-      {
-        property: "og:title",
-        content: "Vote on this city issue — Youth Voice",
-      },
-      {
-        property: "og:description",
-        content:
-          "Cast your vote and join the structured debate. Your voice goes straight to the city council.",
-      },
-      {
-        property: "og:url",
-        content: `https://city-voice-forum.lovable.app/issue/${params.id}`,
-      },
-    ],
-    links: [
-      {
-        rel: "canonical",
-        href: `https://city-voice-forum.lovable.app/issue/${params.id}`,
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("issues")
+      .select("id, title, description")
+      .eq("id", params.id)
+      .maybeSingle();
+    return { issue: data as { id: string; title: string; description: string } | null };
+  },
+  head: ({ params, loaderData }) => {
+    const title = loaderData?.issue?.title ?? "City issue";
+    const shortTitle =
+      title.length > 50 ? title.slice(0, 47) + "…" : title;
+    const pageTitle = `${shortTitle} — Youth Voice`;
+    const desc =
+      loaderData?.issue?.description?.slice(0, 155) ??
+      "Cast your vote and join the structured debate. Your voice goes straight to the city council.";
+    const url = `https://youthvoiceapp.lovable.app/issue/${params.id}`;
+    return {
+      meta: [
+        { title: pageTitle.slice(0, 60) },
+        { name: "description", content: desc },
+        { property: "og:title", content: pageTitle.slice(0, 60) },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: loaderData?.issue
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "DiscussionForumPosting",
+                headline: loaderData.issue.title,
+                articleBody: loaderData.issue.description,
+                url,
+              }),
+            },
+          ]
+        : [],
+    };
+  },
   component: IssuePage,
 });
 
@@ -296,17 +310,27 @@ function IssuePage() {
                 </button>
               ))}
             </div>
+            <label htmlFor="composer-name" className="sr-only">
+              Display name (optional)
+            </label>
             <input
+              id="composer-name"
               value={composerName}
               onChange={(e) => setComposerName(e.target.value)}
               placeholder="Display name (optional)"
+              aria-label="Display name (optional)"
               maxLength={40}
               className="mt-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
+            <label htmlFor="composer-body" className="sr-only">
+              Share your argument
+            </label>
             <textarea
+              id="composer-body"
               value={composerBody}
               onChange={(e) => setComposerBody(e.target.value)}
               placeholder="Share your argument…"
+              aria-label="Share your argument"
               maxLength={1000}
               rows={3}
               className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"

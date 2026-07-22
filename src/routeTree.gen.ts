@@ -16,6 +16,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
+import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involved'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -56,6 +57,11 @@ const IssueIdRoute = IssueIdRouteImport.update({
   path: '/issue/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideGetInvolvedRoute = GuideGetInvolvedRouteImport.update({
+  id: '/guide/get-involved',
+  path: '/guide/get-involved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
   IssueIdRoute: typeof IssueIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IssueIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guide/get-involved': {
+      id: '/guide/get-involved'
+      path: '/guide/get-involved'
+      fullPath: '/guide/get-involved'
+      preLoaderRoute: typeof GuideGetInvolvedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -268,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  GuideGetInvolvedRoute: GuideGetInvolvedRoute,
   IssueIdRoute: IssueIdRoute,
   ResultsIdRoute: ResultsIdRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,

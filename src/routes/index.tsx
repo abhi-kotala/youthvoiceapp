@@ -1,10 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { CountUp } from "@/components/count-up";
 import fargoImg from "@/assets/city-fargo.jpg";
 import westFargoImg from "@/assets/city-west-fargo.jpg";
 import moorheadImg from "@/assets/city-moorhead.jpg";
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  School: "🏫",
+  Education: "🏫",
+  Transportation: "🚦",
+  Parks: "🌳",
+  Environment: "🌳",
+  Taxes: "💰",
+  Economy: "💰",
+  Economic: "💰",
+  Healthcare: "🏥",
+  Health: "🏥",
+  "Public Safety": "🚔",
+  Safety: "🚔",
+  Community: "🎭",
+  "Community Events": "🎭",
+  Ideas: "💡",
+  Government: "⚖️",
+  Housing: "🏠",
+  General: "📌",
+};
+const catEmoji = (c: string) => CATEGORY_EMOJI[c] ?? "📌";
+
 
 type Issue = {
   id: string;

@@ -117,13 +117,6 @@ function HomePage() {
     );
   }, [issues, tallies]);
 
-  const featured = useMemo(() => {
-    if (issues.length === 0) return null;
-    return [...issues].sort(
-      (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
-    )[0];
-  }, [issues, tallies]);
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = issues.filter(
@@ -269,24 +262,6 @@ function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* FEATURED */}
-      {featured && (
-        <section className="border-b border-border bg-secondary/40">
-          <div className="mx-auto max-w-5xl px-4 py-10">
-            <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
-              <span aria-hidden>⭐</span> Featured this week
-            </div>
-            <IssueCard
-              issue={featured}
-              tally={tallies[featured.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
-              commentCount={commentCounts[featured.id] ?? 0}
-              trending={trendingIds.has(featured.id)}
-              variant="featured"
-            />
-          </div>
-        </section>
-      )}
 
       {/* ISSUES */}
       <main id="issues" className="mx-auto max-w-5xl px-4 py-10">

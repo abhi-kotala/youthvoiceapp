@@ -117,13 +117,6 @@ function HomePage() {
     );
   }, [issues, tallies]);
 
-  const featured = useMemo(() => {
-    if (issues.length === 0) return null;
-    return [...issues].sort(
-      (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
-    )[0];
-  }, [issues, tallies]);
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = issues.filter(

@@ -148,6 +148,8 @@ function IssuePage() {
     if (typeof window !== "undefined") localStorage.setItem(myVoteKey, choice);
     const { castVote: castVoteFn } = await import("@/lib/votes.functions");
     await castVoteFn({ data: { issueId: id, deviceId, choice } });
+    const { awardImpact } = await import("@/lib/impact.functions");
+    awardImpact({ data: { deviceId, action: "vote", refType: "issue", refId: id } }).catch(() => {});
     reload();
   }
 
@@ -155,13 +157,19 @@ function IssuePage() {
     e.preventDefault();
     if (!composerBody.trim()) return;
     setPosting(true);
-    await supabase.from("comments").insert({
+    const body = composerBody.trim();
+    const { data: inserted } = await supabase.from("comments").insert({
       issue_id: id,
       device_id: deviceId,
       display_name: composerName.trim() || "Anonymous",
       stance: composerStance,
-      body: composerBody.trim(),
-    });
+      body,
+    }).select("id").maybeSingle();
+    const { awardImpact } = await import("@/lib/impact.functions");
+    const action = body.length >= 80 ? "constructive_comment" : "comment";
+    awardImpact({
+      data: { deviceId, action, refType: "comment", refId: inserted?.id ?? `${id}:${Date.now()}` },
+    }).catch(() => {});
     setComposerBody("");
     setPosting(false);
     reload();

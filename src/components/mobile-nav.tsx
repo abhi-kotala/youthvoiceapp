@@ -6,6 +6,7 @@ import { NotificationsButton } from "@/components/notifications-button";
 const NAV_LINKS = [
   { to: "/", label: "Issues" },
   { to: "/map", label: "Map" },
+  { to: "/my-impact", label: "My Impact" },
   { to: "/newsletter", label: "Newsletter" },
   { to: "/about", label: "About" },
 ];

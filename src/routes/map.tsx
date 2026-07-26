@@ -154,23 +154,7 @@ function MapPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    Most popular issue
-                  </div>
-                  {s.topIssue && s.topIssue.votes > 0 ? (
-                    <Link
-                      to="/issue/$id"
-                      params={{ id: s.topIssue.id }}
-                      className="mt-1 block font-semibold leading-snug text-foreground hover:text-primary"
-                    >
-                      {s.topIssue.title}
-                    </Link>
-                  ) : (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      No votes here yet — be the first.
-                    </p>
-                  )}
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{s.issues} active issues</span>
                     <Link
                       to="/"

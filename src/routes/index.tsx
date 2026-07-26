@@ -37,13 +37,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor.",
+          "Youth Voice: a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local city issues; results are shared with the city council and mayor.",
       },
-      { property: "og:title", content: "Youth Voice — Under-18 city polls" },
+      { property: "og:title", content: "Youth Voice — Under-18 city polls for Fargo-Moorhead" },
       {
         property: "og:description",
         content:
-          "Can't vote yet? You can still be heard. Weigh in on the issues shaping our city.",
+          "Free, anonymous polls for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local issues; results go to city council and the mayor.",
       },
       { property: "og:url", content: "https://youthvoiceapp.lovable.app/" },
       { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
@@ -99,7 +99,7 @@ function HomePage() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
             <span>👋</span> Hey Fargo–Moorhead
           </div>
           <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
@@ -207,7 +207,7 @@ function HomePage() {
                                 params={{ id: i.id }}
                                 className="block h-full rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md"
                               >
-                                <div className="text-xs font-semibold uppercase tracking-wider text-accent">
+                                <div className="text-xs font-semibold uppercase tracking-wider text-primary">
                                   {i.category} · {i.city}
                                 </div>
                                 <h3 className="mt-2 text-lg font-semibold leading-snug">

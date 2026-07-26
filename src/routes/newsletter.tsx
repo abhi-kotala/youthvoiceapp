@@ -106,7 +106,9 @@ export const Route = createFileRoute("/newsletter")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://youthvoiceapp.lovable.app/newsletter" },
+      { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
     ],
     links: [{ rel: "canonical", href: "https://youthvoiceapp.lovable.app/newsletter" }],
   }),
@@ -125,7 +127,7 @@ function NewsletterPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-10">
         <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
             📰 Newsletter
           </div>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">

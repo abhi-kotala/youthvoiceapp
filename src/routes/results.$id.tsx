@@ -38,6 +38,9 @@ export const Route = createFileRoute("/results/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
+        { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -104,7 +107,7 @@ function ResultsPage() {
         ) : (
           <>
             <header className="mt-3 border-b border-border pb-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Results report · {issue.category}
               </p>
               <h1 className="mt-2 text-3xl font-bold leading-tight">
@@ -182,11 +185,11 @@ function ResultsPage() {
               <ShareButton
                 title={`Results: ${issue.title}`}
                 text="See how the community voted on this city issue."
-                url={`https://city-voice-forum.lovable.app/results/${issue.id}`}
+                url={`https://youthvoiceapp.lovable.app/results/${issue.id}`}
                 variant="outline"
               />
               <CopyLinkButton
-                url={`https://city-voice-forum.lovable.app/results/${issue.id}`}
+                url={`https://youthvoiceapp.lovable.app/results/${issue.id}`}
               />
             </div>
 

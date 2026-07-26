@@ -4,6 +4,7 @@ import { MobileNav } from "@/components/mobile-nav";
 
 const NAV_LINKS = [
   { to: "/", label: "Issues" },
+  { to: "/map", label: "Map" },
   { to: "/newsletter", label: "Newsletter" },
   { to: "/about", label: "About" },
 ];

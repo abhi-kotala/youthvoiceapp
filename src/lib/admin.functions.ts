@@ -152,20 +152,29 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
       category: string;
       status: string;
       city?: string;
+      impact_status?: string;
+      impact_note?: string | null;
     }) => d,
   )
   .handler(async ({ data }) => {
     await checkSession(data.token);
     const admin = await getAdmin();
+    const update: Record<string, unknown> = {
+      title: data.title.trim(),
+      description: data.description.trim(),
+      category: data.category.trim() || "General",
+      status: data.status,
+      city: (data.city ?? "Fargo").trim() || "Fargo",
+    };
+    if (data.impact_status !== undefined) {
+      update.impact_status = data.impact_status || "none";
+    }
+    if (data.impact_note !== undefined) {
+      update.impact_note = data.impact_note?.trim() || null;
+    }
     const { error } = await admin
       .from("issues")
-      .update({
-        title: data.title.trim(),
-        description: data.description.trim(),
-        category: data.category.trim() || "General",
-        status: data.status,
-        city: (data.city ?? "Fargo").trim() || "Fargo",
-      })
+      .update(update)
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

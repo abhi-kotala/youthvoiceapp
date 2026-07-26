@@ -23,6 +23,8 @@ type Issue = {
   category: string;
   status: string;
   city: string;
+  impact_status?: string | null;
+  impact_note?: string | null;
 };
 
 type ReportRow = {
@@ -260,7 +262,7 @@ function IssuesPanel({ token }: { token: string }) {
     setLoading(true);
     const { data } = await supabase
       .from("issues")
-      .select("id, title, description, category, status, city")
+      .select("id, title, description, category, status, city, impact_status, impact_note")
       .order("created_at", { ascending: false });
     setIssues((data ?? []) as Issue[]);
     setLoading(false);

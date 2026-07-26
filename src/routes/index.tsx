@@ -3,32 +3,26 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { CountUp } from "@/components/count-up";
+import { IssueCard, catEmoji } from "@/components/issue-card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, SlidersHorizontal } from "lucide-react";
 import fargoImg from "@/assets/city-fargo.jpg";
 import westFargoImg from "@/assets/city-west-fargo.jpg";
 import moorheadImg from "@/assets/city-moorhead.jpg";
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  School: "🏫",
-  Education: "🏫",
-  Transportation: "🚦",
-  Parks: "🌳",
-  Environment: "🌳",
-  Taxes: "💰",
-  Economy: "💰",
-  Economic: "💰",
-  Healthcare: "🏥",
-  Health: "🏥",
-  "Public Safety": "🚔",
-  Safety: "🚔",
-  Community: "🎭",
-  "Community Events": "🎭",
-  Ideas: "💡",
-  Government: "⚖️",
-  Housing: "🏠",
-  General: "📌",
-};
-const catEmoji = (c: string) => CATEGORY_EMOJI[c] ?? "📌";
+const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
+type CityFilter = (typeof CITIES)[number];
 
+type SortOption = "newest" | "most-voted" | "most-commented";
+
+type Tally = { agree: number; disagree: number; neutral: number; total: number };
 
 type Issue = {
   id: string;
@@ -38,13 +32,6 @@ type Issue = {
   city: string;
   created_at: string;
 };
-
-const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
-type CityFilter = (typeof CITIES)[number];
-
-
-type Tally = { agree: number; disagree: number; neutral: number; total: number };
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -68,9 +55,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
     ],
-    links: [
-      { rel: "canonical", href: "https://youthvoiceapp.lovable.app/" },
-    ],
+    links: [{ rel: "canonical", href: "https://youthvoiceapp.lovable.app/" }],
   }),
   component: HomePage,
 });
@@ -83,6 +68,8 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState<CityFilter>("All");
   const [category, setCategory] = useState<string>("All");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortOption>("newest");
 
   useEffect(() => {
     (async () => {
@@ -115,9 +102,11 @@ function HomePage() {
   }, []);
 
   const totalVotes = Object.values(tallies).reduce((a, t) => a + t.total, 0);
-  const categories = Array.from(new Set(issues.map((i) => i.category))).sort();
+  const categories = useMemo(
+    () => Array.from(new Set(issues.map((i) => i.category))).sort(),
+    [issues],
+  );
 
-  // Trending = top 3 by votes (need >= 1 vote to qualify)
   const trendingIds = useMemo(() => {
     return new Set(
       [...issues]
@@ -128,19 +117,46 @@ function HomePage() {
     );
   }, [issues, tallies]);
 
-  const featured =
-    issues.length === 0
-      ? null
-      : [...issues].sort(
-          (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
-        )[0];
+  const featured = useMemo(() => {
+    if (issues.length === 0) return null;
+    return [...issues].sort(
+      (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
+    )[0];
+  }, [issues, tallies]);
 
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    let list = issues.filter(
+      (i) =>
+        (city === "All" || i.city === city) &&
+        (category === "All" || i.category === category) &&
+        (q === "" ||
+          i.title.toLowerCase().includes(q) ||
+          i.description.toLowerCase().includes(q)),
+    );
 
-  const filtered = issues.filter(
-    (i) =>
-      (city === "All" || i.city === city) &&
-      (category === "All" || i.category === category),
-  );
+    switch (sort) {
+      case "most-voted":
+        list = list.sort((a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0));
+        break;
+      case "most-commented":
+        list = list.sort((a, b) => (commentCounts[b.id] ?? 0) - (commentCounts[a.id] ?? 0));
+        break;
+      case "newest":
+      default:
+        list = list.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
+    }
+    return list;
+  }, [issues, city, category, search, sort, tallies, commentCounts]);
+
+  const clearFilters = () => {
+    setCity("All");
+    setCategory("All");
+    setSearch("");
+    setSort("newest");
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -153,22 +169,21 @@ function HomePage() {
           <img src={westFargoImg} alt="West Fargo neighborhood" className="h-full w-full object-cover" />
           <img src={moorheadImg} alt="Moorhead city view" className="h-full w-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
             <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead
           </div>
-          <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">
+          <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
             Too young to vote.{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Old enough to be heard.
             </span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Youth Voice is a free, anonymous poll for under-18s in Fargo, West
-            Fargo, and Moorhead. Weigh in on the decisions your city is making
-            right now — and we deliver the results straight to your city
-            council and mayor's office. No accounts. No noise. Just your voice.
+            Youth Voice is a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead.
+            Weigh in on the decisions your city is making right now — and we deliver the results
+            straight to your city council and mayor's office.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -183,33 +198,18 @@ function HomePage() {
               Vote on an issue →
             </a>
             <Link
-              to="/newsletter"
-              className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
-            >
-              City meetings & dates
-            </Link>
-            <Link
               to="/about"
-              className="rounded-full px-6 py-3 text-sm font-semibold text-foreground/80 underline-offset-4 hover:underline"
+              className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
             >
               How it works
             </Link>
           </div>
-
         </div>
       </section>
 
       {/* STATS */}
       <section className="border-b border-border bg-card/40">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              A movement, live
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Every card ticks up as your community weighs in.
-            </p>
-          </div>
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {[
               { label: "Participants", value: participants, emoji: "👥" },
@@ -219,7 +219,7 @@ function HomePage() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="group rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="text-2xl transition-transform group-hover:scale-110" aria-hidden>
                   {s.emoji}
@@ -240,9 +240,7 @@ function HomePage() {
       <section className="border-b border-border bg-card/40">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
           <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Three cities, one voice
-            </h2>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Three cities, one voice</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Built for every young person in the Fargo–Moorhead area.
             </p>
@@ -279,54 +277,65 @@ function HomePage() {
             <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
               <span aria-hidden>⭐</span> Featured this week
             </div>
-            <Link
-              to="/issue/$id"
-              params={{ id: featured.id }}
-              className="group grid gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[1fr_auto] sm:items-center"
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5">
-                    {catEmoji(featured.category)} {featured.category}
-                  </span>
-                  <span>·</span>
-                  <span>{featured.city}</span>
-                  {trendingIds.has(featured.id) && (
-                    <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
-                      🔥 Trending
-                    </span>
-                  )}
-                </div>
-                <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
-                  {featured.title}
-                </h2>
-                <p className="mt-3 line-clamp-2 text-sm text-muted-foreground sm:text-base">
-                  {featured.description}
-                </p>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {(tallies[featured.id]?.total ?? 0)} votes ·{" "}
-                  {(commentCounts[featured.id] ?? 0)} comments
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition group-hover:-translate-y-0.5 group-hover:shadow-md">
-                Weigh in →
-              </span>
-            </Link>
+            <IssueCard
+              issue={featured}
+              tally={tallies[featured.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
+              commentCount={commentCounts[featured.id] ?? 0}
+              trending={trendingIds.has(featured.id)}
+              variant="featured"
+            />
           </div>
         </section>
       )}
 
+      {/* ISSUES */}
       <main id="issues" className="mx-auto max-w-5xl px-4 py-10">
-        <h2 className="text-2xl font-bold tracking-tight">Browse all issues</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Filter by city or topic. Every issue links to a poll and a debate thread.
-        </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Browse all issues</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Filter by city or topic, search by keyword, and weigh in.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>{filtered.length} issue{filtered.length !== 1 ? "s" : ""}</span>
+          </div>
+        </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">City</span>
+        {/* Search + sort */}
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search issues..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="rounded-full pl-9"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+            <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+              <SelectTrigger className="w-[160px] rounded-full">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="most-voted">Most voted</SelectItem>
+                <SelectItem value="most-commented">Most commented</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* City filters */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            City
+          </span>
           {CITIES.map((c) => {
-            const count =
-              c === "All" ? issues.length : issues.filter((i) => i.city === c).length;
+            const count = c === "All" ? issues.length : issues.filter((i) => i.city === c).length;
             const active = city === c;
             return (
               <button
@@ -345,9 +354,12 @@ function HomePage() {
           })}
         </div>
 
+        {/* Category filters */}
         {categories.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Topic</span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Topic
+            </span>
             {(["All", ...categories] as string[]).map((c) => {
               const active = category === c;
               return (
@@ -368,72 +380,84 @@ function HomePage() {
           </div>
         )}
 
+        {/* Active filters summary */}
+        {(city !== "All" || category !== "All" || search || sort !== "newest") && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground">Active:</span>
+            {city !== "All" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                City: {city}
+              </span>
+            )}
+            {category !== "All" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                Topic: {category}
+              </span>
+            )}
+            {search && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                Search: “{search}”
+              </span>
+            )}
+            {sort !== "newest" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                Sort: {sort.replace("-", " ")}
+              </span>
+            )}
+            <button
+              onClick={clearFilters}
+              className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Results */}
         {loading ? (
           <ul className="mt-6 grid gap-4 sm:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <li
                 key={i}
-                className="h-44 animate-pulse rounded-2xl border border-border bg-card/60"
+                className="h-48 animate-pulse rounded-2xl border border-border bg-card/60"
               />
             ))}
           </ul>
         ) : filtered.length === 0 ? (
-          <p className="mt-6 text-muted-foreground">No issues match those filters yet.</p>
+          <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
+            <p className="text-lg font-semibold text-foreground">No issues found</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Try clearing your filters or searching with different keywords.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              Clear filters
+            </button>
+          </div>
         ) : (
           <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-            {filtered.map((i) => {
-              const t =
-                tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 };
-              const trending = trendingIds.has(i.id);
-              const comments = commentCounts[i.id] ?? 0;
-              return (
-                <li key={i.id}>
-                  <Link
-                    to="/issue/$id"
-                    params={{ id: i.id }}
-                    className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold uppercase tracking-wider">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-foreground">
-                        {catEmoji(i.category)} {i.category}
-                      </span>
-                      <span className="text-muted-foreground">· {i.city}</span>
-                      {trending && (
-                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
-                          🔥 Trending
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold leading-snug">
-                      {i.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                      {i.description}
-                    </p>
-                    <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>
-                        🗳️ {t.total} · 💬 {comments}
-                      </span>
-                      <span className="font-medium text-primary transition group-hover:translate-x-0.5">
-                        Weigh in →
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
+            {filtered.map((i) => (
+              <li key={i.id}>
+                <IssueCard
+                  issue={i}
+                  tally={tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
+                  commentCount={commentCounts[i.id] ?? 0}
+                  trending={trendingIds.has(i.id)}
+                />
+              </li>
+            ))}
           </ul>
         )}
 
-
+        {/* FINAL CTA */}
         <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Don't just scroll — decide.
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Don't just scroll — decide.</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Every vote and comment is packaged and delivered to city
-            decision-makers. Even if you can't vote at the ballot box yet, this
-            is how your generation shapes the block you live on.
+            Every vote and comment is packaged and delivered to city decision-makers. Even if you
+            can't vote at the ballot box yet, this is how your generation shapes the block you live
+            on.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <a

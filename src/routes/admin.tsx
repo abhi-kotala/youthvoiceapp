@@ -23,6 +23,8 @@ type Issue = {
   category: string;
   status: string;
   city: string;
+  impact_status?: string | null;
+  impact_note?: string | null;
 };
 
 type ReportRow = {
@@ -260,7 +262,7 @@ function IssuesPanel({ token }: { token: string }) {
     setLoading(true);
     const { data } = await supabase
       .from("issues")
-      .select("id, title, description, category, status, city")
+      .select("id, title, description, category, status, city, impact_status, impact_note")
       .order("created_at", { ascending: false });
     setIssues((data ?? []) as Issue[]);
     setLoading(false);
@@ -364,6 +366,8 @@ function IssueForm({
   const [category, setCategory] = useState(initial?.category ?? "General");
   const [status, setStatus] = useState(initial?.status ?? "open");
   const [city, setCity] = useState(initial?.city ?? "Fargo");
+  const [impactStatus, setImpactStatus] = useState(initial?.impact_status ?? "none");
+  const [impactNote, setImpactNote] = useState(initial?.impact_note ?? "");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -374,7 +378,17 @@ function IssueForm({
     try {
       if (initial) {
         await adminUpdateIssue({
-          data: { token, id: initial.id, title, description, category, status, city },
+          data: {
+            token,
+            id: initial.id,
+            title,
+            description,
+            category,
+            status,
+            city,
+            impact_status: impactStatus,
+            impact_note: impactNote,
+          },
         });
       } else {
         await adminCreateIssue({ data: { token, title, description, category, city } });
@@ -427,6 +441,27 @@ function IssueForm({
             <option value="closed">closed</option>
             <option value="archived">archived</option>
           </select>
+        )}
+        {initial && (
+          <>
+            <select
+              value={impactStatus ?? "none"}
+              onChange={(e) => setImpactStatus(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm sm:col-span-2"
+            >
+              <option value="none">Impact: ⏳ No update</option>
+              <option value="discussing">Impact: 🔵 Being discussed</option>
+              <option value="under_review">Impact: 🟡 Under review</option>
+              <option value="implemented">Impact: 🟢 Implemented</option>
+            </select>
+            <input
+              value={impactNote ?? ""}
+              onChange={(e) => setImpactNote(e.target.value)}
+              placeholder='Impact note (e.g. "Presented to city council on Aug 12")'
+              maxLength={280}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm sm:col-span-2"
+            />
+          </>
         )}
         <textarea
           value={description}

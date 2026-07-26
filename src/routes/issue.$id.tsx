@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { getDeviceId } from "@/lib/device-id";
 import { ShareButton } from "@/components/share-button";
+import { ImpactBadge } from "@/components/impact-badge";
+import { generateIssueSummary } from "@/lib/summary.functions";
 
 type Stance = "agree" | "disagree" | "neutral";
 
@@ -12,6 +14,8 @@ type Issue = {
   title: string;
   description: string;
   category: string;
+  impact_status?: string | null;
+  impact_note?: string | null;
 };
 
 type Comment = {
@@ -208,8 +212,9 @@ function IssuePage() {
         </Link>
 
         <article className="mt-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-primary">
-            {issue.category}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <span>{issue.category}</span>
+            <ImpactBadge status={issue.impact_status} />
           </div>
           <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
             {issue.title}
@@ -217,7 +222,22 @@ function IssuePage() {
           <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
             {issue.description}
           </p>
+          {issue.impact_status && issue.impact_status !== "none" && (
+            <div className="mt-4 rounded-lg border border-border bg-secondary p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span>📢 You Said → We Did</span>
+                <ImpactBadge status={issue.impact_status} />
+              </div>
+              {issue.impact_note && (
+                <p className="mt-2 text-sm text-foreground/80">
+                  {issue.impact_note}
+                </p>
+              )}
+            </div>
+          )}
         </article>
+
+        <AiSummarySection issueId={issue.id} commentCount={comments.length} />
 
         {/* Poll */}
         <section className="mt-8 rounded-lg border border-border bg-card p-5">
@@ -397,6 +417,75 @@ function IssuePage() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+function AiSummarySection({
+  issueId,
+  commentCount,
+}: {
+  issueId: string;
+  commentCount: number;
+}) {
+  const [summary, setSummary] = useState<string | null>(null);
+  const [reason, setReason] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (commentCount < 3) return null;
+
+  async function generate() {
+    setLoading(true);
+    setError(null);
+    setReason(null);
+    try {
+      const res = await generateIssueSummary({ data: { issueId } });
+      setSummary(res.summary);
+      setReason(res.reason);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-accent/5 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <span>✨</span> What Youth Voice users think
+        </h2>
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {loading
+            ? "Summarizing…"
+            : summary
+              ? "Regenerate"
+              : "Generate AI summary"}
+        </button>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        AI-generated overview of the debate. Neutral, no accounts involved.
+      </p>
+      {!summary && !loading && !error && !reason && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          Click generate to see the main opinions, common concerns, and key
+          arguments from the community.
+        </p>
+      )}
+      {reason && (
+        <p className="mt-3 text-sm text-muted-foreground">{reason}</p>
+      )}
+      {error && <p className="mt-3 text-sm text-accent">{error}</p>}
+      {summary && (
+        <div className="prose prose-sm mt-4 max-w-none whitespace-pre-line text-sm leading-relaxed text-foreground">
+          {summary}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -80,6 +80,8 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          impact_note: string | null
+          impact_status: string
           status: string
           title: string
         }
@@ -89,6 +91,8 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          impact_note?: string | null
+          impact_status?: string
           status?: string
           title: string
         }
@@ -98,6 +102,8 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          impact_note?: string | null
+          impact_status?: string
           status?: string
           title?: string
         }

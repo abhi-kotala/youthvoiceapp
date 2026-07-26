@@ -57,7 +57,7 @@ export function SiteFooter() {
               Youth<span className="text-accent">Voice</span>
             </Link>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Built by a student for Fargo, Moorhead, and West Fargo. Results from each poll are delivered
+              Built by Abhi Kotala, a high school student. Results from each poll are delivered
               to our city council and mayor's office. No accounts required — your
               voice still counts.
             </p>

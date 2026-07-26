@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import fargoImg from "@/assets/city-fargo.jpg";
 import westFargoImg from "@/assets/city-west-fargo.jpg";
 import moorheadImg from "@/assets/city-moorhead.jpg";
+import { getTrendingYouthIdeas } from "@/lib/topics.functions";
 
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
@@ -31,6 +32,23 @@ type Issue = {
   category: string;
   city: string;
   created_at: string;
+  source?: string | null;
+  topic_type?: string | null;
+  location_scope?: string | null;
+  location_name?: string | null;
+};
+
+type TrendingIdea = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  topic_type: string | null;
+  location_scope: string | null;
+  location_name: string | null;
+  voteCount: number;
+  commentCount: number;
 };
 
 export const Route = createFileRoute("/")({

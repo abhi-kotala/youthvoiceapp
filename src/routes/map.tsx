@@ -103,8 +103,8 @@ function MapPage() {
             Where young voices are heard
           </h1>
           <p className="mx-auto mt-2 max-w-2xl text-muted-foreground">
-            Cities using Youth Voice today, total votes cast, and each
-            community's most popular issue.
+            Cities using Youth Voice today and the total votes cast by young
+            people in each community.
           </p>
         </div>
 

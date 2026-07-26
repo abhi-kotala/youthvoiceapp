@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 const STANCES = new Set(["agree", "disagree", "neutral"]);
+const MILESTONES = [10, 50, 100, 250, 500];
 
 export const castVote = createServerFn({ method: "POST" })
   .inputValidator((d: { issueId: string; deviceId: string; choice: string }) => {
@@ -18,5 +19,31 @@ export const castVote = createServerFn({ method: "POST" })
         { onConflict: "issue_id,device_id" },
       );
     if (error) throw new Error(error.message);
+
+    // Reward the submitter of a youth-submitted topic as engagement milestones hit.
+    const { data: issue } = await supabaseAdmin
+      .from("issues")
+      .select("source, submitted_by_device")
+      .eq("id", data.issueId)
+      .maybeSingle();
+    if (issue?.source === "user" && issue.submitted_by_device) {
+      const { count } = await supabaseAdmin
+        .from("votes")
+        .select("id", { count: "exact", head: true })
+        .eq("issue_id", data.issueId);
+      const total = count ?? 0;
+      if (MILESTONES.includes(total)) {
+        const action = total >= 100 ? "idea_100_votes" : "idea_submitted";
+        const points = total >= 100 ? 50 : 5;
+        await supabaseAdmin.from("impact_events").insert({
+          device_id: issue.submitted_by_device,
+          action,
+          points,
+          ref_type: "issue_milestone",
+          ref_id: `${data.issueId}:${total}`,
+        });
+      }
+    }
+
     return { ok: true };
   });

@@ -159,7 +159,15 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await checkSession(data.token);
     const admin = await getAdmin();
-    const update: Record<string, unknown> = {
+    const update: {
+      title: string;
+      description: string;
+      category: string;
+      status: string;
+      city: string;
+      impact_status?: string;
+      impact_note?: string | null;
+    } = {
       title: data.title.trim(),
       description: data.description.trim(),
       category: data.category.trim() || "General",

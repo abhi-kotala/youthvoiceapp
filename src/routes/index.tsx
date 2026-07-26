@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import fargoImg from "@/assets/city-fargo.jpg";
 import westFargoImg from "@/assets/city-west-fargo.jpg";
 import moorheadImg from "@/assets/city-moorhead.jpg";
+import { getTrendingYouthIdeas } from "@/lib/topics.functions";
 
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
@@ -31,6 +32,23 @@ type Issue = {
   category: string;
   city: string;
   created_at: string;
+  source?: string | null;
+  topic_type?: string | null;
+  location_scope?: string | null;
+  location_name?: string | null;
+};
+
+type TrendingIdea = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  city: string;
+  topic_type: string | null;
+  location_scope: string | null;
+  location_name: string | null;
+  voteCount: number;
+  commentCount: number;
 };
 
 export const Route = createFileRoute("/")({
@@ -70,6 +88,7 @@ function HomePage() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("newest");
+  const [trending, setTrending] = useState<TrendingIdea[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -99,6 +118,7 @@ function HomePage() {
       setParticipants(devices.size);
       setLoading(false);
     })();
+    getTrendingYouthIdeas().then((rows) => setTrending(rows as TrendingIdea[])).catch(() => {});
   }, []);
 
   const totalVotes = Object.values(tallies).reduce((a, t) => a + t.total, 0);
@@ -226,6 +246,68 @@ function HomePage() {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      {/* TRENDING YOUTH IDEAS */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> Trending Youth Ideas
+              </div>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+                Started by young people, growing right now
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Topics submitted by the community — vote, debate, and help decide what matters.
+              </p>
+            </div>
+            <Link
+              to="/submit"
+              className="shrink-0 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              + Submit your topic
+            </Link>
+          </div>
+
+          {trending.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center">
+              <p className="text-lg font-semibold">Be the first to start a youth-led topic</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Propose something your community should be talking about. Earn +15 Impact Points.
+              </p>
+              <Link
+                to="/submit"
+                className="mt-4 inline-block rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+              >
+                Submit a topic →
+              </Link>
+            </div>
+          ) : (
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {trending.map((i) => (
+                <li key={i.id}>
+                  <IssueCard
+                    issue={{
+                      id: i.id,
+                      title: i.title,
+                      description: i.description,
+                      category: i.category,
+                      city: i.city,
+                      source: "user",
+                      topic_type: i.topic_type,
+                      location_scope: i.location_scope,
+                      location_name: i.location_name,
+                    }}
+                    tally={{ agree: 0, disagree: 0, neutral: 0, total: i.voteCount }}
+                    commentCount={i.commentCount}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 

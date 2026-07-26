@@ -114,6 +114,7 @@ export function IssueCard({
               </span>
             )}
             <ImpactBadge status={issue.impact_status} />
+            <YouthBadges issue={issue} />
           </div>
           <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
             {issue.title}
@@ -152,8 +153,9 @@ export function IssueCard({
           </span>
         )}
       </div>
-      <div className="mt-1.5">
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         <ImpactBadge status={issue.impact_status} />
+        <YouthBadges issue={issue} />
       </div>
       <h3 className="mt-2 text-lg font-semibold leading-snug">{issue.title}</h3>
       <p className="mt-2 line-clamp-3 flex-grow text-sm text-muted-foreground">

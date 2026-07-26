@@ -442,6 +442,27 @@ function IssueForm({
             <option value="archived">archived</option>
           </select>
         )}
+        {initial && (
+          <>
+            <select
+              value={impactStatus ?? "none"}
+              onChange={(e) => setImpactStatus(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm sm:col-span-2"
+            >
+              <option value="none">Impact: ⏳ No update</option>
+              <option value="discussing">Impact: 🔵 Being discussed</option>
+              <option value="under_review">Impact: 🟡 Under review</option>
+              <option value="implemented">Impact: 🟢 Implemented</option>
+            </select>
+            <input
+              value={impactNote ?? ""}
+              onChange={(e) => setImpactNote(e.target.value)}
+              placeholder='Impact note (e.g. "Presented to city council on Aug 12")'
+              maxLength={280}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm sm:col-span-2"
+            />
+          </>
+        )}
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}

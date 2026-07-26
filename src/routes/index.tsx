@@ -148,12 +148,12 @@ function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 grid grid-cols-3 opacity-30">
-          <img src={fargoImg} alt="" className="h-full w-full object-cover" />
-          <img src={westFargoImg} alt="" className="h-full w-full object-cover" />
-          <img src={moorheadImg} alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 grid grid-cols-3 opacity-60">
+          <img src={fargoImg} alt="Downtown Fargo skyline" className="h-full w-full object-cover" />
+          <img src={westFargoImg} alt="West Fargo neighborhood" className="h-full w-full object-cover" />
+          <img src={moorheadImg} alt="Moorhead city view" className="h-full w-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/90 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
             <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead

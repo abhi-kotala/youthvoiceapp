@@ -148,12 +148,12 @@ function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 grid grid-cols-3 opacity-30">
-          <img src={fargoImg} alt="" className="h-full w-full object-cover" />
-          <img src={westFargoImg} alt="" className="h-full w-full object-cover" />
-          <img src={moorheadImg} alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 grid grid-cols-3 opacity-60">
+          <img src={fargoImg} alt="Downtown Fargo skyline" className="h-full w-full object-cover" />
+          <img src={westFargoImg} alt="West Fargo neighborhood" className="h-full w-full object-cover" />
+          <img src={moorheadImg} alt="Moorhead city view" className="h-full w-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/90 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
             <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead
@@ -233,6 +233,42 @@ function HomePage() {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      {/* THREE CITIES */}
+      <section className="border-b border-border bg-card/40">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Three cities, one voice
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Built for every young person in the Fargo–Moorhead area.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              { name: "Fargo", img: fargoImg, alt: "Downtown Fargo skyline" },
+              { name: "West Fargo", img: westFargoImg, alt: "West Fargo neighborhood" },
+              { name: "Moorhead", img: moorheadImg, alt: "Moorhead city view" },
+            ].map((city) => (
+              <div
+                key={city.name}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <img
+                  src={city.img}
+                  alt={city.alt}
+                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-4">
+                  <h3 className="text-lg font-bold text-white drop-shadow-sm">{city.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

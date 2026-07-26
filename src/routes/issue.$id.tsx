@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { getDeviceId } from "@/lib/device-id";
 import { ShareButton } from "@/components/share-button";
+import { ImpactBadge } from "@/components/impact-badge";
+import { generateIssueSummary } from "@/lib/summary.functions";
 
 type Stance = "agree" | "disagree" | "neutral";
 
@@ -12,6 +14,8 @@ type Issue = {
   title: string;
   description: string;
   category: string;
+  impact_status?: string | null;
+  impact_note?: string | null;
 };
 
 type Comment = {
@@ -208,8 +212,9 @@ function IssuePage() {
         </Link>
 
         <article className="mt-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-primary">
-            {issue.category}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <span>{issue.category}</span>
+            <ImpactBadge status={issue.impact_status} />
           </div>
           <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
             {issue.title}
@@ -217,7 +222,22 @@ function IssuePage() {
           <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
             {issue.description}
           </p>
+          {issue.impact_status && issue.impact_status !== "none" && (
+            <div className="mt-4 rounded-lg border border-border bg-secondary p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span>📢 You Said → We Did</span>
+                <ImpactBadge status={issue.impact_status} />
+              </div>
+              {issue.impact_note && (
+                <p className="mt-2 text-sm text-foreground/80">
+                  {issue.impact_note}
+                </p>
+              )}
+            </div>
+          )}
         </article>
+
+        <AiSummarySection issueId={issue.id} commentCount={comments.length} />
 
         {/* Poll */}
         <section className="mt-8 rounded-lg border border-border bg-card p-5">

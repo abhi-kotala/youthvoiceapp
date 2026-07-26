@@ -27,13 +27,13 @@ export const Route = createFileRoute("/map")({
       {
         name: "description",
         content:
-          "See which Fargo-Moorhead cities are using Youth Voice, how many under-18 votes have been cast, and each city's most popular issue.",
+          "See which Fargo-Moorhead cities are using Youth Voice and how many under-18 votes have been cast.",
       },
       { property: "og:title", content: "YouthVoice Map — Fargo, West Fargo, Moorhead" },
       {
         property: "og:description",
         content:
-          "Cities using Youth Voice, total votes, and the most popular local issue in each community.",
+          "Cities using Youth Voice and total votes cast by young people in each community.",
       },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },

@@ -17,6 +17,9 @@ export const Route = createFileRoute("/about")({
           "How the Youth Voice under-18 poll works, and how results reach the city council and mayor's office.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
       { property: "og:url", content: "https://youthvoiceapp.lovable.app/about" },
     ],
     links: [{ rel: "canonical", href: "https://youthvoiceapp.lovable.app/about" }],
@@ -42,7 +45,7 @@ function AboutPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-4 py-12">
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           For city officials
         </p>
         <h1 className="mt-2 text-4xl font-bold leading-tight">

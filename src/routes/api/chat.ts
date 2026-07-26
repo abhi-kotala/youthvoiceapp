@@ -1,4 +1,9 @@
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import {
+  createLovableAiGatewayProvider,
+  getLovableAiGatewayRunId,
+  getLovableAiGatewayResponseHeaders,
+  withLovableAiGatewayRunIdHeader,
+} from "@/lib/ai-gateway.server";
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 
@@ -33,16 +38,22 @@ export const Route = createFileRoute("/api/chat")({
           return new Response("Missing LOVABLE_API_KEY", { status: 500 });
         }
 
-        const gateway = createLovableAiGatewayProvider(key);
+        const initialRunId = getLovableAiGatewayRunId(request);
+        const gateway = createLovableAiGatewayProvider(key, initialRunId);
         const result = streamText({
           model: gateway("openai/gpt-5.5"),
           system: SYSTEM_PROMPT,
           messages: await convertToModelMessages(messages as UIMessage[]),
         });
 
-        return result.toUIMessageStreamResponse({
+        const response = result.toUIMessageStreamResponse({
           originalMessages: messages as UIMessage[],
+          headers: getLovableAiGatewayResponseHeaders(undefined, {
+            ...(initialRunId ? { "X-Lovable-AIG-Run-ID": initialRunId } : {}),
+          }),
         });
+
+        return withLovableAiGatewayRunIdHeader(response, gateway);
       },
     },
   },

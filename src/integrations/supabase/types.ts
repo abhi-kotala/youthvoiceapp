@@ -73,6 +73,36 @@ export type Database = {
           },
         ]
       }
+      impact_events: {
+        Row: {
+          action: string
+          created_at: string
+          device_id: string
+          id: string
+          points: number
+          ref_id: string | null
+          ref_type: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          device_id: string
+          id?: string
+          points: number
+          ref_id?: string | null
+          ref_type?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          points?: number
+          ref_id?: string | null
+          ref_type?: string | null
+        }
+        Relationships: []
+      }
       issues: {
         Row: {
           category: string

@@ -187,11 +187,12 @@ function HomePage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
             <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead
           </div>
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
-            Too young to vote.{" "}
+          <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+            A place where young people can{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Old enough to be heard.
-            </span>
+              influence decisions
+            </span>{" "}
+            in their communities.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Youth Voice is a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead.

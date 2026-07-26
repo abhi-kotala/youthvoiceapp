@@ -37,13 +37,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor.",
+          "Youth Voice: a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local city issues; results are shared with the city council and mayor.",
       },
-      { property: "og:title", content: "Youth Voice — Under-18 city polls" },
+      { property: "og:title", content: "Youth Voice — Under-18 city polls for Fargo-Moorhead" },
       {
         property: "og:description",
         content:
-          "Can't vote yet? You can still be heard. Weigh in on the issues shaping our city.",
+          "Free, anonymous polls for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local issues; results go to city council and the mayor.",
       },
       { property: "og:url", content: "https://youthvoiceapp.lovable.app/" },
       { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },

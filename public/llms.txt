@@ -1,0 +1,18 @@
+# Youth Voice
+
+> A nonpartisan civic app where under-18 residents of Fargo, West Fargo, and Moorhead vote and debate local issues. Results are shared with city councils and mayors.
+
+Youth Voice is a free, anonymous public-polling web app built by a local high schooler. Each poll focuses on a real issue currently in front of city leaders — public safety, transportation, economic development, schools, and quality of life. Anyone can vote once per device, leave a structured comment tagged Agree / Disagree / Neutral, and report comments that break community norms. There are no accounts, no ads, and no personal data collection.
+
+## Pages
+
+- [Home](/): Browse open polls for Fargo, West Fargo, and Moorhead.
+- [About](/about): How Youth Voice works, why under-18 input matters, and how results reach officials.
+- [Newsletter](/newsletter): Upcoming city commission, school board, and civic dates in the Fargo-Moorhead area.
+- [Issue poll](/issue/example): Vote and join a structured debate thread on a specific city issue.
+- [Results report](/results/example): Shareable, printable vote breakdown for a specific issue.
+
+## Optional
+
+- Admin tools exist for the project owner to add issues, update topics, and moderate reported comments.
+- An AI assistant is available in the bottom-right corner to explain how the app works and help visitors find issues.

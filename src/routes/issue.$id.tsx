@@ -60,6 +60,9 @@ export const Route = createFileRoute("/issue/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
+        { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: loaderData?.issue
@@ -205,7 +208,7 @@ function IssuePage() {
         </Link>
 
         <article className="mt-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-accent">
+          <div className="text-xs font-semibold uppercase tracking-widest text-primary">
             {issue.category}
           </div>
           <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
@@ -273,7 +276,7 @@ function IssuePage() {
               <ShareButton
                 title={issue.title}
                 text="Vote and debate on this city issue on Youth Voice."
-                url={`https://city-voice-forum.lovable.app/issue/${issue.id}`}
+                url={`https://youthvoiceapp.lovable.app/issue/${issue.id}`}
                 variant="outline"
                 className="text-xs px-3 py-1.5"
               />

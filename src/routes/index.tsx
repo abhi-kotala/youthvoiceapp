@@ -196,19 +196,42 @@ function HomePage() {
             </Link>
           </div>
 
-          <dl className="mt-10 grid max-w-lg grid-cols-3 gap-4 rounded-xl border border-border bg-card/70 p-4 backdrop-blur">
-            <div>
-              <dt className="text-xs uppercase tracking-widest text-muted-foreground">Issues</dt>
-              <dd className="mt-1 text-2xl font-bold">{issues.length}</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-widest text-muted-foreground">Votes cast</dt>
-              <dd className="mt-1 text-2xl font-bold">{totalVotes}</dd>
-            </div>
-            <div>
-              <dt className="text-xs uppercase tracking-widest text-muted-foreground">Cities</dt>
-              <dd className="mt-1 text-2xl font-bold">3</dd>
-            </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section className="border-b border-border bg-card/40">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              A movement, live
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every card ticks up as your community weighs in.
+            </p>
+          </div>
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            {[
+              { label: "Participants", value: participants, emoji: "👥" },
+              { label: "Polls", value: issues.length, emoji: "📊" },
+              { label: "Votes cast", value: totalVotes, emoji: "🗳️" },
+              { label: "Cities", value: 3, emoji: "🏙️" },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="text-2xl transition-transform group-hover:scale-110" aria-hidden>
+                  {s.emoji}
+                </div>
+                <dd className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
+                  <CountUp value={s.value} />
+                </dd>
+                <dt className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  {s.label}
+                </dt>
+              </div>
+            ))}
           </dl>
         </div>
       </section>
@@ -223,11 +246,20 @@ function HomePage() {
             <Link
               to="/issue/$id"
               params={{ id: featured.id }}
-              className="group grid gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md sm:grid-cols-[1fr_auto] sm:items-center"
+              className="group grid gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[1fr_auto] sm:items-center"
             >
               <div className="min-w-0">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {featured.category} · {featured.city}
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5">
+                    {catEmoji(featured.category)} {featured.category}
+                  </span>
+                  <span>·</span>
+                  <span>{featured.city}</span>
+                  {trendingIds.has(featured.id) && (
+                    <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
+                      🔥 Trending
+                    </span>
+                  )}
                 </div>
                 <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
                   {featured.title}
@@ -236,11 +268,11 @@ function HomePage() {
                   {featured.description}
                 </p>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  {(tallies[featured.id]?.total ?? 0)}{" "}
-                  {(tallies[featured.id]?.total ?? 0) === 1 ? "vote" : "votes"} so far
+                  {(tallies[featured.id]?.total ?? 0)} votes ·{" "}
+                  {(commentCounts[featured.id] ?? 0)} comments
                 </p>
               </div>
-              <span className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition group-hover:-translate-y-0.5">
+              <span className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition group-hover:-translate-y-0.5 group-hover:shadow-md">
                 Weigh in →
               </span>
             </Link>
@@ -267,8 +299,8 @@ function HomePage() {
                 className={[
                   "rounded-full border px-3 py-1 text-sm font-medium transition",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-foreground hover:bg-secondary",
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
                 ].join(" ")}
               >
                 {c} <span className="ml-1 opacity-70">{count}</span>
@@ -289,11 +321,11 @@ function HomePage() {
                   className={[
                     "rounded-full border px-3 py-1 text-xs font-medium transition",
                     active
-                      ? "border-accent bg-accent text-accent-foreground"
-                      : "border-border bg-card text-foreground hover:bg-secondary",
+                      ? "border-accent bg-accent text-accent-foreground shadow-sm"
+                      : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
                   ].join(" ")}
                 >
-                  {c}
+                  {c === "All" ? "All topics" : `${catEmoji(c)} ${c}`}
                 </button>
               );
             })}
@@ -301,7 +333,14 @@ function HomePage() {
         )}
 
         {loading ? (
-          <p className="mt-6 text-muted-foreground">Loading issues…</p>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={i}
+                className="h-44 animate-pulse rounded-2xl border border-border bg-card/60"
+              />
+            ))}
+          </ul>
         ) : filtered.length === 0 ? (
           <p className="mt-6 text-muted-foreground">No issues match those filters yet.</p>
         ) : (
@@ -309,15 +348,25 @@ function HomePage() {
             {filtered.map((i) => {
               const t =
                 tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 };
+              const trending = trendingIds.has(i.id);
+              const comments = commentCounts[i.id] ?? 0;
               return (
                 <li key={i.id}>
                   <Link
                     to="/issue/$id"
                     params={{ id: i.id }}
-                    className="block h-full rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md"
+                    className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   >
-                    <div className="text-xs font-semibold uppercase tracking-wider text-primary">
-                      {i.category} · {i.city}
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold uppercase tracking-wider">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-foreground">
+                        {catEmoji(i.category)} {i.category}
+                      </span>
+                      <span className="text-muted-foreground">· {i.city}</span>
+                      {trending && (
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
+                          🔥 Trending
+                        </span>
+                      )}
                     </div>
                     <h3 className="mt-2 text-lg font-semibold leading-snug">
                       {i.title}
@@ -327,9 +376,11 @@ function HomePage() {
                     </p>
                     <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                       <span>
-                        {t.total} {t.total === 1 ? "vote" : "votes"}
+                        🗳️ {t.total} · 💬 {comments}
                       </span>
-                      <span className="font-medium text-primary">Weigh in →</span>
+                      <span className="font-medium text-primary transition group-hover:translate-x-0.5">
+                        Weigh in →
+                      </span>
                     </div>
                   </Link>
                 </li>
@@ -337,6 +388,7 @@ function HomePage() {
             })}
           </ul>
         )}
+
 
         <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">

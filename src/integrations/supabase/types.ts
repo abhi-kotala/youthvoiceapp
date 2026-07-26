@@ -112,8 +112,14 @@ export type Database = {
           id: string
           impact_note: string | null
           impact_status: string
+          location_name: string | null
+          location_scope: string
+          review_status: string
+          source: string
           status: string
+          submitted_by_device: string | null
           title: string
+          topic_type: string
         }
         Insert: {
           category?: string
@@ -123,8 +129,14 @@ export type Database = {
           id?: string
           impact_note?: string | null
           impact_status?: string
+          location_name?: string | null
+          location_scope?: string
+          review_status?: string
+          source?: string
           status?: string
+          submitted_by_device?: string | null
           title: string
+          topic_type?: string
         }
         Update: {
           category?: string
@@ -134,8 +146,14 @@ export type Database = {
           id?: string
           impact_note?: string | null
           impact_status?: string
+          location_name?: string | null
+          location_scope?: string
+          review_status?: string
+          source?: string
           status?: string
+          submitted_by_device?: string | null
           title?: string
+          topic_type?: string
         }
         Relationships: []
       }

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
+import { Route as MyImpactRouteImport } from './routes/my-impact'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -32,6 +33,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const NewsletterRoute = NewsletterRouteImport.update({
   id: '/newsletter',
   path: '/newsletter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyImpactRoute = MyImpactRouteImport.update({
+  id: '/my-impact',
+  path: '/my-impact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
+  '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
+  '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
+  '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/map'
     | '/mcp'
+    | '/my-impact'
     | '/newsletter'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/map'
     | '/mcp'
+    | '/my-impact'
     | '/newsletter'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/map'
     | '/mcp'
+    | '/my-impact'
     | '/newsletter'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
+  MyImpactRoute: typeof MyImpactRoute
   NewsletterRoute: typeof NewsletterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -229,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/newsletter'
       fullPath: '/newsletter'
       preLoaderRoute: typeof NewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-impact': {
+      id: '/my-impact'
+      path: '/my-impact'
+      fullPath: '/my-impact'
+      preLoaderRoute: typeof MyImpactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -324,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,
+  MyImpactRoute: MyImpactRoute,
   NewsletterRoute: NewsletterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,

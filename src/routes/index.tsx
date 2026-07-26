@@ -78,28 +78,38 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [tallies, setTallies] = useState<Record<string, Tally>>({});
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [participants, setParticipants] = useState(0);
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState<CityFilter>("All");
   const [category, setCategory] = useState<string>("All");
 
   useEffect(() => {
     (async () => {
-      const { data: rows } = await supabase
-        .from("issues")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setIssues((rows ?? []) as Issue[]);
+      const [issuesRes, votesRes, commentsRes] = await Promise.all([
+        supabase.from("issues").select("*").order("created_at", { ascending: false }),
+        supabase.from("votes").select("issue_id, choice, device_id"),
+        supabase.from("comments").select("issue_id, device_id").eq("hidden", false),
+      ]);
+      setIssues((issuesRes.data ?? []) as Issue[]);
 
-      const { data: voteRows } = await supabase
-        .from("votes")
-        .select("issue_id, choice");
       const t: Record<string, Tally> = {};
-      (voteRows ?? []).forEach((v: { issue_id: string; choice: string }) => {
+      const devices = new Set<string>();
+      (votesRes.data ?? []).forEach((v: { issue_id: string; choice: string; device_id: string }) => {
         t[v.issue_id] ??= { agree: 0, disagree: 0, neutral: 0, total: 0 };
         t[v.issue_id][v.choice as keyof Omit<Tally, "total">] += 1;
         t[v.issue_id].total += 1;
+        devices.add(v.device_id);
       });
       setTallies(t);
+
+      const c: Record<string, number> = {};
+      (commentsRes.data ?? []).forEach((r: { issue_id: string; device_id: string }) => {
+        c[r.issue_id] = (c[r.issue_id] ?? 0) + 1;
+        devices.add(r.device_id);
+      });
+      setCommentCounts(c);
+      setParticipants(devices.size);
       setLoading(false);
     })();
   }, []);
@@ -107,12 +117,24 @@ function HomePage() {
   const totalVotes = Object.values(tallies).reduce((a, t) => a + t.total, 0);
   const categories = Array.from(new Set(issues.map((i) => i.category))).sort();
 
+  // Trending = top 3 by votes (need >= 1 vote to qualify)
+  const trendingIds = useMemo(() => {
+    return new Set(
+      [...issues]
+        .filter((i) => (tallies[i.id]?.total ?? 0) > 0)
+        .sort((a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0))
+        .slice(0, 3)
+        .map((i) => i.id),
+    );
+  }, [issues, tallies]);
+
   const featured =
     issues.length === 0
       ? null
       : [...issues].sort(
           (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
         )[0];
+
 
   const filtered = issues.filter(
     (i) =>

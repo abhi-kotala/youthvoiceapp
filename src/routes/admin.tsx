@@ -366,6 +366,8 @@ function IssueForm({
   const [category, setCategory] = useState(initial?.category ?? "General");
   const [status, setStatus] = useState(initial?.status ?? "open");
   const [city, setCity] = useState(initial?.city ?? "Fargo");
+  const [impactStatus, setImpactStatus] = useState(initial?.impact_status ?? "none");
+  const [impactNote, setImpactNote] = useState(initial?.impact_note ?? "");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -376,7 +378,17 @@ function IssueForm({
     try {
       if (initial) {
         await adminUpdateIssue({
-          data: { token, id: initial.id, title, description, category, status, city },
+          data: {
+            token,
+            id: initial.id,
+            title,
+            description,
+            category,
+            status,
+            city,
+            impact_status: impactStatus,
+            impact_note: impactNote,
+          },
         });
       } else {
         await adminCreateIssue({ data: { token, title, description, category, city } });

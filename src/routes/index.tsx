@@ -18,14 +18,6 @@ type Issue = {
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
 
-const CITY_META: Record<
-  "Fargo" | "West Fargo" | "Moorhead",
-  { img: string; emoji: string; tagline: string }
-> = {
-  Fargo: { img: fargoImg, emoji: "🎭", tagline: "Downtown, the theatre, and everything in between." },
-  "West Fargo": { img: westFargoImg, emoji: "🌳", tagline: "Growing neighborhoods and community spaces." },
-  Moorhead: { img: moorheadImg, emoji: "🍂", tagline: "Across the river, campuses and community." },
-};
 
 type Tally = { agree: number; disagree: number; neutral: number; total: number };
 

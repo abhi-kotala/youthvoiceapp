@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { ImpactBadge } from "@/components/impact-badge";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   School: "🏫",
@@ -32,7 +33,9 @@ type Issue = {
   description: string;
   category: string;
   city: string;
+  impact_status?: string | null;
 };
+
 
 type IssueCardProps = {
   issue: Issue;
@@ -73,6 +76,7 @@ export function IssueCard({
                 🔥 Trending
               </span>
             )}
+            <ImpactBadge status={issue.impact_status} />
           </div>
           <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
             {issue.title}
@@ -110,6 +114,9 @@ export function IssueCard({
             🔥 Trending
           </span>
         )}
+      </div>
+      <div className="mt-1.5">
+        <ImpactBadge status={issue.impact_status} />
       </div>
       <h3 className="mt-2 text-lg font-semibold leading-snug">{issue.title}</h3>
       <p className="mt-2 line-clamp-3 flex-grow text-sm text-muted-foreground">

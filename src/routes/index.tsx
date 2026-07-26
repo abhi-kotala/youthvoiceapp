@@ -88,6 +88,7 @@ function HomePage() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("newest");
+  const [trending, setTrending] = useState<TrendingIdea[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -117,6 +118,7 @@ function HomePage() {
       setParticipants(devices.size);
       setLoading(false);
     })();
+    getTrendingYouthIdeas().then((rows) => setTrending(rows as TrendingIdea[])).catch(() => {});
   }, []);
 
   const totalVotes = Object.values(tallies).reduce((a, t) => a + t.total, 0);

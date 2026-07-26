@@ -57,9 +57,9 @@ export function SiteFooter() {
               Youth<span className="text-accent">Voice</span>
             </Link>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Built by a high schooler. Results from each poll are delivered to our
-              city council and mayor's office. No accounts required — your voice
-              still counts.
+              Built by Abhi Kotala, a student. Results from each poll are delivered
+              to our city council and mayor's office. No accounts required — your
+              voice still counts.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:justify-items-end">

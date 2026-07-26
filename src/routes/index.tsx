@@ -236,6 +236,42 @@ function HomePage() {
         </div>
       </section>
 
+      {/* THREE CITIES */}
+      <section className="border-b border-border bg-card/40">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Three cities, one voice
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Built for every young person in the Fargo–Moorhead area.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              { name: "Fargo", img: fargoImg, alt: "Downtown Fargo skyline" },
+              { name: "West Fargo", img: westFargoImg, alt: "West Fargo neighborhood" },
+              { name: "Moorhead", img: moorheadImg, alt: "Moorhead city view" },
+            ].map((city) => (
+              <div
+                key={city.name}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <img
+                  src={city.img}
+                  alt={city.alt}
+                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-4">
+                  <h3 className="text-lg font-bold text-white drop-shadow-sm">{city.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FEATURED */}
       {featured && (
         <section className="border-b border-border bg-secondary/40">

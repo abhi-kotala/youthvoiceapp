@@ -22,6 +22,12 @@ export function SiteHeader() {
             About
           </Link>
           <Link
+            to="/newsletter"
+            className="text-sm font-medium underline-offset-4 hover:underline"
+          >
+            Newsletter
+          </Link>
+          <Link
             to="/"
             className="text-sm font-medium underline-offset-4 hover:underline"
           >

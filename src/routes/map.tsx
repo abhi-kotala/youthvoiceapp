@@ -27,13 +27,13 @@ export const Route = createFileRoute("/map")({
       {
         name: "description",
         content:
-          "See which Fargo-Moorhead cities are using Youth Voice, how many under-18 votes have been cast, and each city's most popular issue.",
+          "See which Fargo-Moorhead cities are using Youth Voice and how many under-18 votes have been cast.",
       },
       { property: "og:title", content: "YouthVoice Map — Fargo, West Fargo, Moorhead" },
       {
         property: "og:description",
         content:
-          "Cities using Youth Voice, total votes, and the most popular local issue in each community.",
+          "Cities using Youth Voice and total votes cast by young people in each community.",
       },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
@@ -103,8 +103,8 @@ function MapPage() {
             Where young voices are heard
           </h1>
           <p className="mx-auto mt-2 max-w-2xl text-muted-foreground">
-            Cities using Youth Voice today, total votes cast, and each
-            community's most popular issue.
+            Cities using Youth Voice today and the total votes cast by young
+            people in each community.
           </p>
         </div>
 
@@ -154,23 +154,7 @@ function MapPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    Most popular issue
-                  </div>
-                  {s.topIssue && s.topIssue.votes > 0 ? (
-                    <Link
-                      to="/issue/$id"
-                      params={{ id: s.topIssue.id }}
-                      className="mt-1 block font-semibold leading-snug text-foreground hover:text-primary"
-                    >
-                      {s.topIssue.title}
-                    </Link>
-                  ) : (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      No votes here yet — be the first.
-                    </p>
-                  )}
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{s.issues} active issues</span>
                     <Link
                       to="/"

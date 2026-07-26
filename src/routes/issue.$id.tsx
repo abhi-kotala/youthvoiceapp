@@ -420,5 +420,74 @@ function IssuePage() {
   );
 }
 
+function AiSummarySection({
+  issueId,
+  commentCount,
+}: {
+  issueId: string;
+  commentCount: number;
+}) {
+  const [summary, setSummary] = useState<string | null>(null);
+  const [reason, setReason] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (commentCount < 3) return null;
+
+  async function generate() {
+    setLoading(true);
+    setError(null);
+    setReason(null);
+    try {
+      const res = await generateIssueSummary({ data: { issueId } });
+      setSummary(res.summary);
+      setReason(res.reason);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-accent/5 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <span>✨</span> What Youth Voice users think
+        </h2>
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {loading
+            ? "Summarizing…"
+            : summary
+              ? "Regenerate"
+              : "Generate AI summary"}
+        </button>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        AI-generated overview of the debate. Neutral, no accounts involved.
+      </p>
+      {!summary && !loading && !error && !reason && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          Click generate to see the main opinions, common concerns, and key
+          arguments from the community.
+        </p>
+      )}
+      {reason && (
+        <p className="mt-3 text-sm text-muted-foreground">{reason}</p>
+      )}
+      {error && <p className="mt-3 text-sm text-accent">{error}</p>}
+      {summary && (
+        <div className="prose prose-sm mt-4 max-w-none whitespace-pre-line text-sm leading-relaxed text-foreground">
+          {summary}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // Silence unused import warning in environments where notFound isn't used.
 void notFound;

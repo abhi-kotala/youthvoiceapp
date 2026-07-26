@@ -34,6 +34,10 @@ type Issue = {
   category: string;
   city: string;
   impact_status?: string | null;
+  source?: string | null;
+  topic_type?: string | null;
+  location_scope?: string | null;
+  location_name?: string | null;
 };
 
 
@@ -42,9 +46,42 @@ type IssueCardProps = {
   tally: Tally;
   commentCount: number;
   trending?: boolean;
-  variant?: "default" | "featured";
+  variant?: "default" | "featured" | "compact";
   className?: string;
 };
+
+function YouthBadges({ issue }: { issue: Issue }) {
+  if (issue.source !== "user") return null;
+  const typeLabel =
+    issue.topic_type === "idea"
+      ? "💡 Idea"
+      : issue.topic_type === "discussion"
+        ? "💬 Discussion"
+        : "📊 Poll";
+  const scopeLabel =
+    issue.location_scope === "school"
+      ? issue.location_name
+        ? `🏫 ${issue.location_name}`
+        : "🏫 School"
+      : issue.location_scope === "statewide"
+        ? "🗺️ Statewide"
+        : null;
+  return (
+    <>
+      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+        🌱 Youth idea
+      </span>
+      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-foreground">
+        {typeLabel}
+      </span>
+      {scopeLabel && (
+        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-foreground">
+          {scopeLabel}
+        </span>
+      )}
+    </>
+  );
+}
 
 export function IssueCard({
   issue,

@@ -93,11 +93,12 @@ function AboutPage() {
         <section className="mt-10 rounded-lg border border-border bg-card p-6">
           <h2 className="text-xl font-semibold">Why under-18?</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Roughly 22% of Fargo's population is under 18. They can't vote,
-            but they ride the buses, walk the sidewalks, and live under
-            every policy passed today. Youth Voice makes their input
-            legible and easy to consider alongside the rest of the public
-            record.
+            Young people aren't just the future of Fargo, West Fargo, and
+            Moorhead — they're the future right now. They use the roads, attend
+            the schools, work local jobs, and live with every decision city
+            leaders make. Youth Voice exists to give them a real platform where
+            their perspectives are heard, their ideas matter, and their input
+            reaches the officials shaping the community they'll inherit.
           </p>
         </section>
 

@@ -15,6 +15,7 @@ import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as MyImpactRouteImport } from './routes/my-impact'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -54,6 +55,11 @@ const McpRoute = McpRouteImport.update({
 const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplainRoute = ExplainRouteImport.update({
+  id: '/explain',
+  path: '/explain',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  ExplainRoute: typeof ExplainRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
   MyImpactRoute: typeof MyImpactRoute
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/map'
       fullPath: '/map'
       preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explain': {
+      id: '/explain'
+      path: '/explain'
+      fullPath: '/explain'
+      preLoaderRoute: typeof ExplainRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -362,6 +382,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  ExplainRoute: ExplainRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,
   MyImpactRoute: MyImpactRoute,

@@ -185,19 +185,18 @@ function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
-            <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead
+            <span aria-hidden>🎒</span> For students in Fargo · West Fargo · Moorhead
           </div>
           <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            A place where young people can{" "}
+            You're too young to vote.{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              influence decisions
-            </span>{" "}
-            in their communities.
+              You're not too young to be heard.
+            </span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Youth Voice is a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead.
-            Weigh in on the decisions your city is making right now — and we deliver the results
-            straight to your city council and mayor's office.
+            Youth Voice is built for middle and high schoolers. No account, no name, no email — just
+            tap where you stand on what's happening in your city. Takes about 30 seconds, and your
+            results go straight to the city council and mayor's office.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -209,15 +208,16 @@ function HomePage() {
               }}
               className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              Vote on an issue →
+              Vote in 30 seconds →
             </a>
             <Link
-              to="/about"
+              to="/my-impact"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
             >
-              How it works
+              Earn Impact Points
             </Link>
           </div>
+
         </div>
       </section>
 
@@ -249,6 +249,99 @@ function HomePage() {
           </dl>
         </div>
       </section>
+
+      {/* MADE FOR STUDENTS */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
+              <span aria-hidden>🎓</span> Made for students
+            </div>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              Why students actually use this
+            </h2>
+          </div>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                emoji: "🕶️",
+                title: "100% anonymous",
+                body: "No sign-up, no name, no email. Nobody at school sees what you voted.",
+              },
+              {
+                emoji: "⏱️",
+                title: "30 seconds a poll",
+                body: "Tap agree, disagree, or neutral between classes. That's it.",
+              },
+              {
+                emoji: "🏅",
+                title: "Points, levels & badges",
+                body: "Earn Civic Impact Points for voting and debating — great for résumés, scholarships, and college apps.",
+              },
+              {
+                emoji: "🤖",
+                title: "AI does the boring part",
+                body: "Confused by a city proposal? AI explains it in plain, student-level language and coaches your arguments.",
+              },
+            ].map((f) => (
+              <li
+                key={f.title}
+                className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="text-2xl" aria-hidden>
+                  {f.emoji}
+                </div>
+                <h3 className="mt-2 text-base font-bold tracking-tight">{f.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 rounded-2xl border border-border bg-card/60 p-6">
+            <h3 className="text-center text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+              How it works for you
+            </h3>
+            <ol className="mt-4 grid gap-4 sm:grid-cols-3">
+              {[
+                { n: 1, t: "Pick an issue", d: "Something real that's happening in your city right now." },
+                { n: 2, t: "Vote & debate", d: "Say where you stand and back it up in the thread." },
+                { n: 3, t: "We deliver it", d: "Results are packaged and sent to the mayor and city council." },
+              ].map((s) => (
+                <li key={s.n} className="flex gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                    {s.n}
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold">{s.t}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{s.d}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/explain"
+                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+              >
+                🤖 Explain a city document
+              </Link>
+              <Link
+                to="/my-impact"
+                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+              >
+                🏅 See my Impact
+              </Link>
+              <Link
+                to="/about"
+                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+              >
+                📣 Bring it to my school
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* TRENDING YOUTH IDEAS */}
       <section className="border-b border-border">
@@ -511,11 +604,12 @@ function HomePage() {
 
         {/* FINAL CTA */}
         <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Don't just scroll — decide.</h2>
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Adults are deciding. Students should be too.
+          </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Every vote and comment is packaged and delivered to city decision-makers. Even if you
-            can't vote at the ballot box yet, this is how your generation shapes the block you live
-            on.
+            Vote once, and you're already part of the report that lands on the mayor's desk. Bring
+            two friends and your school shows up in the numbers.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <a
@@ -529,11 +623,12 @@ function HomePage() {
               Start voting
             </a>
             <Link
-              to="/newsletter"
+              to="/submit"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary"
             >
-              Get involved
+              Start your own topic
             </Link>
+
           </div>
         </section>
       </main>

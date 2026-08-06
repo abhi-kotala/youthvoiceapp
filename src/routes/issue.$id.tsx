@@ -6,6 +6,8 @@ import { getDeviceId } from "@/lib/device-id";
 import { ShareButton } from "@/components/share-button";
 import { ImpactBadge } from "@/components/impact-badge";
 import { generateIssueSummary } from "@/lib/summary.functions";
+import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
+
 
 type Stance = "agree" | "disagree" | "neutral";
 

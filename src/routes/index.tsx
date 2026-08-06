@@ -604,11 +604,12 @@ function HomePage() {
 
         {/* FINAL CTA */}
         <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Don't just scroll — decide.</h2>
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Adults are deciding. Students should be too.
+          </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Every vote and comment is packaged and delivered to city decision-makers. Even if you
-            can't vote at the ballot box yet, this is how your generation shapes the block you live
-            on.
+            Vote once, and you're already part of the report that lands on the mayor's desk. Bring
+            two friends and your school shows up in the numbers.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <a
@@ -622,11 +623,12 @@ function HomePage() {
               Start voting
             </a>
             <Link
-              to="/newsletter"
+              to="/submit"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary"
             >
-              Get involved
+              Start your own topic
             </Link>
+
           </div>
         </section>
       </main>

@@ -6,6 +6,8 @@ import { getDeviceId } from "@/lib/device-id";
 import { ShareButton } from "@/components/share-button";
 import { ImpactBadge } from "@/components/impact-badge";
 import { generateIssueSummary } from "@/lib/summary.functions";
+import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
+
 
 type Stance = "agree" | "disagree" | "neutral";
 
@@ -366,6 +368,12 @@ function IssuePage() {
               rows={3}
               className="mt-2 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
+            <DebateCoach
+              draft={composerBody}
+              stance={composerStance}
+              issueTitle={issue.title}
+              onUseRewrite={(t) => setComposerBody(t)}
+            />
             <div className="mt-2 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 {composerBody.length}/1000
@@ -379,6 +387,7 @@ function IssuePage() {
               </button>
             </div>
           </form>
+
 
           <ul className="mt-6 space-y-3">
             {comments.length === 0 && (
@@ -496,6 +505,165 @@ function AiSummarySection({
     </section>
   );
 }
+
+function DebateCoach({
+  draft,
+  stance,
+  issueTitle,
+  onUseRewrite,
+}: {
+  draft: string;
+  stance: Stance;
+  issueTitle: string;
+  onUseRewrite: (text: string) => void;
+}) {
+  const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await coachComment({
+        data: { draft, stance, issueTitle },
+      });
+      setFeedback(res);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const toneLabel: Record<CoachFeedback["tone"], string> = {
+    respectful: "Respectful tone 👍",
+    "needs-work": "Tone could be softer",
+    harsh: "Tone reads harsh",
+  };
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-sm font-semibold">🧠 AI Debate Coach</p>
+          <p className="text-xs text-muted-foreground">
+            Get evidence tips, fallacy checks, and a respect check before you post.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={run}
+          disabled={loading || draft.trim().length < 15}
+          className="rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+        >
+          {loading ? "Checking…" : feedback ? "Check again" : "Check my argument"}
+        </button>
+      </div>
+
+      {draft.trim().length < 15 && !feedback && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Write a sentence or two first, then run the coach.
+        </p>
+      )}
+      {error && <p className="mt-2 text-xs text-accent">{error}</p>}
+
+      {feedback && (
+        <div className="mt-3 space-y-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded-full bg-primary px-2 py-0.5 font-semibold text-primary-foreground">
+              Clarity {feedback.score}/10
+            </span>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-medium">
+              {toneLabel[feedback.tone]}
+            </span>
+          </div>
+
+          {feedback.strengths.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                What works
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+                {feedback.strengths.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {feedback.evidence.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Stronger evidence
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+                {feedback.evidence.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Logic check
+            </p>
+            {feedback.fallacies.length === 0 ? (
+              <p className="mt-1 text-sm text-muted-foreground">
+                No logical fallacies spotted. Nice.
+              </p>
+            ) : (
+              <ul className="mt-1 space-y-1 text-sm">
+                {feedback.fallacies.map((f, i) => (
+                  <li key={i}>
+                    <span className="font-medium">{f.name}</span> — {f.why}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {feedback.respect.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Respectful language
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+                {feedback.respect.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {feedback.rewrite && (
+            <div className="rounded-md border border-border bg-background p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Suggested stronger version
+              </p>
+              <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">
+                {feedback.rewrite}
+              </p>
+              <button
+                type="button"
+                onClick={() => onUseRewrite(feedback.rewrite)}
+                className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
+              >
+                Use this version
+              </button>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Coaching only — the AI never changes your stance or posts for you.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 
 // Silence unused import warning in environments where notFound isn't used.
 void notFound;

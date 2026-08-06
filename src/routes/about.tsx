@@ -102,6 +102,48 @@ function AboutPage() {
           </p>
         </section>
 
+        <section className="mt-10 rounded-lg border border-border bg-card p-6">
+          <h2 className="text-xl font-semibold">Start at my school</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Want to see Youth Voice in your school? It only takes one student
+            to get it moving. Share the link in class chats, show it to your
+            student council or government teacher, and encourage classmates to
+            vote on the topics that affect them.
+          </p>
+          <ol className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+            <li>
+              <span className="font-semibold">1.</span> Open Youth Voice on
+              your phone.
+            </li>
+            <li>
+              <span className="font-semibold">2.</span> Vote on one local
+              topic and read the debate.
+            </li>
+            <li>
+              <span className="font-semibold">3.</span> Share the link with
+              friends, classmates, or a teacher.
+            </li>
+            <li>
+              <span className="font-semibold">4.</span> Submit a topic that
+              matters at your school or in your neighborhood.
+            </li>
+          </ol>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              to="/submit"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              Submit a topic
+            </Link>
+            <Link
+              to="/"
+              className="rounded-md border border-border px-4 py-2 text-sm font-medium"
+            >
+              Browse topics
+            </Link>
+          </div>
+        </section>
+
         <section className="mt-10">
           <h2 className="text-xl font-semibold">What we ask of officials</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

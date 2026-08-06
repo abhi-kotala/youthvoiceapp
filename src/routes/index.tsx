@@ -185,19 +185,18 @@ function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
-            <span aria-hidden>🗳️</span> Built by students · for Fargo–Moorhead
+            <span aria-hidden>🎒</span> For students in Fargo · West Fargo · Moorhead
           </div>
           <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            A place where young people can{" "}
+            You're too young to vote.{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              influence decisions
-            </span>{" "}
-            in their communities.
+              You're not too young to be heard.
+            </span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Youth Voice is a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead.
-            Weigh in on the decisions your city is making right now — and we deliver the results
-            straight to your city council and mayor's office.
+            Youth Voice is built for middle and high schoolers. No account, no name, no email — just
+            tap where you stand on what's happening in your city. Takes about 30 seconds, and your
+            results go straight to the city council and mayor's office.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -209,15 +208,16 @@ function HomePage() {
               }}
               className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              Vote on an issue →
+              Vote in 30 seconds →
             </a>
             <Link
-              to="/about"
+              to="/my-impact"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
             >
-              How it works
+              Earn Impact Points
             </Link>
           </div>
+
         </div>
       </section>
 

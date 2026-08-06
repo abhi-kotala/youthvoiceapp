@@ -21,6 +21,21 @@ import { getTrendingYouthIdeas } from "@/lib/topics.functions";
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
 
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  All: "Every open poll and discussion across all topic areas.",
+  Education: "Schools, curriculum, student life, and learning opportunities.",
+  Transportation: "Streets, bike lanes, buses, roundabouts, and how we get around.",
+  Environment: "Parks, climate, recycling, clean air, and green spaces.",
+  Economy: "Jobs, business incentives, taxes, and local spending.",
+  Healthcare: "Hospitals, clinics, mental health, and public wellness.",
+  "Public Safety": "Police, fire, emergency services, and community safety.",
+  Community: "Events, recreation, culture, and neighborhood life.",
+  Housing: "Affordable housing, development, zoning, and rent.",
+  Government: "Elections, transparency, voting rights, and city rules.",
+  Ideas: "Fresh proposals and youth-led ideas for the community.",
+  General: "Everything else happening around the Fargo–Moorhead area.",
+};
+
 type SortOption = "newest" | "most-voted" | "most-commented";
 
 type Tally = { agree: number; disagree: number; neutral: number; total: number };
@@ -89,6 +104,7 @@ function HomePage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("newest");
   const [trending, setTrending] = useState<TrendingIdea[]>([]);
+  const [view, setView] = useState<"categories" | "issues">("categories");
 
   useEffect(() => {
     (async () => {
@@ -169,6 +185,11 @@ function HomePage() {
     setCategory("All");
     setSearch("");
     setSort("newest");
+    setView("categories");
+  };
+
+  const scrollToCategories = () => {
+    document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -200,16 +221,12 @@ function HomePage() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#issues"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
-              }}
+            <button
+              onClick={scrollToCategories}
               className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               Vote in 30 seconds →
-            </a>
+            </button>
             <Link
               to="/my-impact"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
@@ -439,198 +456,212 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ISSUES */}
+      {/* BROWSE BY CATEGORY */}
       <main id="issues" className="mx-auto max-w-5xl px-4 py-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Browse all issues</h2>
+            <h2 className="text-2xl font-bold tracking-tight">What do you care about?</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Filter by city or topic, search by keyword, and weigh in.
+              Pick a topic area to see the issues and polls inside it.
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{filtered.length} issue{filtered.length !== 1 ? "s" : ""}</span>
+            <span>{issues.length} issue{issues.length !== 1 ? "s" : ""} across {categories.length} topic{categories.length !== 1 ? "s" : ""}</span>
           </div>
         </div>
 
-        {/* Search + sort */}
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative max-w-md flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search issues..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-full pl-9"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-            <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-              <SelectTrigger className="w-[160px] rounded-full">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="most-voted">Most voted</SelectItem>
-                <SelectItem value="most-commented">Most commented</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* City filters */}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            City
-          </span>
-          {CITIES.map((c) => {
-            const count = c === "All" ? issues.length : issues.filter((i) => i.city === c).length;
-            const active = city === c;
-            return (
-              <button
-                key={c}
-                onClick={() => setCity(c)}
-                className={[
-                  "rounded-full border px-3 py-1 text-sm font-medium transition",
-                  active
-                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                    : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
-                ].join(" ")}
-              >
-                {c} <span className="ml-1 opacity-70">{count}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Category filters */}
-        {categories.length > 0 && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Topic
-            </span>
+        {view === "categories" ? (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(["All", ...categories] as string[]).map((c) => {
-              const active = category === c;
+              const count = c === "All" ? issues.length : issues.filter((i) => i.category === c).length;
               return (
                 <button
                   key={c}
-                  onClick={() => setCategory(c)}
-                  className={[
-                    "rounded-full border px-3 py-1 text-xs font-medium transition",
-                    active
-                      ? "border-accent bg-accent text-accent-foreground shadow-sm"
-                      : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
-                  ].join(" ")}
+                  onClick={() => {
+                    setCategory(c);
+                    setView("issues");
+                  }}
+                  className="group flex flex-col items-start rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                 >
-                  {c === "All" ? "All topics" : `${catEmoji(c)} ${c}`}
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl transition group-hover:scale-110 group-hover:bg-primary/20">
+                    {c === "All" ? "🗂️" : catEmoji(c)}
+                  </div>
+                  <h3 className="mt-4 text-lg font-bold">{c === "All" ? "Browse all issues" : c}</h3>
+                  <p className="mt-1 flex-grow text-sm text-muted-foreground">
+                    {CATEGORY_DESCRIPTIONS[c] ?? `Issues and polls about ${c.toLowerCase()}.`}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
+                    {count} issue{count !== 1 ? "s" : ""}
+                    <span className="transition group-hover:translate-x-0.5">→</span>
+                  </span>
                 </button>
               );
             })}
           </div>
-        )}
-
-        {/* Active filters summary */}
-        {(city !== "All" || category !== "All" || search || sort !== "newest") && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground">Active:</span>
-            {city !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                City: {city}
-              </span>
-            )}
-            {category !== "All" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
-                Topic: {category}
-              </span>
-            )}
-            {search && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
-                Search: “{search}”
-              </span>
-            )}
-            {sort !== "newest" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
-                Sort: {sort.replace("-", " ")}
-              </span>
-            )}
-            <button
-              onClick={clearFilters}
-              className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              Clear all
-            </button>
-          </div>
-        )}
-
-        {/* Results */}
-        {loading ? (
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <li
-                key={i}
-                className="h-48 animate-pulse rounded-2xl border border-border bg-card/60"
-              />
-            ))}
-          </ul>
-        ) : filtered.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
-            <p className="text-lg font-semibold text-foreground">No issues found</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Try clearing your filters or searching with different keywords.
-            </p>
-            <button
-              onClick={clearFilters}
-              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              Clear filters
-            </button>
-          </div>
         ) : (
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-            {filtered.map((i) => (
-              <li key={i.id}>
-                <IssueCard
-                  issue={i}
-                  tally={tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
-                  commentCount={commentCounts[i.id] ?? 0}
-                  trending={trendingIds.has(i.id)}
+          <>
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                onClick={() => {
+                  setView("categories");
+                  setCategory("All");
+                  setCity("All");
+                  setSearch("");
+                  setSort("newest");
+                }}
+                className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                ← Back to categories
+              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  City
+                </span>
+                {CITIES.map((c) => {
+                  const count =
+                    c === "All"
+                      ? issues.filter((i) => category === "All" || i.category === category).length
+                      : issues.filter((i) => i.city === c && (category === "All" || i.category === category)).length;
+                  const active = city === c;
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => setCity(c)}
+                      className={[
+                        "rounded-full border px-3 py-1 text-sm font-medium transition",
+                        active
+                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                          : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
+                      ].join(" ")}
+                    >
+                      {c} <span className="ml-1 opacity-70">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative max-w-md flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={`Search ${category === "All" ? "all topics" : category.toLowerCase()}...`}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="rounded-full pl-9"
                 />
-              </li>
-            ))}
-          </ul>
+              </div>
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+                  <SelectTrigger className="w-[160px] rounded-full">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="most-voted">Most voted</SelectItem>
+                    <SelectItem value="most-commented">Most commented</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {(city !== "All" || category !== "All" || search || sort !== "newest") && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground">Active:</span>
+                {category !== "All" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                    Topic: {category}
+                  </span>
+                )}
+                {city !== "All" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    City: {city}
+                  </span>
+                )}
+                {search && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                    Search: “{search}”
+                  </span>
+                )}
+                {sort !== "newest" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                    Sort: {sort.replace("-", " ")}
+                  </span>
+                )}
+                <button
+                  onClick={clearFilters}
+                  className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {loading ? (
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <li
+                    key={i}
+                    className="h-48 animate-pulse rounded-2xl border border-border bg-card/60"
+                  />
+                ))}
+              </ul>
+            ) : filtered.length === 0 ? (
+              <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
+                <p className="text-lg font-semibold text-foreground">No issues found</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Try clearing your filters or searching with different keywords.
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                {filtered.map((i) => (
+                  <li key={i.id}>
+                    <IssueCard
+                      issue={i}
+                      tally={tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
+                      commentCount={commentCounts[i.id] ?? 0}
+                      trending={trendingIds.has(i.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Adults are deciding. Students should be too.
+              </h2>
+              <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
+                Vote once, and you're already part of the report that lands on the mayor's desk. Bring
+                two friends and your school shows up in the numbers.
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={scrollToCategories}
+                  className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  Start voting
+                </button>
+                <Link
+                  to="/submit"
+                  className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary"
+                >
+                  Start your own topic
+                </Link>
+
+              </div>
+            </section>
+          </>
         )}
-
-        {/* FINAL CTA */}
-        <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Adults are deciding. Students should be too.
-          </h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Vote once, and you're already part of the report that lands on the mayor's desk. Bring
-            two friends and your school shows up in the numbers.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <a
-              href="#issues"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              Start voting
-            </a>
-            <Link
-              to="/submit"
-              className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary"
-            >
-              Start your own topic
-            </Link>
-
-          </div>
-        </section>
       </main>
 
       <SiteFooter />

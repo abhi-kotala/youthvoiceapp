@@ -346,15 +346,14 @@ function HomePage() {
         <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Trending Youth Ideas
-              </div>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Started by young people, growing right now
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Topics submitted by the community — vote, debate, and help decide what matters.
+                These weren't written by me — students posted them. Vote, argue, and
+                help decide what matters.
               </p>
+
             </div>
             <Link
               to="/submit"

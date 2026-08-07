@@ -28,7 +28,7 @@ function partsToText(parts: UIMessage["parts"]): string {
 }
 
 /** Holographic AI orb */
-function CivvyOrb({ size = 56, busy = false }: { size?: number; busy?: boolean }) {
+function AgoraOrb({ size = 56, busy = false }: { size?: number; busy?: boolean }) {
   return (
     <span
       className="relative inline-flex items-center justify-center"
@@ -116,11 +116,11 @@ export function ChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           className="group fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full border border-primary/30 bg-card/70 py-2 pl-2 pr-4 backdrop-blur-xl transition hover:-translate-y-0.5 glow-ring"
-          aria-label="Open Civvy, the AI civic assistant"
+          aria-label="Open Agora, the AI civic assistant"
         >
-          <CivvyOrb size={44} />
+          <AgoraOrb size={44} />
           <span className="hidden text-left sm:block">
-            <span className="block text-sm font-bold leading-tight">Civvy</span>
+            <span className="block text-sm font-bold leading-tight">Agora</span>
             <span className="block text-[11px] leading-tight text-muted-foreground">
               Ask me anything civic
             </span>
@@ -132,9 +132,9 @@ export function ChatWidget() {
         <div className="glass fixed bottom-5 right-5 z-50 flex h-[580px] max-h-[85vh] w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-3xl">
           <div className="flex items-center justify-between border-b border-primary/15 px-4 py-3">
             <div className="flex items-center gap-3">
-              <CivvyOrb size={38} busy={isBusy} />
+              <AgoraOrb size={38} busy={isBusy} />
               <div>
-                <div className="text-sm font-bold">Civvy</div>
+                <div className="text-sm font-bold">Agora</div>
                 <div className="text-[11px] text-muted-foreground">
                   {isBusy ? "Processing…" : "Holographic civic assistant"}
                 </div>
@@ -155,7 +155,7 @@ export function ChatWidget() {
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-foreground"
-                aria-label="Close Civvy"
+                aria-label="Close Agora"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -166,7 +166,7 @@ export function ChatWidget() {
             {messages.length === 0 && (
               <div className="space-y-3">
                 <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 text-sm leading-relaxed text-foreground">
-                  I'm <span className="font-semibold text-primary">Civvy</span>. I can break down a
+                  I'm <span className="font-semibold text-primary">Agora</span>. I can break down a
                   local issue in plain English, summarize what the community is saying, answer civic
                   questions, or help you turn an idea into a real proposal.
                 </div>
@@ -230,7 +230,7 @@ export function ChatWidget() {
                   handleSubmit(e);
                 }
               }}
-              placeholder="Ask Civvy…"
+              placeholder="Ask Agora…"
               rows={1}
               className="max-h-32 min-h-[40px] flex-1 resize-none rounded-xl border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
               disabled={isBusy}

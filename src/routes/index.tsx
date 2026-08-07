@@ -241,32 +241,25 @@ function HomePage() {
 
       {/* STATS */}
       <section className="border-b border-border bg-card/40">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            {[
-              { label: "Participants", value: participants, emoji: "👥" },
-              { label: "Polls", value: issues.length, emoji: "📊" },
-              { label: "Votes cast", value: totalVotes, emoji: "🗳️" },
-              { label: "Cities", value: 3, emoji: "🏙️" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="group rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="text-2xl transition-transform group-hover:scale-110" aria-hidden>
-                  {s.emoji}
-                </div>
-                <dd className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  <CountUp value={s.value} />
-                </dd>
-                <dt className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {s.label}
-                </dt>
-              </div>
-            ))}
-          </dl>
+        <div className="mx-auto max-w-5xl px-4 py-8">
+          <p className="text-base leading-relaxed sm:text-lg">
+            So far{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={participants} />
+            </span>{" "}
+            people have shown up here, cast{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={totalVotes} />
+            </span>{" "}
+            votes across{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={issues.length} />
+            </span>{" "}
+            open topics in three cities. Every one of those is a real person under 18.
+          </p>
         </div>
       </section>
+
 
       {/* MADE FOR STUDENTS */}
       <section className="border-b border-border">

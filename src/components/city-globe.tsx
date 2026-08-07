@@ -214,7 +214,7 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
         if (p.z > 0.05) hits.push({ name: c.name, sx: p.sx, sy: p.sy });
 
         // label
-        if (p.z > 0.15 && (isActive || c.intensity > 0.45)) {
+        if (p.z > 0.15 && (isActive || !c.live)) {
           ctx.font = `600 11px ui-sans-serif, system-ui`;
           ctx.fillStyle = `rgba(226,247,255,${isActive ? 0.98 : 0.6 * front})`;
           ctx.fillText(c.name, p.sx + base * 2, p.sy - base);

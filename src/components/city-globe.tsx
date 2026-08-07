@@ -86,10 +86,16 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
 
+    let last = 0;
     const draw = (t: number) => {
       const s = stateRef.current;
       const { cities: cs, selected: sel, hover: hv } = dataRef.current;
-      if (s.spin && !s.dragging) s.ry += 0.0022;
+      const dt = last ? Math.min(64, t - last) : 16;
+      last = t;
+      if (s.spin && !s.dragging) {
+        s.ry += 0.00014 * dt;
+        if (s.ry > Math.PI * 2) s.ry -= Math.PI * 2;
+      }
 
       const cx = w / 2;
       const cy = h / 2;
@@ -137,6 +143,11 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.clip();
 
+      const land = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+      land.addColorStop(0, "rgba(72,163,131,0.92)");
+      land.addColorStop(0.6, "rgba(44,122,105,0.9)");
+      land.addColorStop(1, "rgba(28,84,82,0.9)");
+
       for (const ring of LANDMASSES) {
         // densify long edges so shapes bend with the sphere
         const pts: { sx: number; sy: number; z: number }[] = [];
@@ -153,32 +164,34 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
             const lon = lon1 + (lon2 - lon1) * f;
             pts.push(project(rotate(toVec(lat, lon), s.rx, s.ry)));
           }
-
         }
 
-        let open = false;
+        // skip fully back-facing shapes
+        if (!pts.some((p) => p.z >= 0)) continue;
+
+        // clamp back-facing vertices onto the limb so the outline stays a
+        // single continuous polygon instead of flickering broken subpaths
         ctx.beginPath();
-        for (const p of pts) {
+        pts.forEach((p, i) => {
+          let { sx, sy } = p;
           if (p.z < 0) {
-            open = false;
-            continue;
+            const dx = sx - cx;
+            const dy = sy - cy;
+            const d = Math.hypot(dx, dy) || 1;
+            sx = cx + (dx / d) * R;
+            sy = cy + (dy / d) * R;
           }
-          if (!open) {
-            ctx.moveTo(p.sx, p.sy);
-            open = true;
-          } else ctx.lineTo(p.sx, p.sy);
-        }
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        });
         ctx.closePath();
-        const land = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
-        land.addColorStop(0, "rgba(72,163,131,0.92)");
-        land.addColorStop(0.6, "rgba(44,122,105,0.9)");
-        land.addColorStop(1, "rgba(28,84,82,0.9)");
         ctx.fillStyle = land;
         ctx.fill();
         ctx.strokeStyle = "rgba(150,235,205,0.35)";
         ctx.lineWidth = 0.8;
         ctx.stroke();
       }
+
       ctx.restore();
 
       // graticule

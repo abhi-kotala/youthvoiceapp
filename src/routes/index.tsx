@@ -263,7 +263,7 @@ function HomePage() {
 
       {/* MADE FOR STUDENTS */}
       <section className="border-b border-border">
-        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-[1fr_1.1fr] md:py-16">
+        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2 md:py-16">
           <div>
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               A few honest answers

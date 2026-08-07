@@ -205,35 +205,36 @@ function HomePage() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
-            <span aria-hidden>🎒</span> For students in Fargo · West Fargo · Moorhead
-          </div>
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            You're too young to vote.{" "}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              You're not too young to be heard.
-            </span>
+          <p className="text-sm font-medium text-muted-foreground">
+            Fargo · West Fargo · Moorhead
+          </p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+            You're too young to vote.
+            <br />
+            You're not too young to be heard.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Youth Voice is built for middle and high schoolers. No account, no name, no email — just
-            tap where you stand on what's happening in your city. Takes about 30 seconds, and your
-            results go straight to the city council and mayor's office.
+            I'm Abhi, a high schooler in West Fargo. I built this because people our age
+            live with what the city decides and almost never get asked about it. No account,
+            no name, no email — just say where you stand. It takes about half a minute, and
+            what we say gets carried to the council and the mayor's office.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <button
               onClick={scrollToCategories}
               className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              Vote in 30 seconds →
+              Start with what you care about
             </button>
             <Link
-              to="/my-impact"
-              className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
+              to="/about"
+              className="text-sm font-semibold text-foreground underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
             >
-              Earn Impact Points
+              Read why I made this
             </Link>
           </div>
+
 
         </div>
       </section>

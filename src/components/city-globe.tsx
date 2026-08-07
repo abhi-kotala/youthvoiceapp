@@ -147,12 +147,13 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
             1,
             Math.ceil(Math.max(Math.abs(lon2 - lon1), Math.abs(lat2 - lat1)) / 4),
           );
-          for (let s = 0; s < steps; s++) {
-            const f = s / steps;
+          for (let st = 0; st < steps; st++) {
+            const f = st / steps;
             const lat = lat1 + (lat2 - lat1) * f;
             const lon = lon1 + (lon2 - lon1) * f;
-            pts.push(project(rotate(toVec(lat, lon), s2.rx, s2.ry)));
+            pts.push(project(rotate(toVec(lat, lon), s.rx, s.ry)));
           }
+
         }
 
         let open = false;

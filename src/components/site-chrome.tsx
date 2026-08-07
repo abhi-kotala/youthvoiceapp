@@ -14,14 +14,14 @@ const NAV_LINKS = [
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-border bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-40 border-b border-primary/15 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:py-4">
         <Link to="/" className="flex min-w-0 items-baseline gap-2">
           <span className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-            Youth<span className="text-accent">Voice</span>
+            Youth<span className="neon-text">Voice</span>
           </span>
-          <span className="hidden text-xs uppercase tracking-widest opacity-70 sm:inline">
-            Under-18 Poll
+          <span className="hidden text-[10px] uppercase tracking-[0.22em] text-primary/70 sm:inline">
+            Civic Grid
           </span>
         </Link>
 
@@ -31,7 +31,7 @@ export function SiteHeader() {
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-md px-3 py-2 text-sm font-medium underline-offset-4 transition hover:bg-primary-foreground/10 hover:underline"
+              className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
             >
               {link.label}
             </Link>
@@ -53,7 +53,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-border bg-secondary">
+    <footer className="mt-16 border-t border-primary/15 bg-card/40 backdrop-blur-xl">
       <div className="mx-auto max-w-5xl px-4 py-8">
         <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
           <div>

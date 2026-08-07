@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import fargoImg from "@/assets/city-fargo.jpg";
 import westFargoImg from "@/assets/city-west-fargo.jpg";
 import moorheadImg from "@/assets/city-moorhead.jpg";
@@ -205,159 +205,140 @@ function HomePage() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground backdrop-blur">
-            <span aria-hidden>🎒</span> For students in Fargo · West Fargo · Moorhead
-          </div>
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            You're too young to vote.{" "}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              You're not too young to be heard.
-            </span>
+          <p className="text-sm font-medium text-muted-foreground">
+            Fargo · West Fargo · Moorhead
+          </p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+            You're too young to vote.
+            <br />
+            You're not too young to be heard.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Youth Voice is built for middle and high schoolers. No account, no name, no email — just
-            tap where you stand on what's happening in your city. Takes about 30 seconds, and your
-            results go straight to the city council and mayor's office.
+            I'm Abhi, a high schooler in West Fargo. I built this because people our age
+            live with what the city decides and almost never get asked about it. No account,
+            no name, no email — just say where you stand. It takes about half a minute, and
+            what we say gets carried to the council and the mayor's office.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <button
               onClick={scrollToCategories}
               className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              Vote in 30 seconds →
+              Start with what you care about
             </button>
             <Link
-              to="/my-impact"
-              className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary"
+              to="/about"
+              className="text-sm font-semibold text-foreground underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
             >
-              Earn Impact Points
+              Read why I made this
             </Link>
           </div>
+
 
         </div>
       </section>
 
       {/* STATS */}
       <section className="border-b border-border bg-card/40">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="mx-auto max-w-5xl px-4 py-8">
+          <p className="text-base leading-relaxed sm:text-lg">
+            So far{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={participants} />
+            </span>{" "}
+            people have shown up here, cast{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={totalVotes} />
+            </span>{" "}
+            votes across{" "}
+            <span className="font-bold text-accent">
+              <CountUp value={issues.length} />
+            </span>{" "}
+            open topics in three cities. Every one of those is a real person under 18.
+          </p>
+        </div>
+      </section>
+
+
+      {/* MADE FOR STUDENTS */}
+      <section className="border-b border-border">
+        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2 md:py-16">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              A few honest answers
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              The questions people ask me in the hallway, answered the way I'd
+              actually answer them.
+            </p>
+            <div className="mt-6 border-l-2 border-accent pl-4">
+              <p className="text-sm italic leading-relaxed">
+                "Half the people I talked to assumed nobody at city hall would ever
+                read this. They do. That's the whole point."
+              </p>
+              <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                — Abhi Kotala, founder
+              </p>
+            </div>
+          </div>
+
+          <dl className="divide-y divide-border">
             {[
-              { label: "Participants", value: participants, emoji: "👥" },
-              { label: "Polls", value: issues.length, emoji: "📊" },
-              { label: "Votes cast", value: totalVotes, emoji: "🗳️" },
-              { label: "Cities", value: 3, emoji: "🏙️" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="group rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="text-2xl transition-transform group-hover:scale-110" aria-hidden>
-                  {s.emoji}
-                </div>
-                <dd className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  <CountUp value={s.value} />
+              {
+                q: "Will anyone know it was me?",
+                a: "No. There's no sign-up, no name, no email. Nobody at your school can see what you voted.",
+              },
+              {
+                q: "How long does it actually take?",
+                a: "About thirty seconds. Read the topic, tap agree, disagree, or neutral. Leave a comment if you feel like it.",
+              },
+              {
+                q: "Do I get anything out of it?",
+                a: "You collect Impact Points as you vote and debate. Students have used them on résumés, scholarship apps, and college essays.",
+              },
+              {
+                q: "What if the city document makes no sense?",
+                a: "Paste it into the Explain page and it gets rewritten in normal English, with who it affects and what the trade-offs are.",
+              },
+            ].map((f) => (
+              <div key={f.q} className="py-4 first:pt-0">
+                <dt className="text-base font-bold tracking-tight">{f.q}</dt>
+                <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {f.a}
                 </dd>
-                <dt className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {s.label}
-                </dt>
               </div>
             ))}
           </dl>
         </div>
-      </section>
 
-      {/* MADE FOR STUDENTS */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
-              <span aria-hidden>🎓</span> Made for students
-            </div>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              Why students actually use this
-            </h2>
-          </div>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                emoji: "🕶️",
-                title: "100% anonymous",
-                body: "No sign-up, no name, no email. Nobody at school sees what you voted.",
-              },
-              {
-                emoji: "⏱️",
-                title: "30 seconds a poll",
-                body: "Tap agree, disagree, or neutral between classes. That's it.",
-              },
-              {
-                emoji: "🏅",
-                title: "Points, levels & badges",
-                body: "Earn Civic Impact Points for voting and debating — great for résumés, scholarships, and college apps.",
-              },
-              {
-                emoji: "🤖",
-                title: "AI does the boring part",
-                body: "Confused by a city proposal? AI explains it in plain, student-level language and coaches your arguments.",
-              },
-            ].map((f) => (
-              <li
-                key={f.title}
-                className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="text-2xl" aria-hidden>
-                  {f.emoji}
-                </div>
-                <h3 className="mt-2 text-base font-bold tracking-tight">{f.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 rounded-2xl border border-border bg-card/60 p-6">
-            <h3 className="text-center text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-              How it works for you
-            </h3>
-            <ol className="mt-4 grid gap-4 sm:grid-cols-3">
-              {[
-                { n: 1, t: "Pick an issue", d: "Something real that's happening in your city right now." },
-                { n: 2, t: "Vote & debate", d: "Say where you stand and back it up in the thread." },
-                { n: 3, t: "We deliver it", d: "Results are packaged and sent to the mayor and city council." },
-              ].map((s) => (
-                <li key={s.n} className="flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                    {s.n}
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold">{s.t}</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{s.d}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/explain"
-                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
-              >
-                🤖 Explain a city document
-              </Link>
-              <Link
-                to="/my-impact"
-                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
-              >
-                🏅 See my Impact
-              </Link>
-              <Link
-                to="/about"
-                className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
-              >
-                📣 Bring it to my school
-              </Link>
-            </div>
+        <div className="mx-auto max-w-5xl px-4 pb-12 md:pb-16">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border pt-6 text-sm">
+            <span className="font-semibold text-muted-foreground">
+              Also here:
+            </span>
+            <Link
+              to="/explain"
+              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
+            >
+              Explain a city document
+            </Link>
+            <Link
+              to="/my-impact"
+              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
+            >
+              See my Impact
+            </Link>
+            <Link
+              to="/about"
+              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
+            >
+              Start it at my school
+            </Link>
           </div>
         </div>
       </section>
+
 
 
       {/* TRENDING YOUTH IDEAS */}
@@ -365,15 +346,14 @@ function HomePage() {
         <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Trending Youth Ideas
-              </div>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Started by young people, growing right now
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Topics submitted by the community — vote, debate, and help decide what matters.
+                These weren't written by me — students posted them. Vote, argue, and
+                help decide what matters.
               </p>
+
             </div>
             <Link
               to="/submit"

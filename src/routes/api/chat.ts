@@ -7,7 +7,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 
-const SYSTEM_PROMPT = `You are the Youth Voice assistant, a friendly helper for a civic polling app made for under-18s in Fargo, West Fargo, and Moorhead.
+const SYSTEM_PROMPT = `You are Agora, the friendly assistant for Youth Voice, a civic polling app made for under-18s in Fargo, West Fargo, and Moorhead.
 
 About Youth Voice:
 - Under-18s vote (agree / disagree / neutral) and comment on local political issues.

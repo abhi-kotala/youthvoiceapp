@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { CountUp } from "@/components/count-up";
 import { IssueCard, catEmoji } from "@/components/issue-card";
+import { CityGlobe, type GlobeCity } from "@/components/city-globe";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,14 +13,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal } from "lucide-react";
-import fargoImg from "@/assets/city-fargo.jpg";
-import westFargoImg from "@/assets/city-west-fargo.jpg";
-import moorheadImg from "@/assets/city-moorhead.jpg";
+import { Search, SlidersHorizontal, Radio, Activity, MessagesSquare, Zap } from "lucide-react";
 import { getTrendingYouthIdeas } from "@/lib/topics.functions";
 
 const CITIES = ["All", "Fargo", "West Fargo", "Moorhead"] as const;
 type CityFilter = (typeof CITIES)[number];
+
+const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
+  Fargo: { lat: 46.8772, lon: -96.7898 },
+  "West Fargo": { lat: 46.8747, lon: -96.9003 },
+  Moorhead: { lat: 46.8738, lon: -96.7678 },
+};
+
+const EXPANDING = [
+  { name: "Grand Forks", lat: 47.9253, lon: -97.0329 },
+  { name: "Bismarck", lat: 46.8083, lon: -100.7837 },
+  { name: "Minneapolis", lat: 44.9778, lon: -93.265 },
+  { name: "Sioux Falls", lat: 43.5446, lon: -96.7311 },
+];
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   All: "Every open poll and discussion across all topic areas.",
@@ -37,7 +48,6 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 type SortOption = "newest" | "most-voted" | "most-commented";
-
 type Tally = { agree: number; disagree: number; neutral: number; total: number };
 
 type Issue = {
@@ -51,6 +61,7 @@ type Issue = {
   topic_type?: string | null;
   location_scope?: string | null;
   location_name?: string | null;
+  impact_status?: string | null;
 };
 
 type TrendingIdea = {
@@ -69,18 +80,19 @@ type TrendingIdea = {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Youth Voice — Where under-18s weigh in on city issues" },
+      { title: "Youth Voice — The smart-city platform for under-18 civic power" },
       {
         name: "description",
         content:
-          "Youth Voice: a free, anonymous poll for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local city issues; results are shared with the city council and mayor.",
+          "Youth Voice is a next-generation civic platform for under-18s in Fargo, West Fargo, and Moorhead. Explore the live city grid, vote anonymously, debate, and send results to the mayor.",
       },
       { property: "og:title", content: "Youth Voice — Under-18 city polls for Fargo-Moorhead" },
       {
         property: "og:description",
         content:
-          "Free, anonymous polls for under-18s in Fargo, West Fargo, and Moorhead. Vote and debate local issues; results go to city council and the mayor.",
+          "A futuristic civic platform where young people vote, debate, and shape city decisions. Anonymous, free, and delivered straight to city hall.",
       },
+      { property: "og:type", content: "website" },
       { property: "og:url", content: "https://youthvoiceapp.lovable.app/" },
       { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
       { property: "og:image:width", content: "1200" },
@@ -97,6 +109,7 @@ function HomePage() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [tallies, setTallies] = useState<Record<string, Tally>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [cityDevices, setCityDevices] = useState<Record<string, number>>({});
   const [participants, setParticipants] = useState(0);
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState<CityFilter>("All");
@@ -113,15 +126,20 @@ function HomePage() {
         supabase.from("votes").select("issue_id, choice, device_id"),
         supabase.from("comments").select("issue_id, device_id").eq("hidden", false),
       ]);
-      setIssues((issuesRes.data ?? []) as Issue[]);
+      const rows = (issuesRes.data ?? []) as Issue[];
+      setIssues(rows);
+      const cityOf = new Map(rows.map((i) => [i.id, i.city]));
 
       const t: Record<string, Tally> = {};
       const devices = new Set<string>();
+      const perCity: Record<string, Set<string>> = {};
       (votesRes.data ?? []).forEach((v: { issue_id: string; choice: string; device_id: string }) => {
         t[v.issue_id] ??= { agree: 0, disagree: 0, neutral: 0, total: 0 };
         t[v.issue_id][v.choice as keyof Omit<Tally, "total">] += 1;
         t[v.issue_id].total += 1;
         devices.add(v.device_id);
+        const c = cityOf.get(v.issue_id);
+        if (c) (perCity[c] ??= new Set()).add(v.device_id);
       });
       setTallies(t);
 
@@ -129,30 +147,78 @@ function HomePage() {
       (commentsRes.data ?? []).forEach((r: { issue_id: string; device_id: string }) => {
         c[r.issue_id] = (c[r.issue_id] ?? 0) + 1;
         devices.add(r.device_id);
+        const ct = cityOf.get(r.issue_id);
+        if (ct) (perCity[ct] ??= new Set()).add(r.device_id);
       });
       setCommentCounts(c);
       setParticipants(devices.size);
+      setCityDevices(
+        Object.fromEntries(Object.entries(perCity).map(([k, v]) => [k, v.size])),
+      );
       setLoading(false);
     })();
-    getTrendingYouthIdeas().then((rows) => setTrending(rows as TrendingIdea[])).catch(() => {});
+    getTrendingYouthIdeas()
+      .then((rows) => setTrending(rows as TrendingIdea[]))
+      .catch(() => {});
   }, []);
 
   const totalVotes = Object.values(tallies).reduce((a, t) => a + t.total, 0);
+  const totalComments = Object.values(commentCounts).reduce((a, n) => a + n, 0);
   const categories = useMemo(
     () => Array.from(new Set(issues.map((i) => i.category))).sort(),
     [issues],
   );
 
-  const trendingIds = useMemo(() => {
-    return new Set(
-      [...issues]
-        .filter((i) => (tallies[i.id]?.total ?? 0) > 0)
-        .sort((a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0))
-        .slice(0, 3)
-        .map((i) => i.id),
-    );
-  }, [issues, tallies]);
+  const trendingIds = useMemo(
+    () =>
+      new Set(
+        [...issues]
+          .filter((i) => (tallies[i.id]?.total ?? 0) > 0)
+          .sort((a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0))
+          .slice(0, 3)
+          .map((i) => i.id),
+      ),
+    [issues, tallies],
+  );
 
+  /* ---------- globe data ---------- */
+  const liveCityStats = useMemo(() => {
+    return (["Fargo", "West Fargo", "Moorhead"] as const).map((name) => {
+      const cityIssues = issues.filter((i) => i.city === name);
+      const votes = cityIssues.reduce((a, i) => a + (tallies[i.id]?.total ?? 0), 0);
+      const comments = cityIssues.reduce((a, i) => a + (commentCounts[i.id] ?? 0), 0);
+      return {
+        name,
+        issues: cityIssues.length,
+        votes,
+        comments,
+        participants: cityDevices[name] ?? 0,
+        top: [...cityIssues].sort(
+          (a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0),
+        )[0],
+      };
+    });
+  }, [issues, tallies, commentCounts, cityDevices]);
+
+  const maxVotes = Math.max(1, ...liveCityStats.map((c) => c.votes));
+
+  const globeCities: GlobeCity[] = useMemo(() => {
+    const live = liveCityStats.map((c) => ({
+      name: c.name,
+      lat: CITY_COORDS[c.name].lat,
+      lon: CITY_COORDS[c.name].lon,
+      intensity: 0.45 + (c.votes / maxVotes) * 0.55,
+      live: true,
+    }));
+    const soon = EXPANDING.map((c) => ({ ...c, intensity: 0.22, live: false }));
+    return [...live, ...soon];
+  }, [liveCityStats, maxVotes]);
+
+  const [globeCity, setGlobeCity] = useState<string>("Fargo");
+  const handleSelect = useCallback((name: string) => setGlobeCity(name), []);
+  const dashboard = liveCityStats.find((c) => c.name === globeCity) ?? null;
+
+  /* ---------- issue list ---------- */
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = issues.filter(
@@ -171,7 +237,6 @@ function HomePage() {
       case "most-commented":
         list = list.sort((a, b) => (commentCounts[b.id] ?? 0) - (commentCounts[a.id] ?? 0));
         break;
-      case "newest":
       default:
         list = list.sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -180,280 +245,282 @@ function HomePage() {
     return list;
   }, [issues, city, category, search, sort, tallies, commentCounts]);
 
-  const clearFilters = () => {
-    setCity("All");
-    setCategory("All");
-    setSearch("");
-    setSort("newest");
-    setView("categories");
+  const scrollToGrid = () => {
+    document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const scrollToCategories = () => {
-    document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" });
+  const openCity = (name: string) => {
+    setCity(name as CityFilter);
+    setCategory("All");
+    setView("issues");
+    setTimeout(() => document.getElementById("issues")?.scrollIntoView({ behavior: "smooth" }), 40);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 grid grid-cols-3 opacity-60">
-          <img src={fargoImg} alt="Downtown Fargo skyline" className="h-full w-full object-cover" />
-          <img src={westFargoImg} alt="West Fargo neighborhood" className="h-full w-full object-cover" />
-          <img src={moorheadImg} alt="Moorhead city view" className="h-full w-full object-cover" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
-        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:py-24">
-          <p className="text-sm font-medium text-muted-foreground">
-            Fargo · West Fargo · Moorhead
-          </p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            You're too young to vote.
-            <br />
-            You're not too young to be heard.
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            I'm Abhi, a high schooler in West Fargo. I built this because people our age
-            live with what the city decides and almost never get asked about it. No account,
-            no name, no email — just say where you stand. It takes about half a minute, and
-            what we say gets carried to the council and the mayor's office.
-          </p>
+      {/* ================= HERO + GLOBE ================= */}
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 grid-bg" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-52 right-0 h-[420px] w-[520px] rounded-full bg-accent/15 blur-[130px]" />
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button
-              onClick={scrollToCategories}
-              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              Start with what you care about
-            </button>
-            <Link
-              to="/about"
-              className="text-sm font-semibold text-foreground underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
-            >
-              Read why I made this
-            </Link>
-          </div>
-
-
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="border-b border-border bg-card/40">
-        <div className="mx-auto max-w-5xl px-4 py-8">
-          <p className="text-base leading-relaxed sm:text-lg">
-            So far{" "}
-            <span className="font-bold text-accent">
-              <CountUp value={participants} />
-            </span>{" "}
-            people have shown up here, cast{" "}
-            <span className="font-bold text-accent">
-              <CountUp value={totalVotes} />
-            </span>{" "}
-            votes across{" "}
-            <span className="font-bold text-accent">
-              <CountUp value={issues.length} />
-            </span>{" "}
-            open topics in three cities. Every one of those is a real person under 18.
-          </p>
-        </div>
-      </section>
-
-
-      {/* MADE FOR STUDENTS */}
-      <section className="border-b border-border">
-        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2 md:py-16">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              A few honest answers
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              The questions people ask me in the hallway, answered the way I'd
-              actually answer them.
-            </p>
-            <div className="mt-6 border-l-2 border-accent pl-4">
-              <p className="text-sm italic leading-relaxed">
-                "Half the people I talked to assumed nobody at city hall would ever
-                read this. They do. That's the whole point."
-              </p>
-              <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                — Abhi Kotala, founder
-              </p>
-            </div>
-          </div>
-
-          <dl className="divide-y divide-border">
-            {[
-              {
-                q: "Will anyone know it was me?",
-                a: "No. There's no sign-up, no name, no email. Nobody at your school can see what you voted.",
-              },
-              {
-                q: "How long does it actually take?",
-                a: "About thirty seconds. Read the topic, tap agree, disagree, or neutral. Leave a comment if you feel like it.",
-              },
-              {
-                q: "Do I get anything out of it?",
-                a: "You collect Impact Points as you vote and debate. Students have used them on résumés, scholarship apps, and college essays.",
-              },
-              {
-                q: "What if the city document makes no sense?",
-                a: "Paste it into the Explain page and it gets rewritten in normal English, with who it affects and what the trade-offs are.",
-              },
-            ].map((f) => (
-              <div key={f.q} className="py-4 first:pt-0">
-                <dt className="text-base font-bold tracking-tight">{f.q}</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {f.a}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        <div className="mx-auto max-w-5xl px-4 pb-12 md:pb-16">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border pt-6 text-sm">
-            <span className="font-semibold text-muted-foreground">
-              Also here:
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 lg:grid-cols-[1.05fr_1fr] lg:py-20">
+          <div className="animate-rise">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              <Radio className="h-3.5 w-3.5" />
+              Live civic grid
             </span>
-            <Link
-              to="/explain"
-              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
-            >
-              Explain a city document
-            </Link>
-            <Link
-              to="/my-impact"
-              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
-            >
-              See my Impact
-            </Link>
-            <Link
-              to="/about"
-              className="font-semibold underline underline-offset-4 decoration-accent decoration-2 hover:text-accent"
-            >
-              Start it at my school
-            </Link>
-          </div>
-        </div>
-      </section>
+            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+              You're too young to vote.
+              <br />
+              <span className="neon-text">Not too young to be heard.</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              A next-generation civic platform built by a high schooler in West Fargo. Explore the
+              live city grid, take a 30-second poll, debate it out, and watch what your generation
+              says get delivered straight to city hall. No account. No name. No email.
+            </p>
 
-
-
-      {/* TRENDING YOUTH IDEAS */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Started by young people, growing right now
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                These weren't written by me — students posted them. Vote, argue, and
-                help decide what matters.
-              </p>
-
-            </div>
-            <Link
-              to="/submit"
-              className="shrink-0 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              + Submit your topic
-            </Link>
-          </div>
-
-          {trending.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center">
-              <p className="text-lg font-semibold">Be the first to start a youth-led topic</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Propose something your community should be talking about. Earn +15 Impact Points.
-              </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <button
+                onClick={scrollToGrid}
+                className="group relative overflow-hidden rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground glow-ring transition hover:-translate-y-0.5"
+              >
+                <span className="relative z-10">Enter the grid</span>
+                <span className="absolute inset-y-0 -left-1/3 w-1/3 bg-white/30 blur-md [animation:yv-sweep_2.6s_linear_infinite]" />
+              </button>
               <Link
                 to="/submit"
-                className="mt-4 inline-block rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+                className="rounded-full border border-primary/30 px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary/70 hover:text-primary"
               >
-                Submit a topic →
+                Launch your own topic
               </Link>
             </div>
-          ) : (
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {trending.map((i) => (
-                <li key={i.id}>
-                  <IssueCard
-                    issue={{
-                      id: i.id,
-                      title: i.title,
-                      description: i.description,
-                      category: i.category,
-                      city: i.city,
-                      source: "user",
-                      topic_type: i.topic_type,
-                      location_scope: i.location_scope,
-                      location_name: i.location_name,
-                    }}
-                    tally={{ agree: 0, disagree: 0, neutral: 0, total: i.voteCount }}
-                    commentCount={i.commentCount}
-                  />
-                </li>
+
+            <dl className="mt-9 grid max-w-lg grid-cols-3 gap-3">
+              {[
+                { label: "Voices", value: participants, icon: Activity },
+                { label: "Votes cast", value: totalVotes, icon: Zap },
+                { label: "Debate posts", value: totalComments, icon: MessagesSquare },
+              ].map((s) => (
+                <div key={s.label} className="glass rounded-2xl px-4 py-3">
+                  <s.icon className="h-4 w-4 text-primary" />
+                  <dd className="mt-2 font-display text-2xl font-extrabold">
+                    <CountUp value={s.value} />
+                  </dd>
+                  <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                    {s.label}
+                  </dt>
+                </div>
               ))}
-            </ul>
+            </dl>
+          </div>
+
+          {/* GLOBE */}
+          <div className="relative">
+            <div className="glass relative overflow-hidden rounded-[2rem] p-4">
+              <div className="flex items-center justify-between px-2 pb-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  YouthVoice network
+                </span>
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-primary">
+                  <span className="h-2 w-2 rounded-full bg-primary animate-orb" />
+                  {liveCityStats.length} cities live
+                </span>
+              </div>
+              <CityGlobe
+                cities={globeCities}
+                selected={globeCity}
+                onSelect={handleSelect}
+                className="aspect-square w-full animate-float"
+              />
+              <p className="px-2 pb-1 text-center text-xs text-muted-foreground">
+                Drag to spin · tap a glowing city to open its dashboard
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= CITY DASHBOARD ================= */}
+      <section className="relative border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 grid-bg opacity-60" />
+        <div className="relative mx-auto max-w-6xl px-4 py-14">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-display text-2xl font-extrabold sm:text-3xl">
+                City dashboard
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Real-time youth signal for each city on the network.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {liveCityStats.map((c) => (
+                <button
+                  key={c.name}
+                  onClick={() => setGlobeCity(c.name)}
+                  className={[
+                    "rounded-full border px-4 py-1.5 text-sm font-semibold transition",
+                    globeCity === c.name
+                      ? "border-primary/60 bg-primary/15 text-primary glow-ring"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {dashboard && (
+            <div key={dashboard.name} className="mt-6 grid animate-rise gap-4 lg:grid-cols-3">
+              <div className="glass glass-hover rounded-3xl p-6 lg:col-span-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  Selected city
+                </p>
+                <h3 className="mt-1 font-display text-3xl font-extrabold">{dashboard.name}</h3>
+                <div className="mt-6 space-y-4">
+                  {[
+                    { label: "Young people engaged", value: dashboard.participants },
+                    { label: "Votes cast", value: dashboard.votes },
+                    { label: "Debate posts", value: dashboard.comments },
+                    { label: "Open topics", value: dashboard.issues },
+                  ].map((row) => (
+                    <div key={row.label}>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-sm text-muted-foreground">{row.label}</span>
+                        <span className="font-display text-lg font-bold text-foreground">
+                          {row.value}
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                          style={{
+                            width: `${Math.min(100, (row.value / Math.max(1, maxVotes)) * 100 + 8)}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => openCity(dashboard.name)}
+                  className="mt-6 w-full rounded-full bg-primary py-2.5 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 glow-ring"
+                >
+                  Open {dashboard.name} topics
+                </button>
+              </div>
+
+              <div className="glass rounded-3xl p-6 lg:col-span-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  Trending in {dashboard.name}
+                </p>
+                <div className="mt-4 space-y-3">
+                  {issues
+                    .filter((i) => i.city === dashboard.name)
+                    .sort((a, b) => (tallies[b.id]?.total ?? 0) - (tallies[a.id]?.total ?? 0))
+                    .slice(0, 4)
+                    .map((i) => {
+                      const t = tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 };
+                      const pct = (n: number) => (t.total ? Math.round((n / t.total) * 100) : 0);
+                      return (
+                        <Link
+                          key={i.id}
+                          to="/issue/$id"
+                          params={{ id: i.id }}
+                          className="block rounded-2xl border border-border/70 bg-background/40 p-4 transition hover:border-primary/50 hover:bg-background/70"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="line-clamp-2 text-sm font-semibold">
+                              <span className="mr-1.5">{catEmoji(i.category)}</span>
+                              {i.title}
+                            </p>
+                            <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                              {t.total} votes
+                            </span>
+                          </div>
+                          <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-secondary">
+                            <div className="bg-chart-1" style={{ width: `${pct(t.agree)}%` }} />
+                            <div className="bg-chart-2" style={{ width: `${pct(t.disagree)}%` }} />
+                            <div className="bg-chart-3" style={{ width: `${pct(t.neutral)}%` }} />
+                          </div>
+                          <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
+                            <span>{pct(t.agree)}% agree</span>
+                            <span>{pct(t.disagree)}% disagree</span>
+                            <span>{commentCounts[i.id] ?? 0} in the debate</span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  {issues.filter((i) => i.city === dashboard.name).length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No topics here yet — be the first to launch one.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </section>
 
-      {/* THREE CITIES */}
-      <section className="border-b border-border bg-card/40">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:py-12">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Three cities, one voice</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Built for every young person in the Fargo–Moorhead area.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              { name: "Fargo", img: fargoImg, alt: "Downtown Fargo skyline" },
-              { name: "West Fargo", img: westFargoImg, alt: "West Fargo neighborhood" },
-              { name: "Moorhead", img: moorheadImg, alt: "Moorhead city view" },
-            ].map((city) => (
-              <div
-                key={city.name}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <img
-                  src={city.img}
-                  alt={city.alt}
-                  className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-4">
-                  <h3 className="text-lg font-bold text-white drop-shadow-sm">{city.name}</h3>
-                </div>
-              </div>
+      {/* ================= TRENDING YOUTH IDEAS ================= */}
+      {trending.length > 0 && (
+        <section className="relative mx-auto max-w-6xl px-4 py-14">
+          <h2 className="font-display text-2xl font-extrabold sm:text-3xl">
+            Launched by students
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Topics posted by young people in the network — vote, argue, help decide.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {trending.slice(0, 3).map((idea) => (
+              <IssueCard
+                key={idea.id}
+                issue={idea as unknown as Issue}
+                tally={{
+                  agree: 0,
+                  disagree: 0,
+                  neutral: 0,
+                  total: idea.voteCount,
+                }}
+                commentCount={idea.commentCount}
+                className="glass glass-hover border-none"
+              />
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* BROWSE BY CATEGORY */}
-      <main id="issues" className="mx-auto max-w-5xl px-4 py-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      {/* ================= CATEGORIES / ISSUES ================= */}
+      <section id="issues" className="relative mx-auto max-w-6xl px-4 pb-20">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">What do you care about?</h2>
+            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">
+              {view === "categories" ? "What do you care about?" : "Open topics"}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Pick a topic area to see the issues and polls inside it.
+              {view === "categories"
+                ? "Pick a channel to see the live topics inside it."
+                : "Vote in 30 seconds, then join the debate."}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{issues.length} issue{issues.length !== 1 ? "s" : ""} across {categories.length} topic{categories.length !== 1 ? "s" : ""}</span>
-          </div>
+          {loading && (
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              syncing grid…
+            </span>
+          )}
         </div>
 
         {view === "categories" ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(["All", ...categories] as string[]).map((c) => {
-              const count = c === "All" ? issues.length : issues.filter((i) => i.category === c).length;
+              const count =
+                c === "All" ? issues.length : issues.filter((i) => i.category === c).length;
               return (
                 <button
                   key={c}
@@ -461,17 +528,19 @@ function HomePage() {
                     setCategory(c);
                     setView("issues");
                   }}
-                  className="group flex flex-col items-start rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  className="glass glass-hover group flex flex-col items-start rounded-3xl p-6 text-left"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl transition group-hover:scale-110 group-hover:bg-primary/20">
-                    {c === "All" ? "🗂️" : catEmoji(c)}
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-2xl ring-1 ring-primary/20 transition group-hover:scale-110">
+                    {c === "All" ? "🛰️" : catEmoji(c)}
                   </div>
-                  <h3 className="mt-4 text-lg font-bold">{c === "All" ? "Browse all issues" : c}</h3>
+                  <h3 className="mt-4 font-display text-lg font-bold">
+                    {c === "All" ? "Browse everything" : c}
+                  </h3>
                   <p className="mt-1 flex-grow text-sm text-muted-foreground">
                     {CATEGORY_DESCRIPTIONS[c] ?? `Issues and polls about ${c.toLowerCase()}.`}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
-                    {count} issue{count !== 1 ? "s" : ""}
+                  <span className="mt-4 inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    {count} topic{count !== 1 ? "s" : ""}
                     <span className="transition group-hover:translate-x-0.5">→</span>
                   </span>
                 </button>
@@ -489,19 +558,18 @@ function HomePage() {
                   setSearch("");
                   setSort("newest");
                 }}
-                className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary"
               >
-                ← Back to categories
+                ← Back to channels
               </button>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  City
-                </span>
                 {CITIES.map((c) => {
                   const count =
                     c === "All"
                       ? issues.filter((i) => category === "All" || i.category === category).length
-                      : issues.filter((i) => i.city === c && (category === "All" || i.category === category)).length;
+                      : issues.filter(
+                          (i) => i.city === c && (category === "All" || i.category === category),
+                        ).length;
                   const active = city === c;
                   return (
                     <button
@@ -510,8 +578,8 @@ function HomePage() {
                       className={[
                         "rounded-full border px-3 py-1 text-sm font-medium transition",
                         active
-                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                          : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:bg-secondary hover:shadow-sm",
+                          ? "border-primary/60 bg-primary/15 text-primary glow-ring"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
                       ].join(" ")}
                     >
                       {c} <span className="ml-1 opacity-70">{count}</span>
@@ -547,102 +615,33 @@ function HomePage() {
               </div>
             </div>
 
-            {(city !== "All" || category !== "All" || search || sort !== "newest") && (
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="text-xs text-muted-foreground">Active:</span>
-                {category !== "All" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
-                    Topic: {category}
-                  </span>
-                )}
-                {city !== "All" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                    City: {city}
-                  </span>
-                )}
-                {search && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
-                    Search: “{search}”
-                  </span>
-                )}
-                {sort !== "newest" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
-                    Sort: {sort.replace("-", " ")}
-                  </span>
-                )}
-                <button
-                  onClick={clearFilters}
-                  className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
+            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((issue) => (
+                <IssueCard
+                  key={issue.id}
+                  issue={issue}
+                  tally={tallies[issue.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
+                  commentCount={commentCounts[issue.id] ?? 0}
+                  trending={trendingIds.has(issue.id)}
+                  className="glass glass-hover border-none"
+                />
+              ))}
+            </div>
 
-            {loading ? (
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <li
-                    key={i}
-                    className="h-48 animate-pulse rounded-2xl border border-border bg-card/60"
-                  />
-                ))}
-              </ul>
-            ) : filtered.length === 0 ? (
-              <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
-                <p className="text-lg font-semibold text-foreground">No issues found</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Try clearing your filters or searching with different keywords.
+            {!loading && filtered.length === 0 && (
+              <div className="glass mt-6 rounded-3xl p-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Nothing here yet. Try another channel or{" "}
+                  <Link to="/submit" className="font-semibold text-primary underline-offset-4 hover:underline">
+                    launch your own topic
+                  </Link>
+                  .
                 </p>
-                <button
-                  onClick={clearFilters}
-                  className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  Clear filters
-                </button>
               </div>
-            ) : (
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                {filtered.map((i) => (
-                  <li key={i.id}>
-                    <IssueCard
-                      issue={i}
-                      tally={tallies[i.id] ?? { agree: 0, disagree: 0, neutral: 0, total: 0 }}
-                      commentCount={commentCounts[i.id] ?? 0}
-                      trending={trendingIds.has(i.id)}
-                    />
-                  </li>
-                ))}
-              </ul>
             )}
-
-            <section className="mt-16 rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-8 text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Adults are deciding. Students should be too.
-              </h2>
-              <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-                Vote once, and you're already part of the report that lands on the mayor's desk. Bring
-                two friends and your school shows up in the numbers.
-              </p>
-              <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <button
-                  onClick={scrollToCategories}
-                  className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  Start voting
-                </button>
-                <Link
-                  to="/submit"
-                  className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary"
-                >
-                  Start your own topic
-                </Link>
-
-              </div>
-            </section>
           </>
         )}
-      </main>
+      </section>
 
       <SiteFooter />
     </div>

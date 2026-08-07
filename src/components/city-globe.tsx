@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { LANDMASSES } from "@/lib/world-landmasses";
+
 
 export type GlobeCity = {
   name: string;
@@ -105,7 +107,7 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
       ctx.arc(cx, cy, R * 1.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // globe body
+      // ocean body
       const body = ctx.createRadialGradient(
         cx - R * 0.35,
         cy - R * 0.4,
@@ -114,9 +116,10 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
         cy,
         R,
       );
-      body.addColorStop(0, "rgba(23,44,72,0.95)");
-      body.addColorStop(0.7, "rgba(9,17,32,0.95)");
-      body.addColorStop(1, "rgba(4,8,18,0.98)");
+      body.addColorStop(0, "rgba(28,86,146,0.98)");
+      body.addColorStop(0.55, "rgba(12,48,94,0.98)");
+      body.addColorStop(0.85, "rgba(6,25,56,0.98)");
+      body.addColorStop(1, "rgba(3,12,30,0.99)");
       ctx.fillStyle = body;
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
@@ -127,6 +130,55 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
         sy: cy - v.y * R,
         z: v.z,
       });
+
+      // continents (clipped to the sphere, only front-facing spans)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.clip();
+
+      for (const ring of LANDMASSES) {
+        // densify long edges so shapes bend with the sphere
+        const pts: { sx: number; sy: number; z: number }[] = [];
+        for (let i = 0; i < ring.length; i++) {
+          const [lon1, lat1] = ring[i]!;
+          const [lon2, lat2] = ring[(i + 1) % ring.length]!;
+          const steps = Math.max(
+            1,
+            Math.ceil(Math.max(Math.abs(lon2 - lon1), Math.abs(lat2 - lat1)) / 4),
+          );
+          for (let s = 0; s < steps; s++) {
+            const f = s / steps;
+            const lat = lat1 + (lat2 - lat1) * f;
+            const lon = lon1 + (lon2 - lon1) * f;
+            pts.push(project(rotate(toVec(lat, lon), s2.rx, s2.ry)));
+          }
+        }
+
+        let open = false;
+        ctx.beginPath();
+        for (const p of pts) {
+          if (p.z < 0) {
+            open = false;
+            continue;
+          }
+          if (!open) {
+            ctx.moveTo(p.sx, p.sy);
+            open = true;
+          } else ctx.lineTo(p.sx, p.sy);
+        }
+        ctx.closePath();
+        const land = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+        land.addColorStop(0, "rgba(72,163,131,0.92)");
+        land.addColorStop(0.6, "rgba(44,122,105,0.9)");
+        land.addColorStop(1, "rgba(28,84,82,0.9)");
+        ctx.fillStyle = land;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(150,235,205,0.35)";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+      ctx.restore();
 
       // graticule
       ctx.lineWidth = 1;
@@ -144,7 +196,7 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
             started = true;
           } else ctx.lineTo(p.sx, p.sy);
         }
-        ctx.strokeStyle = "rgba(56,189,248,0.16)";
+        ctx.strokeStyle = "rgba(180,230,255,0.10)";
         ctx.stroke();
       }
       for (let lonD = -180; lonD < 180; lonD += 30) {
@@ -161,16 +213,34 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
             started = true;
           } else ctx.lineTo(p.sx, p.sy);
         }
-        ctx.strokeStyle = "rgba(56,189,248,0.12)";
+        ctx.strokeStyle = "rgba(180,230,255,0.08)";
         ctx.stroke();
       }
+
+      // day/night terminator shading
+      const shade = ctx.createRadialGradient(
+        cx - R * 0.45,
+        cy - R * 0.45,
+        R * 0.15,
+        cx,
+        cy,
+        R * 1.05,
+      );
+      shade.addColorStop(0, "rgba(255,255,255,0.10)");
+      shade.addColorStop(0.45, "rgba(0,0,0,0)");
+      shade.addColorStop(1, "rgba(0,6,20,0.6)");
+      ctx.fillStyle = shade;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fill();
 
       // rim light
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(103,232,249,0.55)";
+      ctx.strokeStyle = "rgba(125,215,255,0.5)";
       ctx.lineWidth = 1.4;
       ctx.stroke();
+
 
       // city points
       const hits: { name: string; sx: number; sy: number }[] = [];

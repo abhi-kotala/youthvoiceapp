@@ -87,7 +87,7 @@ export function ChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
-          aria-label="Open help assistant"
+          aria-label="Open Agora"
         >
           <MessageCircle className="h-6 w-6" />
         </button>
@@ -97,7 +97,7 @@ export function ChatWidget() {
         <div className="fixed bottom-5 right-5 z-50 flex h-[560px] max-h-[85vh] w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
           <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div>
-              <div className="text-sm font-semibold">Ask Youth Voice</div>
+              <div className="text-sm font-semibold">Agora</div>
               <div className="text-xs opacity-80">Questions about the app? I got you.</div>
             </div>
             <div className="flex items-center gap-1">
@@ -116,7 +116,7 @@ export function ChatWidget() {
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded p-1.5 opacity-80 hover:bg-white/10 hover:opacity-100"
-                aria-label="Close assistant"
+                aria-label="Close Agora"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -126,7 +126,7 @@ export function ChatWidget() {
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
             {messages.length === 0 && (
               <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
-                Hi! I can explain how Youth Voice works, how voting is counted,
+                Hi — I'm Agora. I can explain how Youth Voice works, how voting is counted,
                 where results go, or help you find an issue. What's up?
               </div>
             )}

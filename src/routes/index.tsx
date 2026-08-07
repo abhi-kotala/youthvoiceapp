@@ -25,12 +25,6 @@ const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
   Moorhead: { lat: 46.8738, lon: -96.7678 },
 };
 
-const EXPANDING = [
-  { name: "Grand Forks", lat: 47.9253, lon: -97.0329 },
-  { name: "Bismarck", lat: 46.8083, lon: -100.7837 },
-  { name: "Minneapolis", lat: 44.9778, lon: -93.265 },
-  { name: "Sioux Falls", lat: 43.5446, lon: -96.7311 },
-];
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   All: "Every open poll and discussion across all topic areas.",
@@ -203,15 +197,13 @@ function HomePage() {
   const maxVotes = Math.max(1, ...liveCityStats.map((c) => c.votes));
 
   const globeCities: GlobeCity[] = useMemo(() => {
-    const live = liveCityStats.map((c) => ({
+    return liveCityStats.map((c) => ({
       name: c.name,
       lat: CITY_COORDS[c.name].lat,
       lon: CITY_COORDS[c.name].lon,
       intensity: 0.45 + (c.votes / maxVotes) * 0.55,
       live: true,
     }));
-    const soon = EXPANDING.map((c) => ({ ...c, intensity: 0.22, live: false }));
-    return [...live, ...soon];
   }, [liveCityStats, maxVotes]);
 
   const [globeCity, setGlobeCity] = useState<string>("Fargo");

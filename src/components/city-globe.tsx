@@ -86,10 +86,16 @@ export function CityGlobe({ cities, selected, onSelect, className }: Props) {
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
 
+    let last = 0;
     const draw = (t: number) => {
       const s = stateRef.current;
       const { cities: cs, selected: sel, hover: hv } = dataRef.current;
-      if (s.spin && !s.dragging) s.ry += 0.0022;
+      const dt = last ? Math.min(64, t - last) : 16;
+      last = t;
+      if (s.spin && !s.dragging) {
+        s.ry += 0.00014 * dt;
+        if (s.ry > Math.PI * 2) s.ry -= Math.PI * 2;
+      }
 
       const cx = w / 2;
       const cy = h / 2;

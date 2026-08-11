@@ -12,6 +12,21 @@ export const castVote = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Reject votes on topics that have closed.
+    const { data: openCheck } = await supabaseAdmin
+      .from("issues")
+      .select("status, closes_at")
+      .eq("id", data.issueId)
+      .maybeSingle();
+    const closesAt = (openCheck as { closes_at?: string | null } | null)?.closes_at;
+    if (
+      openCheck?.status === "closed" ||
+      (closesAt && new Date(closesAt).getTime() < Date.now())
+    ) {
+      throw new Error("Voting on this topic has closed.");
+    }
+
     const { error } = await supabaseAdmin
       .from("votes")
       .upsert(

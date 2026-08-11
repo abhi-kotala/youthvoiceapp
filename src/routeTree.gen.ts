@@ -25,6 +25,7 @@ import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involve
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as ApiPublicRotateTopicsRouteImport } from './routes/api/public/rotate-topics'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const SubmitRoute = SubmitRouteImport.update({
@@ -109,6 +110,11 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRotateTopicsRoute = ApiPublicRotateTopicsRouteImport.update({
+  id: '/api/public/rotate-topics',
+  path: '/api/public/rotate-topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/rotate-topics'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/rotate-topics'
   id:
     | '__root__'
     | '/'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/issue/$id'
     | '/results/$id'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/rotate-topics'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   IssueIdRoute: typeof IssueIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicRotateTopicsRoute: typeof ApiPublicRotateTopicsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/rotate-topics': {
+      id: '/api/public/rotate-topics'
+      path: '/api/public/rotate-topics'
+      fullPath: '/api/public/rotate-topics'
+      preLoaderRoute: typeof ApiPublicRotateTopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -397,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   IssueIdRoute: IssueIdRoute,
   ResultsIdRoute: ResultsIdRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicRotateTopicsRoute: ApiPublicRotateTopicsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

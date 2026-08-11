@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { ImpactBadge } from "@/components/impact-badge";
+import { getClosingInfo } from "@/lib/closing";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   School: "🏫",
@@ -38,7 +39,28 @@ type Issue = {
   topic_type?: string | null;
   location_scope?: string | null;
   location_name?: string | null;
+  status?: string | null;
+  closes_at?: string | null;
 };
+
+function ClosingBadge({ issue }: { issue: Issue }) {
+  const info = getClosingInfo(issue.closes_at, issue.status);
+  if (!info.label) return null;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold",
+        info.closed
+          ? "bg-muted text-muted-foreground"
+          : info.urgent
+            ? "bg-accent text-accent-foreground"
+            : "bg-secondary text-foreground",
+      )}
+    >
+      {info.closed ? "🔒" : "⏳"} {info.label}
+    </span>
+  );
+}
 
 
 type IssueCardProps = {
@@ -114,6 +136,7 @@ export function IssueCard({
               </span>
             )}
             <ImpactBadge status={issue.impact_status} />
+            <ClosingBadge issue={issue} />
             <YouthBadges issue={issue} />
           </div>
           <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
@@ -155,6 +178,7 @@ export function IssueCard({
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         <ImpactBadge status={issue.impact_status} />
+        <ClosingBadge issue={issue} />
         <YouthBadges issue={issue} />
       </div>
       <h3 className="mt-2 text-lg font-semibold leading-snug">{issue.title}</h3>

@@ -11,6 +11,7 @@ import {
   adminCreateIssue,
   adminUpdateIssue,
   adminDeleteIssue,
+  adminGenerateTopics,
 } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,6 +26,7 @@ type Issue = {
   city: string;
   impact_status?: string | null;
   impact_note?: string | null;
+  closes_at?: string | null;
 };
 
 type ReportRow = {
@@ -257,12 +259,14 @@ function IssuesPanel({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Issue | null>(null);
   const [creating, setCreating] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [genMsg, setGenMsg] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("issues")
-      .select("id, title, description, category, status, city, impact_status, impact_note")
+      .select("id, title, description, category, status, city, impact_status, impact_note, closes_at")
       .order("created_at", { ascending: false });
     setIssues((data ?? []) as Issue[]);
     setLoading(false);
@@ -272,6 +276,25 @@ function IssuesPanel({ token }: { token: string }) {
     reload();
   }, [reload]);
 
+  async function generate() {
+    setGenerating(true);
+    setGenMsg(null);
+    try {
+      const res = await adminGenerateTopics({ data: { token, count: 3 } });
+      setGenMsg(
+        res.created.length
+          ? `Published ${res.created.length} new topic${res.created.length === 1 ? "" : "s"}.` +
+              (res.closed ? ` Closed ${res.closed} expired.` : "")
+          : (res.skipped ?? "No topics created."),
+      );
+      reload();
+    } catch (e) {
+      setGenMsg((e as Error).message);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function remove(id: string) {
     if (!window.confirm("Delete this issue? All votes and comments will also be removed.")) return;
     await adminDeleteIssue({ data: { token, id } });
@@ -280,7 +303,15 @@ function IssuesPanel({ token }: { token: string }) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        {genMsg && <p className="mr-auto text-xs text-muted-foreground">{genMsg}</p>}
+        <button
+          onClick={generate}
+          disabled={generating}
+          className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+        >
+          {generating ? "Generating…" : "✨ Auto-generate topics"}
+        </button>
         <button
           onClick={() => {
             setEditing(null);
@@ -318,6 +349,7 @@ function IssuesPanel({ token }: { token: string }) {
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-accent">
                     {i.category} · {i.city} · {i.status}
+                    {i.closes_at ? ` · closes ${new Date(i.closes_at).toLocaleDateString()}` : ""}
                   </div>
                   <h3 className="mt-1 font-semibold">{i.title}</h3>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
@@ -368,6 +400,9 @@ function IssueForm({
   const [city, setCity] = useState(initial?.city ?? "Fargo");
   const [impactStatus, setImpactStatus] = useState(initial?.impact_status ?? "none");
   const [impactNote, setImpactNote] = useState(initial?.impact_note ?? "");
+  const [closesAt, setClosesAt] = useState(
+    initial?.closes_at ? new Date(initial.closes_at).toISOString().slice(0, 10) : "",
+  );
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -388,10 +423,13 @@ function IssueForm({
             city,
             impact_status: impactStatus,
             impact_note: impactNote,
+            closes_at: closesAt || null,
           },
         });
       } else {
-        await adminCreateIssue({ data: { token, title, description, category, city } });
+        await adminCreateIssue({
+          data: { token, title, description, category, city, closes_at: closesAt || null },
+        });
       }
       onSaved();
     } catch (e) {
@@ -408,6 +446,16 @@ function IssueForm({
     >
       <h3 className="font-semibold">{initial ? "Edit issue" : "New issue"}</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <label className="text-xs font-medium text-muted-foreground sm:col-span-2">
+          Voting closes on
+          <input
+            type="date"
+            value={closesAt}
+            onChange={(e) => setClosesAt(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+          />
+          <span className="mt-1 block">Leave blank for no closing date (defaults to 30 days for new topics).</span>
+        </label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}

@@ -112,7 +112,16 @@ export const adminDismissReport = createServerFn({ method: "POST" })
   });
 
 export const adminCreateIssue = createServerFn({ method: "POST" })
-  .inputValidator((d: { token: string; title: string; description: string; category: string; city?: string }) => d)
+  .inputValidator(
+    (d: {
+      token: string;
+      title: string;
+      description: string;
+      category: string;
+      city?: string;
+      closes_at?: string | null;
+    }) => d,
+  )
   .handler(async ({ data }) => {
     await checkSession(data.token);
     const admin = await getAdmin();
@@ -123,6 +132,9 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
         description: data.description.trim(),
         category: data.category.trim() || "General",
         city: (data.city ?? "Fargo").trim() || "Fargo",
+        closes_at: data.closes_at
+          ? new Date(data.closes_at).toISOString()
+          : new Date(Date.now() + 30 * 86400_000).toISOString(),
       })
       .select()
       .single();
@@ -154,6 +166,7 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
       city?: string;
       impact_status?: string;
       impact_note?: string | null;
+      closes_at?: string | null;
     }) => d,
   )
   .handler(async ({ data }) => {
@@ -167,6 +180,7 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
       city: string;
       impact_status?: string;
       impact_note?: string | null;
+      closes_at?: string | null;
     } = {
       title: data.title.trim(),
       description: data.description.trim(),
@@ -179,6 +193,9 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
     }
     if (data.impact_note !== undefined) {
       update.impact_note = data.impact_note?.trim() || null;
+    }
+    if (data.closes_at !== undefined) {
+      update.closes_at = data.closes_at ? new Date(data.closes_at).toISOString() : null;
     }
     const { error } = await admin
       .from("issues")
@@ -196,4 +213,16 @@ export const adminDeleteIssue = createServerFn({ method: "POST" })
     const { error } = await admin.from("issues").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const adminGenerateTopics = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string; count?: number }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const { generateTopics, closeExpiredTopics } = await import(
+      "@/lib/topic-generation.server"
+    );
+    const closed = await closeExpiredTopics();
+    const result = await generateTopics({ count: data.count ?? 3, force: true });
+    return { closed, created: result.created, skipped: result.skipped ?? null };
   });

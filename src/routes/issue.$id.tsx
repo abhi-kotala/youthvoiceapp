@@ -7,6 +7,7 @@ import { ShareButton } from "@/components/share-button";
 import { ImpactBadge } from "@/components/impact-badge";
 import { generateIssueSummary } from "@/lib/summary.functions";
 import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
+import { getClosingInfo, formatCloseDate } from "@/lib/closing";
 
 
 type Stance = "agree" | "disagree" | "neutral";
@@ -18,6 +19,8 @@ type Issue = {
   category: string;
   impact_status?: string | null;
   impact_note?: string | null;
+  status?: string | null;
+  closes_at?: string | null;
 };
 
 type Comment = {
@@ -146,6 +149,7 @@ function IssuePage() {
   }, [reload]);
 
   async function castVote(choice: Stance) {
+    if (getClosingInfo(issue?.closes_at, issue?.status).closed) return;
     setMyVote(choice);
     if (typeof window !== "undefined") localStorage.setItem(myVoteKey, choice);
     const { castVote: castVoteFn } = await import("@/lib/votes.functions");
@@ -210,6 +214,9 @@ function IssuePage() {
     );
   }
 
+  const closing = getClosingInfo(issue.closes_at, issue.status);
+  const closeDate = formatCloseDate(issue.closes_at);
+
   const pct = (n: number) => (tally.total === 0 ? 0 : Math.round((n / tally.total) * 100));
 
   return (
@@ -225,6 +232,20 @@ function IssuePage() {
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
             <span>{issue.category}</span>
             <ImpactBadge status={issue.impact_status} />
+            {closing.label && (
+              <span
+                className={[
+                  "rounded-full px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal",
+                  closing.closed
+                    ? "bg-muted text-muted-foreground"
+                    : closing.urgent
+                      ? "bg-accent text-accent-foreground"
+                      : "bg-secondary text-foreground",
+                ].join(" ")}
+              >
+                {closing.closed ? "🔒" : "⏳"} {closing.label}
+              </span>
+            )}
           </div>
           <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
             {issue.title}
@@ -251,9 +272,13 @@ function IssuePage() {
 
         {/* Poll */}
         <section className="mt-8 rounded-lg border border-border bg-card p-5">
-          <h2 className="text-lg font-semibold">Cast your vote</h2>
+          <h2 className="text-lg font-semibold">
+            {closing.closed ? "Final results" : "Cast your vote"}
+          </h2>
           <p className="text-sm text-muted-foreground">
-            One vote per person. You can change your mind any time.
+            {closing.closed
+              ? `Voting closed${closeDate ? ` on ${closeDate}` : ""}. These results are being shared with city leaders.`
+              : `One vote per person. You can change your mind any time.${closeDate ? ` Voting closes ${closeDate}.` : ""}`}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2">
             {(["agree", "disagree", "neutral"] as Stance[]).map((s) => {
@@ -262,8 +287,10 @@ function IssuePage() {
                 <button
                   key={s}
                   onClick={() => castVote(s)}
+                  disabled={closing.closed}
                   className={[
                     "rounded-md border px-3 py-2 text-sm font-medium transition",
+                    closing.closed ? "cursor-not-allowed opacity-50" : "",
                     active
                       ? STANCE_CLASSES[s] + " border-transparent"
                       : "border-border bg-background hover:bg-secondary",

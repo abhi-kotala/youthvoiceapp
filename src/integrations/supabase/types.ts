@@ -107,6 +107,7 @@ export type Database = {
         Row: {
           category: string
           city: string
+          closes_at: string | null
           created_at: string
           description: string
           id: string
@@ -124,6 +125,7 @@ export type Database = {
         Insert: {
           category?: string
           city?: string
+          closes_at?: string | null
           created_at?: string
           description: string
           id?: string
@@ -141,6 +143,7 @@ export type Database = {
         Update: {
           category?: string
           city?: string
+          closes_at?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -250,7 +253,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      close_expired_issues: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never

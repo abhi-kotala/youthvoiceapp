@@ -48,14 +48,18 @@ async function recentTitles(limit = 40): Promise<string[]> {
   return (data ?? []).map((r: { title: string }) => r.title);
 }
 
-async function callModel(existing: string[], count: number): Promise<GeneratedTopic[]> {
+async function callModel(
+  existing: string[],
+  count: number,
+  cities: string[] = [],
+): Promise<GeneratedTopic[]> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
   const prompt = `Create ${count} new civic discussion topics for Youth Voice, a polling and debate platform for people under 18 in Fargo (ND), West Fargo (ND), and Moorhead (MN).
 
 Rules:
-- One topic per city where possible: Fargo, West Fargo, Moorhead.
+- ${cities.length ? `Write the topics for these cities specifically (one each, repeat a city only if needed): ${cities.join(", ")}.` : "One topic per city where possible: Fargo, West Fargo, Moorhead."}
 - Each topic must be a real, ongoing local-government style question a city council or school board could plausibly decide (budgets, school policy, transit, parks, housing, safety, youth programs, downtown development).
 - Phrase the title as a clear yes/no style question under 140 characters. Do NOT state fake facts, dollar amounts, dates, or claim a specific vote happened.
 - Description: 3-5 sentences of neutral, high-school-level background explaining both sides. No opinions. No invented statistics.
@@ -104,14 +108,14 @@ Return strict JSON: {"topics":[{"title":"","description":"","category":"","city"
 /**
  * Marks any topic whose closing date has passed as closed.
  */
-export async function closeExpiredTopics(): Promise<number> {
+export async function closeExpiredTopics(): Promise<{ id: string; city: string }[]> {
   const { data } = await supabaseAdmin
     .from("issues")
     .update({ status: "closed" })
     .eq("status", "open")
     .lt("closes_at", new Date().toISOString())
-    .select("id");
-  return (data ?? []).length;
+    .select("id, city");
+  return (data ?? []) as { id: string; city: string }[];
 }
 
 /**
@@ -122,6 +126,7 @@ export async function generateTopics(opts?: {
   count?: number;
   force?: boolean;
   minHoursBetweenRuns?: number;
+  cities?: string[];
 }): Promise<{ created: { id: string; title: string }[]; skipped?: string }> {
   const count = Math.min(Math.max(opts?.count ?? 3, 1), 5);
   const minHours = opts?.minHoursBetweenRuns ?? 24;
@@ -139,7 +144,8 @@ export async function generateTopics(opts?: {
   }
 
   const existing = await recentTitles();
-  const topics = await callModel(existing, count);
+  const wanted = (opts?.cities ?? []).filter((c) => (CITIES as readonly string[]).includes(c));
+  const topics = await callModel(existing, count, wanted);
   if (topics.length === 0) return { created: [], skipped: "No usable topics returned." };
 
   const closesAt = new Date(Date.now() + TOPIC_RUN_DAYS * 86400_000).toISOString();

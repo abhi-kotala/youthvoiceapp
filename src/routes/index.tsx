@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ISSUE_PUBLIC_COLUMNS } from "@/lib/issue-columns";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { CountUp } from "@/components/count-up";
@@ -117,7 +118,7 @@ function HomePage() {
     (async () => {
       const { getParticipationStats } = await import("@/lib/stats.functions");
       const [issuesRes, votesRes, commentsRes, stats] = await Promise.all([
-        supabase.from("issues").select("*").order("created_at", { ascending: false }),
+        supabase.from("issues").select(ISSUE_PUBLIC_COLUMNS).order("created_at", { ascending: false }),
         supabase.from("votes").select("issue_id, choice"),
         supabase.from("comments").select("issue_id").eq("hidden", false),
         getParticipationStats().catch(() => ({ participants: 0, cityDevices: {} })),

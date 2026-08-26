@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Bell } from "lucide-react";
 import { requestPushToken } from "@/lib/firebase";
 import { registerPushToken } from "@/lib/push.functions";
 import { getDeviceId } from "@/lib/device-id";

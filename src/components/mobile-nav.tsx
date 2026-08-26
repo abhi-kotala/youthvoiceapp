@@ -18,7 +18,7 @@ export function MobileNav() {
     <Sheet>
       <SheetTrigger asChild>
         <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition hover:bg-primary-foreground/20"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary transition hover:bg-primary/20"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />

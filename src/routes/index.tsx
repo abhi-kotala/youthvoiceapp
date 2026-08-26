@@ -115,40 +115,31 @@ function HomePage() {
 
   useEffect(() => {
     (async () => {
-      const [issuesRes, votesRes, commentsRes] = await Promise.all([
+      const { getParticipationStats } = await import("@/lib/stats.functions");
+      const [issuesRes, votesRes, commentsRes, stats] = await Promise.all([
         supabase.from("issues").select("*").order("created_at", { ascending: false }),
-        supabase.from("votes").select("issue_id, choice, device_id"),
-        supabase.from("comments").select("issue_id, device_id").eq("hidden", false),
+        supabase.from("votes").select("issue_id, choice"),
+        supabase.from("comments").select("issue_id").eq("hidden", false),
+        getParticipationStats().catch(() => ({ participants: 0, cityDevices: {} })),
       ]);
       const rows = (issuesRes.data ?? []) as Issue[];
       setIssues(rows);
-      const cityOf = new Map(rows.map((i) => [i.id, i.city]));
 
       const t: Record<string, Tally> = {};
-      const devices = new Set<string>();
-      const perCity: Record<string, Set<string>> = {};
-      (votesRes.data ?? []).forEach((v: { issue_id: string; choice: string; device_id: string }) => {
+      (votesRes.data ?? []).forEach((v: { issue_id: string; choice: string }) => {
         t[v.issue_id] ??= { agree: 0, disagree: 0, neutral: 0, total: 0 };
         t[v.issue_id][v.choice as keyof Omit<Tally, "total">] += 1;
         t[v.issue_id].total += 1;
-        devices.add(v.device_id);
-        const c = cityOf.get(v.issue_id);
-        if (c) (perCity[c] ??= new Set()).add(v.device_id);
       });
       setTallies(t);
 
       const c: Record<string, number> = {};
-      (commentsRes.data ?? []).forEach((r: { issue_id: string; device_id: string }) => {
+      (commentsRes.data ?? []).forEach((r: { issue_id: string }) => {
         c[r.issue_id] = (c[r.issue_id] ?? 0) + 1;
-        devices.add(r.device_id);
-        const ct = cityOf.get(r.issue_id);
-        if (ct) (perCity[ct] ??= new Set()).add(r.device_id);
       });
       setCommentCounts(c);
-      setParticipants(devices.size);
-      setCityDevices(
-        Object.fromEntries(Object.entries(perCity).map(([k, v]) => [k, v.size])),
-      );
+      setParticipants(stats.participants);
+      setCityDevices(stats.cityDevices);
       setLoading(false);
     })();
     getTrendingYouthIdeas()

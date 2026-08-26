@@ -115,7 +115,7 @@ export function ChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full border border-primary/30 bg-card/70 py-2 pl-2 pr-4 backdrop-blur-xl transition hover:-translate-y-0.5 glow-ring"
+          className="group fixed bottom-4 right-4 z-50 flex items-center gap-3 rounded-full border border-primary/30 bg-card/70 p-2 backdrop-blur-xl transition hover:-translate-y-0.5 glow-ring sm:bottom-5 sm:right-5 sm:pl-2 sm:pr-4"
           aria-label="Open Agora, the AI civic assistant"
         >
           <AgoraOrb size={44} />

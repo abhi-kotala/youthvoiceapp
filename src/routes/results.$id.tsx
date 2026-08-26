@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { ISSUE_PUBLIC_COLUMNS } from "@/lib/issue-columns";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ShareButton, CopyLinkButton } from "@/components/share-button";
@@ -70,7 +71,7 @@ function ResultsPage() {
   useEffect(() => {
     (async () => {
       const [{ data: iss }, { data: votes }, { count }] = await Promise.all([
-        supabase.from("issues").select("*").eq("id", id).maybeSingle(),
+        supabase.from("issues").select(ISSUE_PUBLIC_COLUMNS).eq("id", id).maybeSingle(),
         supabase.from("votes").select("choice").eq("issue_id", id),
         supabase
           .from("comments")

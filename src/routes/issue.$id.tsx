@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ISSUE_PUBLIC_COLUMNS } from "@/lib/issue-columns";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { getDeviceId } from "@/lib/device-id";
@@ -114,7 +115,7 @@ function IssuePage() {
 
   const reload = useCallback(async () => {
     const [{ data: iss }, { data: votes }, { data: cmts }] = await Promise.all([
-      supabase.from("issues").select("*").eq("id", id).maybeSingle(),
+      supabase.from("issues").select(ISSUE_PUBLIC_COLUMNS).eq("id", id).maybeSingle(),
       supabase.from("votes").select("choice").eq("issue_id", id),
       supabase
         .from("comments")

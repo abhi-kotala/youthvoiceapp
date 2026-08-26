@@ -224,5 +224,5 @@ export const adminGenerateTopics = createServerFn({ method: "POST" })
     );
     const closed = await closeExpiredTopics();
     const result = await generateTopics({ count: data.count ?? 3, force: true });
-    return { closed, created: result.created, skipped: result.skipped ?? null };
+    return { closed: closed.length, created: result.created, skipped: result.skipped ?? null };
   });

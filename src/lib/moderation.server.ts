@@ -19,7 +19,12 @@ const BLOCKED_PATTERNS: { re: RegExp; reason: string }[] = [
     re: /\b(kys|kill yourself)\b/i,
     reason: "It reads as a threat or self-harm encouragement. Please rewrite it respectfully.",
   },
+  {
+    re: /\b(balls|nuts|penis|vagina|boobs|tits|butt|ass|booty|twerk|sex|sexy|horny|porn|nude|naked|masturbat\w*|jerk off|blow job|blowjob|hump|suck my|lick my)\b/i,
+    reason: "It contains sexual or crude content. Please post a real civic topic instead.",
+  },
 ];
+
 
 function quickCheck(text: string): ModerationResult | null {
   for (const p of BLOCKED_PATTERNS) {

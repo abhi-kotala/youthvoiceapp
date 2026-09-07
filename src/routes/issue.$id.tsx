@@ -164,22 +164,35 @@ function IssuePage() {
     e.preventDefault();
     if (!composerBody.trim()) return;
     setPosting(true);
+    setPostError(null);
     const body = composerBody.trim();
-    const { data: inserted } = await supabase.from("comments").insert({
-      issue_id: id,
-      device_id: deviceId,
-      display_name: composerName.trim() || "Anonymous",
-      stance: composerStance,
-      body,
-    }).select("id").maybeSingle();
-    const { awardImpact } = await import("@/lib/impact.functions");
-    const action = body.length >= 80 ? "constructive_comment" : "comment";
-    awardImpact({
-      data: { deviceId, action, refType: "comment", refId: inserted?.id ?? `${id}:${Date.now()}` },
-    }).catch(() => {});
-    setComposerBody("");
-    setPosting(false);
-    reload();
+    try {
+      const { postComment: postCommentFn } = await import("@/lib/comments.functions");
+      const inserted = await postCommentFn({
+        data: {
+          issueId: id,
+          deviceId,
+          displayName: composerName.trim() || "Anonymous",
+          stance: composerStance,
+          body,
+        },
+      });
+      const { awardImpact } = await import("@/lib/impact.functions");
+      const action = body.length >= 80 ? "constructive_comment" : "comment";
+      awardImpact({
+        data: { deviceId, action, refType: "comment", refId: inserted.id },
+      }).catch(() => {});
+      setComposerBody("");
+      reload();
+    } catch (err) {
+      setPostError(
+        err instanceof Error && err.message
+          ? err.message
+          : "We couldn't post that. Please try again.",
+      );
+    } finally {
+      setPosting(false);
+    }
   }
 
   async function report(commentId: string) {

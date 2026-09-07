@@ -110,6 +110,7 @@ function IssuePage() {
   const [composerName, setComposerName] = useState("");
   const [composerBody, setComposerBody] = useState("");
   const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
 
   const myVoteKey = `civicvoice_vote_${id}`;
 
@@ -164,22 +165,35 @@ function IssuePage() {
     e.preventDefault();
     if (!composerBody.trim()) return;
     setPosting(true);
+    setPostError(null);
     const body = composerBody.trim();
-    const { data: inserted } = await supabase.from("comments").insert({
-      issue_id: id,
-      device_id: deviceId,
-      display_name: composerName.trim() || "Anonymous",
-      stance: composerStance,
-      body,
-    }).select("id").maybeSingle();
-    const { awardImpact } = await import("@/lib/impact.functions");
-    const action = body.length >= 80 ? "constructive_comment" : "comment";
-    awardImpact({
-      data: { deviceId, action, refType: "comment", refId: inserted?.id ?? `${id}:${Date.now()}` },
-    }).catch(() => {});
-    setComposerBody("");
-    setPosting(false);
-    reload();
+    try {
+      const { postComment: postCommentFn } = await import("@/lib/comments.functions");
+      const inserted = await postCommentFn({
+        data: {
+          issueId: id,
+          deviceId,
+          displayName: composerName.trim() || "Anonymous",
+          stance: composerStance,
+          body,
+        },
+      });
+      const { awardImpact } = await import("@/lib/impact.functions");
+      const action = body.length >= 80 ? "constructive_comment" : "comment";
+      awardImpact({
+        data: { deviceId, action, refType: "comment", refId: inserted.id },
+      }).catch(() => {});
+      setComposerBody("");
+      reload();
+    } catch (err) {
+      setPostError(
+        err instanceof Error && err.message
+          ? err.message
+          : "We couldn't post that. Please try again.",
+      );
+    } finally {
+      setPosting(false);
+    }
   }
 
   async function report(commentId: string) {
@@ -411,9 +425,17 @@ function IssuePage() {
                 disabled={posting || !composerBody.trim()}
                 className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
               >
-                {posting ? "Posting…" : "Post comment"}
+                {posting ? "Checking…" : "Post comment"}
               </button>
             </div>
+            {postError && (
+              <p
+                role="alert"
+                className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+              >
+                {postError}
+              </p>
+            )}
           </form>
 
 

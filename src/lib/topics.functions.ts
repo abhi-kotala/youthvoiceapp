@@ -44,6 +44,12 @@ export const submitTopic = createServerFn({ method: "POST" })
     return { ...d, title, description, locationName };
   })
   .handler(async ({ data }) => {
+    const { moderateText } = await import("@/lib/moderation.server");
+    const check = await moderateText(`${data.title}\n\n${data.description}`, "topic");
+    if (!check.allowed) {
+      throw new Error(check.reason || "This topic isn't allowed here.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Rate limit: max 3 pending/approved submissions per device per 24h

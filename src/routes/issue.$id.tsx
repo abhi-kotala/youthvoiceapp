@@ -425,9 +425,17 @@ function IssuePage() {
                 disabled={posting || !composerBody.trim()}
                 className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
               >
-                {posting ? "Posting…" : "Post comment"}
+                {posting ? "Checking…" : "Post comment"}
               </button>
             </div>
+            {postError && (
+              <p
+                role="alert"
+                className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+              >
+                {postError}
+              </p>
+            )}
           </form>
 
 

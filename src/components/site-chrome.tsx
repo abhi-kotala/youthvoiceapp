@@ -1,6 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import type { MouseEvent } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
 import { NotificationsButton } from "@/components/notifications-button";
 import { MobileNav } from "@/components/mobile-nav";
+import { useEmojiRain, playLogoChime } from "@/components/emoji-rain";
 
 const NAV_LINKS = [
   { to: "/", label: "Issues" },
@@ -13,10 +15,21 @@ const NAV_LINKS = [
 ];
 
 export function SiteHeader() {
+  const location = useLocation();
+  const { trigger, overlay } = useEmojiRain();
+  const isHome = location.pathname === "/";
+
+  const handleLogoClick = (e: MouseEvent) => {
+    if (!isHome) return; // let the link navigate home normally
+    e.preventDefault();
+    playLogoChime();
+    trigger();
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-primary/15 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:py-4">
-        <Link to="/" className="flex min-w-0 items-baseline gap-2">
+        <Link to="/" onClick={handleLogoClick} className="flex min-w-0 items-baseline gap-2">
           <span className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
             Youth<span className="neon-text">Voice</span>
           </span>
@@ -24,6 +37,7 @@ export function SiteHeader() {
             Civic Grid
           </span>
         </Link>
+        {overlay}
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-1 sm:flex">

@@ -110,6 +110,7 @@ function IssuePage() {
   const [composerName, setComposerName] = useState("");
   const [composerBody, setComposerBody] = useState("");
   const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
 
   const myVoteKey = `civicvoice_vote_${id}`;
 

@@ -19,7 +19,12 @@ const BLOCKED_PATTERNS: { re: RegExp; reason: string }[] = [
     re: /\b(kys|kill yourself)\b/i,
     reason: "It reads as a threat or self-harm encouragement. Please rewrite it respectfully.",
   },
+  {
+    re: /\b(balls|nuts|penis|vagina|boobs|tits|butt|ass|booty|twerk|sex|sexy|horny|porn|nude|naked|masturbat\w*|jerk off|blow job|blowjob|hump|suck my|lick my)\b/i,
+    reason: "It contains sexual or crude content. Please post a real civic topic instead.",
+  },
 ];
+
 
 function quickCheck(text: string): ModerationResult | null {
   for (const p of BLOCKED_PATTERNS) {
@@ -57,20 +62,22 @@ export async function moderateText(
   if (quick) return quick;
 
   const key = process.env["LOVABLE_API_KEY"];
-  if (!key) return { allowed: true, reason: "" };
+  const UNAVAILABLE =
+    "We couldn't review this right now. Please try again in a moment.";
+  if (!key) return { allowed: false, reason: UNAVAILABLE };
 
   try {
     const provider = createLovableAiGatewayProvider(key);
     const { text: raw } = await generateText({
-      model: provider("google/gemini-2.5-flash-lite"),
+      model: provider("google/gemini-3.1-flash-lite"),
       system: SYSTEM,
       prompt: `Submission type: ${kind}\n\n"""${clean.slice(0, 4000)}"""`,
       temperature: 0,
     });
     const match = raw.match(/\{[\s\S]*\}/);
-    if (!match) return { allowed: true, reason: "" };
+    if (!match) return { allowed: false, reason: UNAVAILABLE };
     const parsed = JSON.parse(match[0]) as { allowed?: boolean; reason?: string };
-    if (parsed.allowed === false) {
+    if (parsed.allowed !== true) {
       return {
         allowed: false,
         reason:
@@ -81,6 +88,7 @@ export async function moderateText(
     return { allowed: true, reason: "" };
   } catch (e) {
     console.error("moderateText failed", e);
-    return { allowed: true, reason: "" };
+    return { allowed: false, reason: UNAVAILABLE };
   }
+
 }

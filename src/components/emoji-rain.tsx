@@ -17,6 +17,17 @@ const EMOJIS = [
   "☑️",
   "📢",
   "🎗️",
+  "📰",
+  "🎙️",
+  "🤝",
+  "📊",
+  "🗣️",
+  "✊",
+  "🕊️",
+  "📮",
+  "🧾",
+  "🏢",
+  "🗺️",
 ];
 
 const PIECE_COUNT = 36;
@@ -41,12 +52,19 @@ function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
+// Skews toward the low end so most pieces read as small/medium confetti
+// with a handful of noticeably larger ones standing out, rather than
+// everything clustering around the same mid-size.
+function randomSize(min: number, max: number) {
+  return min + Math.random() ** 2 * (max - min);
+}
+
 function makePieces(batch: number): Piece[] {
   return Array.from({ length: PIECE_COUNT }, (_, i) => ({
     id: batch * PIECE_COUNT + i,
     emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
     left: randomBetween(0, 96),
-    size: randomBetween(1.1, 3.4),
+    size: randomSize(0.9, 4.4),
     delay: randomBetween(0, MAX_DELAY_MS),
     duration: randomBetween(MIN_FALL_MS, MAX_FALL_MS),
     rotate: randomBetween(-260, 260),

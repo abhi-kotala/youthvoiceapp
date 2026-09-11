@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_devices: {
+        Row: {
+          claimed_at: string
+          device_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          device_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          device_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           created_at: string
@@ -157,6 +175,27 @@ export type Database = {
           submitted_by_device?: string | null
           title?: string
           topic_type?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

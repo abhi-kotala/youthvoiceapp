@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { to: "/my-impact", label: "My Impact" },
   { to: "/newsletter", label: "Newsletter" },
   { to: "/about", label: "About" },
+  { to: "/account", label: "Account" },
 ];
 
 export function MobileNav() {

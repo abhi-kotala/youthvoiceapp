@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as MyImpactRouteImport } from './routes/my-impact'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
@@ -37,6 +39,11 @@ const SubmitRoute = SubmitRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsletterRoute = NewsletterRouteImport.update({
@@ -67,6 +74,11 @@ const ExplainRoute = ExplainRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -132,12 +144,14 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -153,12 +167,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -175,12 +191,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -198,12 +216,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
@@ -219,12 +239,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
@@ -240,12 +262,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/explain'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
@@ -262,12 +286,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   ExplainRoute: typeof ExplainRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
   MyImpactRoute: typeof MyImpactRoute
   NewsletterRoute: typeof NewsletterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -295,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/newsletter': {
@@ -337,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -422,12 +462,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   ExplainRoute: ExplainRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,
   MyImpactRoute: MyImpactRoute,
   NewsletterRoute: NewsletterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,

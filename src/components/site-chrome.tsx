@@ -3,6 +3,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { NotificationsButton } from "@/components/notifications-button";
 import { MobileNav } from "@/components/mobile-nav";
 import { useEmojiRain, playLogoChime } from "@/components/emoji-rain";
+import { AccountButton } from "@/components/account-button";
 
 const NAV_LINKS = [
   { to: "/", label: "Issues" },
@@ -53,11 +54,13 @@ export function SiteHeader() {
           <div className="ml-2 flex items-center">
             <NotificationsButton />
           </div>
+          <AccountButton />
         </nav>
 
         {/* Mobile nav */}
         <div className="flex items-center gap-2 sm:hidden">
           <NotificationsButton />
+          <AccountButton />
           <MobileNav />
         </div>
       </div>
@@ -76,7 +79,7 @@ export function SiteFooter() {
             </Link>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Built by a student. Results from each poll are delivered
-              to our city council and mayor's office. No accounts required — your
+               to our city council and mayor's office. No account required — your
               voice still counts.
             </p>
           </div>

@@ -17,6 +17,15 @@ const CATEGORIES = [
 
 export const TOPIC_RUN_DAYS = 30;
 
+const OWNER_EMAIL = "abhi.kotala561@gmail.com";
+const RESULTS_RECIPIENTS = [
+  "eric@gjerdevig.com",
+  "shelly.carlson@moorheadmn.gov",
+  "steinec@fargo.k12.nd.us",
+  "lanarakow@gmail.com",
+  OWNER_EMAIL,
+] as const;
+
 type GeneratedTopic = {
   title: string;
   description: string;
@@ -114,8 +123,53 @@ export async function closeExpiredTopics(): Promise<{ id: string; city: string }
     .update({ status: "closed" })
     .eq("status", "open")
     .lt("closes_at", new Date().toISOString())
-    .select("id, city");
-  return (data ?? []) as { id: string; city: string }[];
+    .select("id, title, category, city");
+  const closed = (data ?? []) as {
+    id: string;
+    title: string;
+    category: string;
+    city: string;
+  }[];
+
+  for (const issue of closed) {
+    const [{ data: votes }, { count: commentCount }] = await Promise.all([
+      supabaseAdmin.from("votes").select("choice").eq("issue_id", issue.id),
+      supabaseAdmin
+        .from("comments")
+        .select("id", { count: "exact", head: true })
+        .eq("issue_id", issue.id)
+        .eq("hidden", false),
+    ]);
+    const tally = { agree: 0, disagree: 0, neutral: 0 };
+    for (const vote of votes ?? []) {
+      if (vote.choice === "agree" || vote.choice === "disagree" || vote.choice === "neutral") {
+        tally[vote.choice] += 1;
+      }
+    }
+    const total = tally.agree + tally.disagree + tally.neutral;
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    for (const recipient of RESULTS_RECIPIENTS) {
+      try {
+        await sendTemplateEmail("closed-topic-results", recipient, {
+          idempotencyKey: `closed-topic-results-${issue.id}-${recipient}`,
+          replyTo: OWNER_EMAIL,
+          templateData: {
+            title: issue.title,
+            city: issue.city,
+            category: issue.category,
+            ...tally,
+            total,
+            commentCount: commentCount ?? 0,
+            resultsUrl: `https://youthvoice.world/results/${issue.id}`,
+          },
+        });
+      } catch (error) {
+        console.error(`Closed-topic email failed for issue ${issue.id}`, error);
+      }
+    }
+  }
+
+  return closed.map(({ id, city }) => ({ id, city }));
 }
 
 /**

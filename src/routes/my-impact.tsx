@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ImpactProgressCard } from "@/components/impact-progress-card";
 import { POINTS } from "@/lib/impact";
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/my-impact")({
   component: MyImpactPage,
@@ -34,6 +36,7 @@ const HOW = [
 ];
 
 function MyImpactPage() {
+  const { session } = useAuth();
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader />
@@ -41,11 +44,21 @@ function MyImpactPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Your Civic Impact</h1>
           <p className="mt-2 text-muted-foreground">
-            Anonymous, tied to this device. No account required — your voice still counts.
+            {session
+              ? "Signed in — your points follow you across your connected devices."
+              : "Anonymous and tied to this device. No account required — your voice still counts."}
           </p>
         </div>
 
         <ImpactProgressCard />
+
+        {!session && (
+          <section className="rounded-lg border border-primary/30 bg-primary/10 p-5">
+            <h2 className="font-semibold">Want to keep these points on another device?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Create an optional account and your current points will connect automatically.</p>
+            <Button asChild className="mt-4"><Link to="/account">Save my Impact Points</Link></Button>
+          </section>
+        )}
 
         <section className="rounded-2xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">How you earn points</h2>

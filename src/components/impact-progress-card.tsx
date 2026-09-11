@@ -2,18 +2,23 @@ import { useEffect, useState } from "react";
 import { getDeviceId } from "@/lib/device-id";
 import { computeBadges, levelFor, type ImpactStats } from "@/lib/impact";
 import { getMyImpact } from "@/lib/impact.functions";
+import { getAccountImpact } from "@/lib/account.functions";
+import { useAuth } from "@/lib/auth-context";
 
 export function ImpactProgressCard() {
+  const { session, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<ImpactStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
     const deviceId = getDeviceId();
-    getMyImpact({ data: { deviceId } })
+    const request = session ? getAccountImpact() : getMyImpact({ data: { deviceId } });
+    request
       .then((r) => setStats({ points: r.points, counts: r.counts as ImpactStats["counts"] }))
       .catch(() => setStats({ points: 0, counts: {} }))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading, session]);
 
   if (loading) {
     return (

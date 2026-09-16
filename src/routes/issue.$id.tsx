@@ -9,6 +9,10 @@ import { ImpactBadge } from "@/components/impact-badge";
 import { generateIssueSummary } from "@/lib/summary.functions";
 import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
 import { getClosingInfo, formatCloseDate } from "@/lib/closing";
+import { useAuth } from "@/lib/auth-context";
+import { canDeleteMyTopic, deleteMyTopic } from "@/lib/my-topics.functions";
+import { useNavigate } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 
 
 type Stance = "agree" | "disagree" | "neutral";
@@ -97,6 +101,40 @@ export const Route = createFileRoute("/issue/$id")({
 function IssuePage() {
   const { id } = Route.useParams();
   const deviceId = useMemo(() => getDeviceId(), []);
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const [canDelete, setCanDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    if (!session) {
+      setCanDelete(false);
+      return;
+    }
+    canDeleteMyTopic({ data: { issueId: id } })
+      .then((res) => {
+        if (active) setCanDelete(res.canDelete);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [session, id]);
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this topic? Its votes and comments will be removed too.")) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteMyTopic({ data: { issueId: id } });
+      navigate({ to: "/" });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not delete this topic.");
+      setDeleting(false);
+    }
+  }
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
@@ -262,9 +300,23 @@ function IssuePage() {
               </span>
             )}
           </div>
-          <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
-            {issue.title}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-bold leading-tight sm:text-3xl">
+              {issue.title}
+            </h1>
+            {canDelete && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                aria-label="Delete my topic"
+                title="Delete my topic"
+                className="shrink-0 rounded-md border border-destructive/40 p-2 text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+          </div>
           <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
             {issue.description}
           </p>

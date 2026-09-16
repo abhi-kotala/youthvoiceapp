@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ImpactProgressCard } from "@/components/impact-progress-card";
+import { StreakCard } from "@/components/streak-card";
+import { LeaderboardCard } from "@/components/leaderboard-card";
 import { POINTS } from "@/lib/impact";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,10 @@ function MyImpactPage() {
         </div>
 
         <ImpactProgressCard />
+
+        <StreakCard />
+
+        <LeaderboardCard />
 
         {!session && (
           <section className="rounded-lg border border-primary/30 bg-primary/10 p-5">

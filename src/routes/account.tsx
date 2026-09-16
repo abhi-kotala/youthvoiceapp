@@ -24,12 +24,12 @@ export const Route = createFileRoute("/account")({
       {
         name: "description",
         content:
-          "Your YouthVoice profile: photo, handle, Civic Impact Points and the day you joined.",
+          "Your YouthVoice profile: photo, username, bio, Civic Impact Points and the day you joined.",
       },
       { property: "og:title", content: "Your profile — YouthVoice" },
       {
         property: "og:description",
-        content: "Set your photo and handle, and keep your Impact Points across devices.",
+        content: "Set your photo, username and bio, and keep your Impact Points across devices.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

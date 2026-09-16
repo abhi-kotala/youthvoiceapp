@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { streakFromTimestamps } from "./impact";
 
 function validDevice(id: string) {
@@ -104,6 +105,26 @@ export const getDeviceStreak = createServerFn({ method: "POST" })
       .from("impact_events")
       .select("created_at")
       .eq("device_id", data.deviceId);
+    if (error) throw new Error(error.message);
+    return { streak: streakFromTimestamps((rows ?? []).map((r) => r.created_at)) };
+  });
+
+/** Streak across every device connected to the signed-in account. */
+export const getAccountStreak = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: devices, error: deviceError } = await supabaseAdmin
+      .from("account_devices")
+      .select("device_id")
+      .eq("user_id", context.userId);
+    if (deviceError) throw new Error(deviceError.message);
+    const deviceIds = (devices ?? []).map((d) => d.device_id);
+    if (deviceIds.length === 0) return { streak: 0 };
+    const { data: rows, error } = await supabaseAdmin
+      .from("impact_events")
+      .select("created_at")
+      .in("device_id", deviceIds);
     if (error) throw new Error(error.message);
     return { streak: streakFromTimestamps((rows ?? []).map((r) => r.created_at)) };
   });

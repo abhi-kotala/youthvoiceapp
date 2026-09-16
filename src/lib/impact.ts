@@ -97,3 +97,27 @@ export const BADGES: Badge[] = [
 export function computeBadges(stats: ImpactStats) {
   return BADGES.map((b) => ({ ...b, earned: b.earned(stats) }));
 }
+
+/**
+ * Daily participation streak: consecutive UTC days with at least one impact event,
+ * counting back from today (a streak stays alive if the last activity was yesterday).
+ */
+export function streakFromTimestamps(timestamps: string[]): number {
+  const days = new Set<string>();
+  for (const ts of timestamps) {
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) continue;
+    days.add(d.toISOString().slice(0, 10));
+  }
+  if (days.size === 0) return 0;
+  const dayMs = 86_400_000;
+  const today = new Date(new Date().toISOString().slice(0, 10)).getTime();
+  let cursor = days.has(new Date(today).toISOString().slice(0, 10)) ? today : today - dayMs;
+  if (!days.has(new Date(cursor).toISOString().slice(0, 10))) return 0;
+  let streak = 0;
+  while (days.has(new Date(cursor).toISOString().slice(0, 10))) {
+    streak += 1;
+    cursor -= dayMs;
+  }
+  return streak;
+}

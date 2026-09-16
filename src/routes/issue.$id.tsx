@@ -10,7 +10,7 @@ import { generateIssueSummary } from "@/lib/summary.functions";
 import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
 import { getClosingInfo, formatCloseDate } from "@/lib/closing";
 import { useAuth } from "@/lib/auth-context";
-import { canDeleteMyTopic, deleteMyTopic } from "@/lib/my-topics.functions";
+import { canDeleteMyTopic, deleteMyTopic, getTopicAuthor } from "@/lib/my-topics.functions";
 import { useNavigate } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 
@@ -317,6 +317,7 @@ function IssuePage() {
               </button>
             )}
           </div>
+          <TopicAuthor issueId={issue.id} />
           <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
             {issue.description}
           </p>
@@ -769,3 +770,42 @@ function DebateCoach({
 
 // Silence unused import warning in environments where notFound isn't used.
 void notFound;
+
+function TopicAuthor({ issueId }: { issueId: string }) {
+  const [author, setAuthor] = useState<
+    { displayName: string; handle: string | null; avatarUrl: string | null } | null
+  >(null);
+
+  useEffect(() => {
+    let active = true;
+    getTopicAuthor({ data: { issueId } })
+      .then((res) => {
+        if (active) setAuthor(res);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [issueId]);
+
+  if (!author) return null;
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      {author.avatarUrl ? (
+        <img
+          src={author.avatarUrl}
+          alt={`${author.displayName} profile photo`}
+          className="h-8 w-8 rounded-full border border-border object-cover"
+        />
+      ) : (
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-secondary text-xs font-bold text-primary">
+          {author.displayName.slice(0, 1).toUpperCase()}
+        </div>
+      )}
+      <div className="text-xs leading-tight">
+        <p className="font-semibold">{author.displayName}</p>
+        {author.handle && <p className="text-muted-foreground">@{author.handle}</p>}
+      </div>
+    </div>
+  );
+}

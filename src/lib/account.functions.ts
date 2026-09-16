@@ -54,29 +54,61 @@ export const connectCurrentDevice = createServerFn({ method: "POST" })
     return { connected: true };
   });
 
+function cleanHandle(handle: string | null | undefined) {
+  const value = (handle ?? "").trim().replace(/^@/, "");
+  if (!value) return null;
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(value)) {
+    throw new Error("Handles use 3–20 letters, numbers or underscores.");
+  }
+  return value;
+}
+
+export async function signAvatar(path: string | null | undefined) {
+  if (!path) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage
+    .from("avatars")
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
+  return data?.signedUrl ?? null;
+}
+
 export const getAccountProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, handle, avatar_url, created_at")
       .eq("user_id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return data;
+    if (!data) return null;
+    return {
+      display_name: data.display_name,
+      handle: data.handle,
+      avatar_path: data.avatar_url,
+      avatar_url: await signAvatar(data.avatar_url),
+      member_since: data.created_at,
+    };
   });
 
 export const updateAccountProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { displayName: string }) => ({
+  .inputValidator((data: { displayName: string; handle?: string | null; avatarPath?: string | null }) => ({
     displayName: cleanDisplayName(data.displayName),
+    handle: cleanHandle(data.handle),
+    avatarPath: data.avatarPath === undefined ? undefined : data.avatarPath,
   }))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("profiles").upsert({
       user_id: context.userId,
       display_name: data.displayName,
+      handle: data.handle,
+      ...(data.avatarPath !== undefined ? { avatar_url: data.avatarPath } : {}),
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "23505") throw new Error("That handle is already taken.");
+      throw new Error(error.message);
+    }
     return { saved: true };
   });
 

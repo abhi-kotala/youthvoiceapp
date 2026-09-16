@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 export function AccountButton() {
   const { session, loading } = useAuth();
   return (
-    <Button asChild variant="ghost" size="sm" aria-label={session ? "Open account" : "Sign in"}>
+    <Button asChild variant="ghost" size="sm" aria-label={session ? "Open profile" : "Sign in"}>
       <Link to="/account">
         {session ? <CircleUserRound /> : <LogIn />}
-        <span>{loading ? "Account" : session ? "Account" : "Sign in"}</span>
+        <span>{loading ? "Profile" : session ? "Profile" : "Sign in"}</span>
       </Link>
     </Button>
   );

@@ -71,3 +71,35 @@ export const deleteMyTopic = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { deleted: true };
   });
+
+export const getTopicAuthor = createServerFn({ method: "POST" })
+  .inputValidator((data: { issueId: string }) => ({
+    issueId: validateIssueId(data.issueId),
+  }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: issue } = await supabaseAdmin
+      .from("issues")
+      .select("source, submitted_by_device")
+      .eq("id", data.issueId)
+      .maybeSingle();
+    if (!issue || issue.source !== "user" || !issue.submitted_by_device) return null;
+    const { data: device } = await supabaseAdmin
+      .from("account_devices")
+      .select("user_id")
+      .eq("device_id", issue.submitted_by_device)
+      .maybeSingle();
+    if (!device) return null;
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("display_name, handle, avatar_url")
+      .eq("user_id", device.user_id)
+      .maybeSingle();
+    if (!profile) return null;
+    const { signAvatar } = await import("@/lib/account.functions");
+    return {
+      displayName: profile.display_name,
+      handle: profile.handle,
+      avatarUrl: await signAvatar(profile.avatar_url),
+    };
+  });

@@ -300,9 +300,23 @@ function IssuePage() {
               </span>
             )}
           </div>
-          <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
-            {issue.title}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="text-2xl font-bold leading-tight sm:text-3xl">
+              {issue.title}
+            </h1>
+            {canDelete && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                aria-label="Delete my topic"
+                title="Delete my topic"
+                className="shrink-0 rounded-md border border-destructive/40 p-2 text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+          </div>
           <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
             {issue.description}
           </p>

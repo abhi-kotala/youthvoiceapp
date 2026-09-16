@@ -101,6 +101,40 @@ export const Route = createFileRoute("/issue/$id")({
 function IssuePage() {
   const { id } = Route.useParams();
   const deviceId = useMemo(() => getDeviceId(), []);
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const [canDelete, setCanDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    if (!session) {
+      setCanDelete(false);
+      return;
+    }
+    canDeleteMyTopic({ data: { issueId: id } })
+      .then((res) => {
+        if (active) setCanDelete(res.canDelete);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [session, id]);
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this topic? Its votes and comments will be removed too.")) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteMyTopic({ data: { issueId: id } });
+      navigate({ to: "/" });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not delete this topic.");
+      setDeleting(false);
+    }
+  }
 
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);

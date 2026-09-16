@@ -5,7 +5,6 @@ import { StreakCard } from "@/components/streak-card";
 import { LeaderboardCard } from "@/components/leaderboard-card";
 import { POINTS } from "@/lib/impact";
 import { useAuth } from "@/lib/auth-context";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/my-impact")({
   component: MyImpactPage,
@@ -57,14 +56,6 @@ function MyImpactPage() {
         <StreakCard />
 
         <LeaderboardCard />
-
-        {!session && (
-          <section className="rounded-lg border border-primary/30 bg-primary/10 p-5">
-            <h2 className="font-semibold">Want to keep these points on another device?</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Create an optional account and your current points will connect automatically.</p>
-            <Button asChild className="mt-4"><Link to="/account">Save my Impact Points</Link></Button>
-          </section>
-        )}
 
         <section className="rounded-2xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">How you earn points</h2>

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Trophy } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ImpactProgressCard } from "@/components/impact-progress-card";
 import { StreakCard } from "@/components/streak-card";
-import { LeaderboardCard } from "@/components/leaderboard-card";
 import { POINTS } from "@/lib/impact";
 import { useAuth } from "@/lib/auth-context";
 

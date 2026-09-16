@@ -42,20 +42,27 @@ function MyImpactPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader />
       <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-8 space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Civic Impact</h1>
-          <p className="mt-2 text-muted-foreground">
-            {session
-              ? "Signed in — your points follow you across your connected devices."
-              : "Anonymous and tied to this device. No account required — your voice still counts."}
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Your Civic Impact</h1>
+            <p className="mt-2 text-muted-foreground">
+              {session
+                ? "Signed in — your points follow you across your connected devices."
+                : "Anonymous and tied to this device. No account required — your voice still counts."}
+            </p>
+          </div>
+          <Link
+            to="/leaderboard"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90"
+          >
+            <Trophy className="h-4 w-4" />
+            Check out the leaderboard
+          </Link>
         </div>
 
         <ImpactProgressCard />
 
         <StreakCard />
-
-        <LeaderboardCard />
 
         <section className="rounded-2xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">How you earn points</h2>

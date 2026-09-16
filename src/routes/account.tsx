@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarDays, CheckCircle2, Camera, LogOut, Sparkles } from "lucide-react";
+import { AtSign, CalendarDays, CheckCircle2, Camera, LogOut, Sparkles } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -23,12 +24,12 @@ export const Route = createFileRoute("/account")({
       {
         name: "description",
         content:
-          "Your YouthVoice profile: photo, handle, Civic Impact Points and the day you joined.",
+          "Your YouthVoice profile: photo, username, bio, Civic Impact Points and the day you joined.",
       },
       { property: "og:title", content: "Your profile — YouthVoice" },
       {
         property: "og:description",
-        content: "Set your photo and handle, and keep your Impact Points across devices.",
+        content: "Set your photo, username and bio, and keep your Impact Points across devices.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/account")({
 type ProfileState = {
   displayName: string;
   handle: string;
+  bio: string;
   avatarUrl: string | null;
   memberSince: string | null;
 };
@@ -52,9 +54,11 @@ function AccountPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [handle, setHandle] = useState("");
+  const [bio, setBio] = useState("");
   const [profile, setProfile] = useState<ProfileState>({
     displayName: "",
     handle: "",
+    bio: "",
     avatarUrl: null,
     memberSince: null,
   });
@@ -69,9 +73,11 @@ function AccountPage() {
     if (!data) return;
     setDisplayName(data.display_name ?? "");
     setHandle(data.handle ?? "");
+    setBio(data.bio ?? "");
     setProfile({
       displayName: data.display_name ?? "",
       handle: data.handle ?? "",
+      bio: data.bio ?? "",
       avatarUrl: data.avatar_url,
       memberSince: data.member_since,
     });
@@ -91,8 +97,14 @@ function AccountPage() {
     setBusy(true);
     setError(null);
     setMessage(null);
+    const cleanUsername = handle.trim().replace(/^@/, "").toLowerCase();
     if (mode === "signup" && !displayName.trim()) {
       setError("Add a display name.");
+      setBusy(false);
+      return;
+    }
+    if (mode === "signup" && !/^[a-z0-9_]{3,20}$/.test(cleanUsername)) {
+      setError("Choose a username with 3–20 letters, numbers or underscores.");
       setBusy(false);
       return;
     }
@@ -102,7 +114,7 @@ function AccountPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: displayName.trim() },
+            data: { display_name: displayName.trim(), handle: cleanUsername },
           },
         })
       : await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -119,7 +131,7 @@ function AccountPage() {
     setError(null);
     setMessage(null);
     try {
-      await updateAccountProfile({ data: { displayName, handle: handle || null } });
+      await updateAccountProfile({ data: { displayName, handle, bio } });
       await loadProfile();
       setMessage("Your profile was saved.");
     } catch (err) {
@@ -152,7 +164,7 @@ function AccountPage() {
         .upload(path, file, { upsert: true, contentType: file.type });
       if (uploadError) throw new Error(uploadError.message);
       await updateAccountProfile({
-        data: { displayName: displayName || "YouthVoice member", handle: handle || null, avatarPath: path },
+        data: { displayName: displayName || "YouthVoice member", handle, bio, avatarPath: path },
       });
       await loadProfile();
       setMessage("Profile photo updated.");
@@ -200,16 +212,16 @@ function AccountPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
-        <div className="mb-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
+        <div className="mb-6 text-center sm:text-left">
           <p className="text-sm font-semibold text-primary">Your profile</p>
           <h1 className="mt-1 font-display text-3xl font-bold">
-            {session ? "Your YouthVoice profile" : "Keep your impact with you"}
+            {session ? "Your YouthVoice profile" : "Create your YouthVoice profile"}
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {session
-              ? "Your photo and handle show up on the topics you post. Your points follow you on every device."
-              : "Your anonymous points stay on this device without a profile. Sign in to keep them when you switch phones or computers."}
+              ? "Your username, photo and bio help other students recognize your voice on topics you post."
+              : "Choose a username when you create your account so your YouthVoice identity is yours from the start."}
           </p>
         </div>
 
@@ -220,29 +232,30 @@ function AccountPage() {
           <div className="h-64 animate-pulse rounded-lg border bg-card" />
         ) : session ? (
           <div className="space-y-6">
-            <section className="rounded-2xl border bg-card p-6 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="relative">
+            <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+              <div className="bg-secondary/60 px-6 pb-7 pt-8 text-center">
+                <div className="relative mx-auto w-fit">
                   {profile.avatarUrl ? (
                     <img
                       src={profile.avatarUrl}
                       alt="Your profile photo"
-                      className="h-20 w-20 rounded-full border-2 border-primary/30 object-cover"
+                      className="h-36 w-36 rounded-full border-4 border-background object-cover shadow-lg sm:h-44 sm:w-44"
                     />
                   ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30 bg-secondary font-display text-2xl font-bold text-primary">
+                    <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-background bg-card font-display text-5xl font-bold text-primary shadow-lg sm:h-44 sm:w-44">
                       {initials}
                     </div>
                   )}
-                  <button
+                  <Button
                     type="button"
                     onClick={() => fileRef.current?.click()}
                     disabled={uploading}
                     aria-label="Change profile photo"
-                    className="absolute -bottom-1 -right-1 rounded-full bg-primary p-2 text-primary-foreground shadow disabled:opacity-60"
+                    size="icon"
+                    className="absolute bottom-2 right-2 h-11 w-11 rounded-full shadow"
                   >
-                    <Camera size={14} />
-                  </button>
+                    <Camera />
+                  </Button>
                   <input
                     ref={fileRef}
                     type="file"
@@ -251,22 +264,22 @@ function AccountPage() {
                     className="hidden"
                   />
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate font-display text-xl font-bold">
-                    {profile.displayName || "YouthVoice member"}
-                  </p>
-                  {profile.handle && (
-                    <p className="truncate text-sm text-primary">@{profile.handle}</p>
-                  )}
-                  <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
-                </div>
+                {uploading && (
+                  <p className="mt-3 text-xs text-muted-foreground">Uploading photo…</p>
+                )}
+                <h2 className="mt-5 font-display text-3xl font-bold">
+                  {profile.displayName || "YouthVoice member"}
+                </h2>
+                <p className="mt-1 inline-flex items-center justify-center gap-1 rounded-full bg-background px-3 py-1 text-sm font-semibold text-primary">
+                  <AtSign size={14} />{profile.handle || handle || "username"}
+                </p>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  {profile.bio || "Add a short bio so other students know what issues you care about."}
+                </p>
               </div>
-              {uploading && (
-                <p className="mt-3 text-xs text-muted-foreground">Uploading photo…</p>
-              )}
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border bg-secondary/50 p-4">
+              <div className="grid gap-3 p-6 sm:grid-cols-2">
+                <div className="rounded-xl border bg-secondary/50 p-5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <Sparkles size={13} /> Impact Points
                   </div>
@@ -279,7 +292,7 @@ function AccountPage() {
                     </p>
                   )}
                 </div>
-                <div className="rounded-xl border bg-secondary/50 p-4">
+                <div className="rounded-xl border bg-secondary/50 p-5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <CalendarDays size={13} /> Member since
                   </div>
@@ -297,7 +310,7 @@ function AccountPage() {
                 <Input id="profile-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={40} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="profile-handle">Handle</Label>
+                <Label htmlFor="profile-handle">Username</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">@</span>
                   <Input
@@ -306,11 +319,24 @@ function AccountPage() {
                     onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                     maxLength={20}
                     placeholder="yourhandle"
+                    required
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  3–20 letters, numbers or underscores. Shown on topics you post.
+                  3–20 lowercase letters, numbers or underscores. This is your YouthVoice ID.
                 </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="profile-bio">Bio</Label>
+                <Textarea
+                  id="profile-bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value.slice(0, 180))}
+                  maxLength={180}
+                  placeholder="What local issues do you care about?"
+                  rows={4}
+                />
+                <p className="text-xs text-muted-foreground">{bio.length}/180 characters</p>
               </div>
               <Button type="submit" disabled={busy}>Save profile</Button>
             </form>
@@ -326,7 +352,19 @@ function AccountPage() {
               <Button type="button" variant={mode === "signup" ? "default" : "ghost"} onClick={() => { setMode("signup"); setError(null); }}>Create account</Button>
             </div>
             <form onSubmit={submit} className="space-y-4">
-              {mode === "signup" && <div className="space-y-2"><Label htmlFor="display-name">Display name</Label><Input id="display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={40} autoComplete="nickname" required /></div>}
+              {mode === "signup" && (
+                <>
+                  <div className="space-y-2"><Label htmlFor="display-name">Display name</Label><Input id="display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={40} autoComplete="nickname" required /></div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-handle">Username</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">@</span>
+                      <Input id="signup-handle" value={handle} onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} maxLength={20} autoComplete="username" placeholder="yourusername" required />
+                    </div>
+                    <p className="text-xs text-muted-foreground">This becomes your YouthVoice ID. You can edit it later.</p>
+                  </div>
+                </>
+              )}
               <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></div>
               <div className="space-y-2"><Label htmlFor="password">Password</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "signup" ? "new-password" : "current-password"} minLength={8} required /></div>
               <Button type="submit" className="w-full" disabled={busy}>{busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}</Button>

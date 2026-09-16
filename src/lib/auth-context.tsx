@@ -13,11 +13,13 @@ const AuthContext = createContext<AuthContextValue>({ session: null, loading: tr
 
 async function connectDevice(session: Session) {
   const metadataName = session.user.user_metadata?.display_name;
+  const metadataHandle = session.user.user_metadata?.handle;
   const fallbackName = session.user.email?.split("@")[0] || "YouthVoice member";
   await connectCurrentDevice({
     data: {
       deviceId: getDeviceId(),
       displayName: typeof metadataName === "string" ? metadataName : fallbackName,
+      handle: typeof metadataHandle === "string" ? metadataHandle : undefined,
     },
   });
 }

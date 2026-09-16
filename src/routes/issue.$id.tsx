@@ -9,6 +9,10 @@ import { ImpactBadge } from "@/components/impact-badge";
 import { generateIssueSummary } from "@/lib/summary.functions";
 import { coachComment, type CoachFeedback } from "@/lib/coach.functions";
 import { getClosingInfo, formatCloseDate } from "@/lib/closing";
+import { useAuth } from "@/lib/auth-context";
+import { canDeleteMyTopic, deleteMyTopic } from "@/lib/my-topics.functions";
+import { useNavigate } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 
 
 type Stance = "agree" | "disagree" | "neutral";

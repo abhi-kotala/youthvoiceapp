@@ -13,7 +13,7 @@ import {
   getAccountProfile,
   updateAccountProfile,
 } from "@/lib/account.functions";
-import { levelForPoints } from "@/lib/impact";
+import { levelFor } from "@/lib/impact";
 
 export const Route = createFileRoute("/account")({
   component: AccountPage,
@@ -195,7 +195,7 @@ function AccountPage() {
         year: "numeric",
       })
     : null;
-  const level = points === null ? null : levelForPoints(points);
+  const level = points === null ? null : levelFor(points).current;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -275,7 +275,7 @@ function AccountPage() {
                   </p>
                   {level && (
                     <p className="text-xs text-muted-foreground">
-                      {level.emoji} {level.name}
+                      Level {level.level} · {level.name}
                     </p>
                   )}
                 </div>

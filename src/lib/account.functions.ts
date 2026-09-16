@@ -99,13 +99,12 @@ export const updateAccountProfile = createServerFn({ method: "POST" })
     avatarPath: data.avatarPath === undefined ? undefined : data.avatarPath,
   }))
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {
+    const { error } = await context.supabase.from("profiles").upsert({
       user_id: context.userId,
       display_name: data.displayName,
       handle: data.handle,
-    };
-    if (data.avatarPath !== undefined) patch["avatar_url"] = data.avatarPath;
-    const { error } = await context.supabase.from("profiles").upsert(patch);
+      ...(data.avatarPath !== undefined ? { avatar_url: data.avatarPath } : {}),
+    });
     if (error) {
       if (error.code === "23505") throw new Error("That handle is already taken.");
       throw new Error(error.message);

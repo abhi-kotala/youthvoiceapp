@@ -134,7 +134,7 @@ export const adminCreateIssue = createServerFn({ method: "POST" })
         city: (data.city ?? "Fargo").trim() || "Fargo",
         closes_at: data.closes_at
           ? new Date(data.closes_at).toISOString()
-          : new Date(Date.now() + 30 * 86400_000).toISOString(),
+          : new Date(Date.now() + 45 * 86400_000).toISOString(),
       })
       .select()
       .single();

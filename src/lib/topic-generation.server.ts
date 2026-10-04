@@ -15,7 +15,7 @@ const CATEGORIES = [
   "Government",
 ];
 
-export const TOPIC_RUN_DAYS = 30;
+export const TOPIC_RUN_DAYS = 45;
 
 const OWNER_EMAIL = "abhi.kotala561@gmail.com";
 const RESULTS_RECIPIENTS = [
@@ -115,9 +115,43 @@ Return strict JSON: {"topics":[{"title":"","description":"","category":"","city"
 }
 
 /**
- * Marks any topic whose closing date has passed as closed.
+ * Topics with fewer than MIN_VOTES_TO_CLOSE votes get extended by
+ * EXTENSION_DAYS instead of closing, up to MAX_TOPIC_LIFETIME_DAYS total.
+ */
+export const MIN_VOTES_TO_CLOSE = 10;
+export const EXTENSION_DAYS = 14;
+export const MAX_TOPIC_LIFETIME_DAYS = 120;
+
+async function extendLowVoteTopics(): Promise<void> {
+  const nowIso = new Date().toISOString();
+  const { data: due } = await supabaseAdmin
+    .from("issues")
+    .select("id, created_at")
+    .eq("status", "open")
+    .lt("closes_at", nowIso);
+  for (const t of (due ?? []) as { id: string; created_at: string }[]) {
+    const ageDays = (Date.now() - new Date(t.created_at).getTime()) / 86400_000;
+    if (ageDays >= MAX_TOPIC_LIFETIME_DAYS) continue;
+    const { count } = await supabaseAdmin
+      .from("votes")
+      .select("id", { count: "exact", head: true })
+      .eq("issue_id", t.id);
+    if ((count ?? 0) >= MIN_VOTES_TO_CLOSE) continue;
+    const maxEnd = new Date(t.created_at).getTime() + MAX_TOPIC_LIFETIME_DAYS * 86400_000;
+    const newEnd = Math.min(Date.now() + EXTENSION_DAYS * 86400_000, maxEnd);
+    await supabaseAdmin
+      .from("issues")
+      .update({ closes_at: new Date(newEnd).toISOString() })
+      .eq("id", t.id);
+  }
+}
+
+/**
+ * Marks any topic whose closing date has passed as closed
+ * (after first extending low-participation topics).
  */
 export async function closeExpiredTopics(): Promise<{ id: string; city: string }[]> {
+  await extendLowVoteTopics();
   const { data } = await supabaseAdmin
     .from("issues")
     .update({ status: "closed" })

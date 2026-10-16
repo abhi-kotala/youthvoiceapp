@@ -17,5 +17,6 @@ r=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$URL/rest/v1/impact_records"
 r=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$URL/rest/v1/partner_organizations" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{"name":"Fake","verified":true,"verification_note":"x","public_listing":true}')
 [[ "$r" == "401" || "$r" == "403" ]] && echo "PASS anon can't add partners" || { echo "FAIL anon insert partner: $r"; fail=1; }
 r=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$URL/rest/v1/toolkit_pages?slug=eq.faq" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{"body":"hacked"}')
-[[ "$r" == "401" || "$r" == "403" ]] && echo "PASS anon can't edit toolkit" || { echo "FAIL anon edit toolkit: $r"; fail=1; }
+b=$(get "toolkit_pages?select=body&slug=eq.faq")
+[[ "$b" != *hacked* ]] && echo "PASS anon can't edit toolkit (HTTP $r, no rows changed)" || { echo "FAIL anon edited toolkit"; fail=1; }
 exit $fail

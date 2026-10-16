@@ -218,9 +218,10 @@ export const adminUpdateIssue = createServerFn({ method: "POST" })
 export const adminDeleteIssue = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string; id: string }) => d)
   .handler(async ({ data }) => {
-    await checkSession(data.token);
+    const actor = await checkSession(data.token);
     const admin = await getAdmin();
     const { error } = await admin.from("issues").delete().eq("id", data.id);
+    if (!error) await audit(actor, "issue.delete", "issue", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -276,27 +277,35 @@ export const adminListCommunities = createServerFn({ method: "POST" })
 
 export const adminUpdateCommunity = createServerFn({ method: "POST" })
   .inputValidator(
-    (d: { token: string; id: string; status?: string; aiTopicsEnabled?: boolean; minVotes?: number }) => {
+    (d: { token: string; id: string; status?: string; aiTopicsEnabled?: boolean; minVotes?: number; verificationNote?: string }) => {
       if (d.status && !COMMUNITY_STATUSES.has(d.status)) throw new Error("Invalid status");
       if (d.minVotes !== undefined && (d.minVotes < 1 || d.minVotes > 1000)) throw new Error("Invalid minimum");
-      return d;
+      const note = (d.verificationNote ?? "").trim().slice(0, 500);
+      if (d.status === "official" && note.length < 10)
+        throw new Error("Describe how the partnership was verified (who confirmed, how) before marking Official.");
+      return { ...d, verificationNote: note };
     },
   )
   .handler(async ({ data }) => {
-    await checkSession(data.token);
+    const actor = await checkSession(data.token);
     const admin = await getAdmin();
-    const update: { status?: string; approved_at?: string; approved_by?: string; ai_topics_enabled?: boolean; min_votes_for_results?: number } = {};
+    const update: Record<string, unknown> = {};
     if (data.status) {
       update.status = data.status;
       if (data.status === "official") {
         update.approved_at = new Date().toISOString();
         update.approved_by = "platform_admin";
+        update.verification_note = data.verificationNote;
+        update.verified_by = actor;
       }
     }
     if (data.aiTopicsEnabled !== undefined) update.ai_topics_enabled = data.aiTopicsEnabled;
     if (data.minVotes !== undefined) update.min_votes_for_results = data.minVotes;
-    const { error } = await admin.from("communities").update(update).eq("id", data.id);
+    const { error } = await admin.from("communities").update(update as never).eq("id", data.id);
     if (error) throw new Error(error.message);
+    await audit(actor, data.status ? `community.status.${data.status}` : "community.settings", "community", data.id, {
+      aiTopicsEnabled: data.aiTopicsEnabled, minVotes: data.minVotes, verificationNote: data.verificationNote || undefined,
+    });
     return { ok: true };
   });
 
@@ -305,42 +314,67 @@ function slugify(s: string) {
 }
 
 export const adminReviewRequest = createServerFn({ method: "POST" })
-  .inputValidator((d: { token: string; id: string; action: "draft" | "reject" }) => d)
+  .inputValidator((d: { token: string; id: string; action: "draft" | "pending" | "reject" | "needs_info"; note?: string }) => {
+    if (!["draft", "pending", "reject", "needs_info"].includes(d.action)) throw new Error("Invalid action");
+    const note = (d.note ?? "").trim().slice(0, 1000);
+    if ((d.action === "reject" || d.action === "needs_info") && note.length < 3) throw new Error("Add a short reason or note.");
+    return { ...d, note };
+  })
   .handler(async ({ data }) => {
-    await checkSession(data.token);
+    const actor = await checkSession(data.token);
     const admin = await getAdmin();
     const { data: req } = await admin.from("community_requests").select("*").eq("id", data.id).single();
-    if (!req) throw new Error("Request not found");
+    if (!req) throw new Error("Application not found");
+    const now = new Date().toISOString();
     if (data.action === "reject") {
-      await admin
-        .from("community_requests")
-        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+      await admin.from("community_requests")
+        .update({ status: "rejected", reviewed_at: now, reviewed_by: actor, decision_reason: data.note })
         .eq("id", data.id);
+      await audit(actor, "application.reject", "application", data.id, { reason: data.note });
       return { ok: true };
     }
-    // Accepting a request only creates a DRAFT city — it is not public or official.
+    if (data.action === "needs_info") {
+      await admin.from("community_requests")
+        .update({ status: "needs_info", reviewed_at: now, reviewed_by: actor, admin_note: data.note })
+        .eq("id", data.id);
+      await audit(actor, "application.needs_info", "application", data.id, { note: data.note });
+      return { ok: true };
+    }
+    // Approval creates (or links) a city as Draft (hidden) or Pending — never Official.
     const slug = slugify(req.city_name);
     const { data: existing } = await admin
-      .from("communities")
-      .select("id")
-      .eq("state_code", req.state_code)
-      .eq("slug", slug)
-      .maybeSingle();
+      .from("communities").select("id").eq("state_code", req.state_code).eq("slug", slug).maybeSingle();
     let communityId = existing?.id;
     if (!communityId) {
       const { data: c, error } = await admin
         .from("communities")
-        .insert({ slug, name: req.city_name, state_code: req.state_code, status: "draft" })
-        .select("id")
-        .single();
+        .insert({ slug, name: req.city_name, state_code: req.state_code, status: data.action })
+        .select("id").single();
       if (error) throw new Error(error.message);
       communityId = c.id;
+      await audit(actor, "community.create", "community", communityId, { status: data.action, from: data.id });
     }
-    await admin
-      .from("community_requests")
-      .update({ status: "approved", community_id: communityId, reviewed_at: new Date().toISOString() })
+    await admin.from("community_requests")
+      .update({ status: "approved", community_id: communityId, reviewed_at: now, reviewed_by: actor, admin_note: data.note || req.admin_note })
       .eq("id", data.id);
-    return { ok: true };
+    await audit(actor, "application.approve", "application", data.id, { communityId });
+    return { ok: true, communityId };
+  });
+
+export const adminListAudit = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: rows } = await admin.from("admin_audit_log").select("*").order("created_at", { ascending: false }).limit(200);
+    const emails = new Map<string, string>();
+    for (const r of rows ?? []) {
+      if (r.actor_id && !emails.has(r.actor_id)) {
+        const { data: u } = await admin.auth.admin.getUserById(r.actor_id);
+        emails.set(r.actor_id, u?.user?.email ?? "(unknown)");
+      }
+    }
+    return { entries: (rows ?? []).map((r) => ({ ...r, actor: r.actor_id ? emails.get(r.actor_id) : "system" })) };
   });
 
 export const adminListDrafts = createServerFn({ method: "POST" })
@@ -409,7 +443,7 @@ export const adminGrantRole = createServerFn({ method: "POST" })
     return { ...d, email: d.email.trim().toLowerCase() };
   })
   .handler(async ({ data }) => {
-    await checkSession(data.token);
+    const actor = await checkSession(data.token);
     const admin = await getAdmin();
     let userId: string | null = null;
     for (let page = 1; page <= 20 && !userId; page++) {
@@ -419,21 +453,27 @@ export const adminGrantRole = createServerFn({ method: "POST" })
       if (!list || list.users.length < 200) break;
     }
     if (!userId) throw new Error("No YouthVoice account uses that email.");
+    if (userId === actor) throw new Error("You can't change your own roles.");
     const { error } = await admin.from("user_roles").insert({
       user_id: userId,
       role: data.role as "platform_admin" | "community_admin" | "partner" | "official",
       community_id: data.role === "platform_admin" ? null : data.communityId,
     });
     if (error) throw new Error(error.code === "23505" ? "That person already has this role." : error.message);
+    await audit(actor, "role.grant", "user", userId, { role: data.role, communityId: data.communityId ?? null, email: data.email });
     return { ok: true };
   });
 
 export const adminRevokeRole = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string; id: string }) => d)
   .handler(async ({ data }) => {
-    await checkSession(data.token);
+    const actor = await checkSession(data.token);
     const admin = await getAdmin();
+    const { data: row } = await admin.from("user_roles").select("user_id, role, community_id").eq("id", data.id).maybeSingle();
+    if (!row) throw new Error("Role not found");
+    if (row.user_id === actor) throw new Error("You can't remove your own role.");
     const { error } = await admin.from("user_roles").delete().eq("id", data.id);
+    if (!error) await audit(actor, "role.revoke", "user", row.user_id, row);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

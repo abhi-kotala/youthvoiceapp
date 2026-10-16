@@ -36,6 +36,13 @@
       "when": 1792120006744,
       "tag": "0004_restrict_community_update_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792120064481,
+      "tag": "0005_grant_issue_community_id",
+      "breakpoints": true
     }
   ]
 }

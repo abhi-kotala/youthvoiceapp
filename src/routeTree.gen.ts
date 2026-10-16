@@ -28,6 +28,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
+import { Route as CitiesKeyRouteImport } from './routes/cities.$key'
 import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involved'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
@@ -132,6 +133,11 @@ const CitiesIndexRoute = CitiesIndexRouteImport.update({
   path: '/cities/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CitiesKeyRoute = CitiesKeyRouteImport.update({
+  id: '/cities/$key',
+  path: '/cities/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideGetInvolvedRoute = GuideGetInvolvedRouteImport.update({
   id: '/guide/get-involved',
   path: '/guide/get-involved',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
+  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
+    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
@@ -350,6 +362,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  CitiesKeyRoute: typeof CitiesKeyRoute
   GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
   IssueIdRoute: typeof IssueIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
@@ -494,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CitiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cities/$key': {
+      id: '/cities/$key'
+      path: '/cities/$key'
+      fullPath: '/cities/$key'
+      preLoaderRoute: typeof CitiesKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide/get-involved': {
       id: '/guide/get-involved'
       path: '/guide/get-involved'
@@ -559,6 +579,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  CitiesKeyRoute: CitiesKeyRoute,
   GuideGetInvolvedRoute: GuideGetInvolvedRoute,
   IssueIdRoute: IssueIdRoute,
   ResultsIdRoute: ResultsIdRoute,

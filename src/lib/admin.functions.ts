@@ -229,7 +229,7 @@ export const adminGenerateTopics = createServerFn({ method: "POST" })
 
 // ---------- Phase 2A: cities, requests, AI drafts, usage, roles ----------
 
-const COMMUNITY_STATUSES = new Set(["draft", "pending", "pilot", "official", "paused"]);
+const COMMUNITY_STATUSES = new Set(["draft", "pending", "listed", "pilot", "official", "paused"]);
 
 export const adminListCommunities = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string }) => d)

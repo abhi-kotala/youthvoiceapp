@@ -91,6 +91,97 @@ export type Database = {
           },
         ]
       }
+      communities: {
+        Row: {
+          center_lat: number | null
+          center_lng: number | null
+          created_at: string
+          id: string
+          legacy_city: string | null
+          name: string
+          slug: string
+          state_code: string
+          status: string
+          timezone: string
+          type: string
+        }
+        Insert: {
+          center_lat?: number | null
+          center_lng?: number | null
+          created_at?: string
+          id?: string
+          legacy_city?: string | null
+          name: string
+          slug: string
+          state_code: string
+          status?: string
+          timezone?: string
+          type?: string
+        }
+        Update: {
+          center_lat?: number | null
+          center_lng?: number | null
+          created_at?: string
+          id?: string
+          legacy_city?: string | null
+          name?: string
+          slug?: string
+          state_code?: string
+          status?: string
+          timezone?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communities_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      community_recipients: {
+        Row: {
+          active: boolean
+          community_id: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          title: string | null
+          verified: boolean
+        }
+        Insert: {
+          active?: boolean
+          community_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          title?: string | null
+          verified?: boolean
+        }
+        Update: {
+          active?: boolean
+          community_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          title?: string | null
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_recipients_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impact_events: {
         Row: {
           action: string
@@ -126,6 +217,7 @@ export type Database = {
           category: string
           city: string
           closes_at: string | null
+          community_id: string | null
           created_at: string
           description: string
           id: string
@@ -144,6 +236,7 @@ export type Database = {
           category?: string
           city?: string
           closes_at?: string | null
+          community_id?: string | null
           created_at?: string
           description: string
           id?: string
@@ -162,6 +255,7 @@ export type Database = {
           category?: string
           city?: string
           closes_at?: string | null
+          community_id?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -176,7 +270,15 @@ export type Database = {
           title?: string
           topic_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "issues_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -263,6 +365,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      states: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
       }
       votes: {
         Row: {

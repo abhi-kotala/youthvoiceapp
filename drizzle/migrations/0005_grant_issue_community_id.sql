@@ -1,0 +1,1 @@
+GRANT SELECT (community_id) ON public.issues TO anon, authenticated;

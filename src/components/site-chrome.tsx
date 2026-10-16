@@ -7,6 +7,7 @@ import { AccountButton } from "@/components/account-button";
 
 const NAV_LINKS = [
   { to: "/", label: "Issues" },
+  { to: "/cities", label: "Cities" },
   { to: "/submit", label: "Submit" },
   { to: "/explain", label: "Explain" },
   { to: "/map", label: "Map" },

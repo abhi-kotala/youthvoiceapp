@@ -1,0 +1,175 @@
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { CityStatusBadge } from "@/components/city-status-badge";
+import { getCityPage, getMyVotedIssues, canManageCity, updateCityInfo } from "@/lib/cities.functions";
+import { STATUS_HELP, SELECTED_CITY_KEY } from "@/lib/cities";
+import { getDeviceId } from "@/lib/device-id";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/cities/$key")({
+  loader: async ({ params }) => {
+    const res = await getCityPage({ data: { key: params.key } }).catch(() => ({ city: null }));
+    if (!res.city) throw notFound();
+    return res as Required<typeof res> & { city: NonNullable<typeof res.city> };
+  },
+  head: ({ loaderData }) => {
+    const c = loaderData?.city;
+    if (!c) return { meta: [{ title: "Community not found — Youth Voice" }, { name: "robots", content: "noindex" }] };
+    const title = `${c.name}, ${c.state_code} — Youth Voice`;
+    const desc = `Youth civic polls and discussions for ${c.name}, ${c.state_name}. Status: see page for verified participation.`;
+    return {
+      meta: [
+        { title }, { name: "description", content: desc },
+        { property: "og:title", content: title }, { property: "og:description", content: desc },
+        { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
+  notFoundComponent: () => (
+    <div className="min-h-screen"><SiteHeader />
+      <div className="p-10 text-center"><p className="font-medium">This community isn't on Youth Voice.</p>
+        <Link to="/cities" className="mt-3 inline-block text-primary underline">Choose another city</Link></div>
+    </div>
+  ),
+  errorComponent: () => <div className="min-h-screen"><SiteHeader /><p className="p-10 text-center text-muted-foreground">Couldn't load this community.</p></div>,
+  component: CityPage,
+});
+
+function CityPage() {
+  const { city, active, closed, minVotes } = Route.useLoaderData();
+  const { key } = Route.useParams();
+  const [voted, setVoted] = useState<Set<string>>(new Set());
+  const [canManage, setCanManage] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(SELECTED_CITY_KEY, key);
+    const ids = active.map((a) => a.id);
+    if (ids.length) getMyVotedIssues({ data: { deviceId: getDeviceId(), issueIds: ids } }).then((r) => setVoted(new Set(r))).catch(() => {});
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) canManageCity({ data: { communityId: city.id } }).then((r) => setCanManage(r.canManage)).catch(() => {});
+    });
+  }, [key, city.id, active]);
+
+  return (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main className="mx-auto max-w-4xl px-4 py-10">
+        <Link to="/cities" className="text-sm text-primary underline">Change city</Link>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-4xl font-extrabold">{city.name}, {city.state_code}</h1>
+          <CityStatusBadge status={city.status} />
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">{STATUS_HELP[city.status]}</p>
+        {city.description && <p className="mt-4 max-w-2xl">{city.description}</p>}
+
+        <section className="mt-6 rounded-xl border border-border bg-card/60 p-5 text-sm">
+          <h2 className="font-semibold">How Youth Voice works here</h2>
+          <p className="mt-2 text-muted-foreground">
+            Students vote anonymously on local topics and debate respectfully in each thread.
+            {city.status === "official"
+              ? " Results are shared with local officials through a verified partnership."
+              : " There is no official partnership with local government here, so results are not an official city process."}
+            {` Results show once a poll has at least ${minVotes} votes, to protect small groups.`}
+          </p>
+        </section>
+
+        <h2 className="mt-10 font-display text-2xl font-bold">Active civic polls</h2>
+        {active.length === 0 ? (
+          <p className="mt-3 rounded-xl border border-dashed border-border p-6 text-center text-muted-foreground">
+            There are no active civic polls in this community right now. Check back soon.
+          </p>
+        ) : (
+          <ul className="mt-4 grid gap-3">
+            {active.map((i) => (
+              <li key={i.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>{i.category}</span>
+                  {i.closes_at && <span>· Closes {new Date(i.closes_at).toLocaleDateString()}</span>}
+                  {voted.has(i.id) && <span className="rounded-full bg-primary/15 px-2 text-primary">You voted</span>}
+                </div>
+                <Link to="/issue/$id" params={{ id: i.id }} className="mt-1 block font-semibold hover:text-primary">{i.title}</Link>
+                <ResultLine r={i.result} />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h2 className="mt-10 font-display text-2xl font-bold">Closed poll results</h2>
+        {closed.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No closed polls yet.</p>
+        ) : (
+          <ul className="mt-4 grid gap-3">
+            {closed.map((i) => (
+              <li key={i.id} className="rounded-xl border border-border p-4">
+                <Link to="/issue/$id" params={{ id: i.id }} className="font-semibold hover:text-primary">{i.title}</Link>
+                <ResultLine r={i.result} />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <section className="mt-10">
+          <h2 className="font-display text-2xl font-bold">Local information</h2>
+          <p className="mt-1 text-xs text-muted-foreground">General community links. Listing a link does not mean that organization endorses or partners with Youth Voice.</p>
+          {city.resources.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">No links added yet.</p>
+          ) : (
+            <ul className="mt-3 list-disc pl-5 text-sm">
+              {city.resources.map((r) => (
+                <li key={r.url}><a href={r.url} target="_blank" rel="noopener noreferrer" className="text-primary underline">{r.label}</a></li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {canManage && <ManagerEditor id={city.id} description={city.description ?? ""} resources={city.resources} />}
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}
+
+type Result = { suppressed: true; total: number } | { suppressed: false; total: number; pct: { agree: number; disagree: number; neutral: number } };
+function ResultLine({ r }: { r: Result }) {
+  if (r.suppressed) return <p className="mt-2 text-xs text-muted-foreground">Results hidden until enough people vote.</p>;
+  return (
+    <p className="mt-2 text-xs text-muted-foreground">
+      {r.total} votes · Agree {r.pct.agree}% · Disagree {r.pct.disagree}% · Neutral {r.pct.neutral}%
+    </p>
+  );
+}
+
+function ManagerEditor({ id, description, resources }: { id: string; description: string; resources: { label: string; url: string }[] }) {
+  const router = useRouter();
+  const [desc, setDesc] = useState(description);
+  const [links, setLinks] = useState(resources.map((r) => `${r.label} | ${r.url}`).join("\n"));
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true);
+    try {
+      const parsed = links.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+        const [label, url] = l.split("|").map((s) => s.trim());
+        return { label: label ?? "", url: url ?? "" };
+      });
+      await updateCityInfo({ data: { communityId: id, description: desc, resources: parsed } });
+      toast.success("Saved");
+      router.invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't save");
+    } finally { setBusy(false); }
+  }
+  return (
+    <section className="mt-10 rounded-xl border border-primary/40 p-5">
+      <h2 className="font-semibold">Manage this city (admins only)</h2>
+      <label className="mt-3 block text-sm">Description</label>
+      <Textarea value={desc} maxLength={600} onChange={(e) => setDesc(e.target.value)} />
+      <label className="mt-3 block text-sm">Links — one per line: Label | https://…</label>
+      <Textarea rows={4} value={links} onChange={(e) => setLinks(e.target.value)} />
+      <Button className="mt-3" disabled={busy} onClick={save}>Save</Button>
+    </section>
+  );
+}

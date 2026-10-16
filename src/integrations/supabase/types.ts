@@ -143,16 +143,19 @@ export type Database = {
           center_lat: number | null
           center_lng: number | null
           created_at: string
+          description: string | null
           id: string
           legacy_city: string | null
           min_votes_for_results: number
           name: string
+          resources: Json
           slug: string
           state_code: string
           status: string
           timezone: string
           topic_run_days: number
           type: string
+          zip_codes: string[]
         }
         Insert: {
           ai_topics_enabled?: boolean
@@ -161,16 +164,19 @@ export type Database = {
           center_lat?: number | null
           center_lng?: number | null
           created_at?: string
+          description?: string | null
           id?: string
           legacy_city?: string | null
           min_votes_for_results?: number
           name: string
+          resources?: Json
           slug: string
           state_code: string
           status?: string
           timezone?: string
           topic_run_days?: number
           type?: string
+          zip_codes?: string[]
         }
         Update: {
           ai_topics_enabled?: boolean
@@ -179,16 +185,19 @@ export type Database = {
           center_lat?: number | null
           center_lng?: number | null
           created_at?: string
+          description?: string | null
           id?: string
           legacy_city?: string | null
           min_votes_for_results?: number
           name?: string
+          resources?: Json
           slug?: string
           state_code?: string
           status?: string
           timezone?: string
           topic_run_days?: number
           type?: string
+          zip_codes?: string[]
         }
         Relationships: [
           {
@@ -635,6 +644,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_public_community: { Args: { _id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "platform_admin" | "community_admin" | "partner" | "official"

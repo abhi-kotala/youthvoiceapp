@@ -627,6 +627,16 @@ function HomePage() {
         )}
       </section>
 
+      <section className="mx-auto mt-12 max-w-5xl px-4">
+        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-6 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="font-display text-2xl font-bold">Not in Fargo–Moorhead?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Ask for Youth Voice in your city, school, or organization.</p>
+          </div>
+          <Link to="/bring-youth-voice" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">Bring Youth Voice to Your Community</Link>
+        </div>
+      </section>
+
       <SiteFooter />
     </div>
   );

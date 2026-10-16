@@ -4,7 +4,7 @@ set -u
 URL="${VITE_SUPABASE_URL:?}"; KEY="${VITE_SUPABASE_PUBLISHABLE_KEY:?}"
 fail=0
 get() { curl -s "$URL/rest/v1/$1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"; }
-for t in partner_pipeline onboarding_steps outreach_log demo_requests program_settings; do
+for t in community_interest_requests partner_pipeline onboarding_steps outreach_log demo_requests program_settings; do
   r=$(get "$t?select=*&limit=1")
   if [[ "$r" == "[]" || "$r" == *"permission denied"* ]]; then echo "PASS anon blocked: $t"; else echo "FAIL anon read $t: $r"; fail=1; fi
 done

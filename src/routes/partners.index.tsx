@@ -41,6 +41,7 @@ function PartnersPage() {
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">Most young people can't vote, and few can make it to a council meeting. YouthVoice gives them short, neutral civic polls about real local issues, plus moderated debate. Communities get privacy-protected totals they can bring into their own conversations.</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button asChild><Link to="/request-city">Apply for a partnership</Link></Button>
+          <Button asChild variant="secondary"><Link to="/bring-youth-voice">Bring Youth Voice to Your Community</Link></Button>
           <Button asChild variant="secondary"><Link to="/partners/demo">Request a demo</Link></Button>
           <Button asChild variant="outline"><Link to="/partners/toolkit">Partner toolkit</Link></Button>
         </div>

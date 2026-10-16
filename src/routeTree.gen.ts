@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as BringYouthVoiceRouteImport } from './routes/bring-youth-voice'
 import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as InsightsRouteImport } from './routes/insights'
@@ -39,6 +40,7 @@ import { Route as PartnersDirectoryRouteImport } from './routes/partners.directo
 import { Route as PartnersToolkitRouteImport } from './routes/partners.toolkit'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as AdminPartnersRequestsRouteImport } from './routes/admin_.partners_.requests'
 import { Route as ApiPublicRotateTopicsRouteImport } from './routes/api/public/rotate-topics'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -60,6 +62,11 @@ const AccountRoute = AccountRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BringYouthVoiceRoute = BringYouthVoiceRouteImport.update({
+  id: '/bring-youth-voice',
+  path: '/bring-youth-voice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplainRoute = ExplainRouteImport.update({
@@ -195,6 +202,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminPartnersRequestsRoute = AdminPartnersRequestsRouteImport.update({
+  id: '/admin_/partners_/requests',
+  path: '/admin/partners/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicRotateTopicsRoute = ApiPublicRotateTopicsRouteImport.update({
   id: '/api/public/rotate-topics',
   path: '/api/public/rotate-topics',
@@ -212,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
   '/insights': typeof InsightsRoute
@@ -238,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/partners/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -246,6 +260,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
   '/insights': typeof InsightsRoute
@@ -272,6 +287,7 @@ export interface FileRoutesByTo {
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin/partners/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -281,6 +297,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
   '/insights': typeof InsightsRoute
@@ -307,6 +324,7 @@ export interface FileRoutesById {
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/admin_/partners_/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -317,6 +335,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
+    | '/bring-youth-voice'
     | '/explain'
     | '/explore'
     | '/insights'
@@ -343,6 +362,7 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/partners/'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/partners/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -351,6 +371,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
+    | '/bring-youth-voice'
     | '/explain'
     | '/explore'
     | '/insights'
@@ -377,6 +398,7 @@ export interface FileRouteTypes {
     | '/cities'
     | '/partners'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin/partners/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   id:
@@ -385,6 +407,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
+    | '/bring-youth-voice'
     | '/explain'
     | '/explore'
     | '/insights'
@@ -411,6 +434,7 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/partners/'
     | '/.mcp/invoke-tool/$tool'
+    | '/admin_/partners_/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -420,6 +444,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
+  BringYouthVoiceRoute: typeof BringYouthVoiceRoute
   ExplainRoute: typeof ExplainRoute
   ExploreRoute: typeof ExploreRoute
   InsightsRoute: typeof InsightsRoute
@@ -446,6 +471,7 @@ export interface RootRouteChildren {
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  AdminPartnersRequestsRoute: typeof AdminPartnersRequestsRoute
   ApiPublicRotateTopicsRoute: typeof ApiPublicRotateTopicsRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -478,6 +504,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bring-youth-voice': {
+      id: '/bring-youth-voice'
+      path: '/bring-youth-voice'
+      fullPath: '/bring-youth-voice'
+      preLoaderRoute: typeof BringYouthVoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explain': {
@@ -662,6 +695,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/partners_/requests': {
+      id: '/admin_/partners_/requests'
+      path: '/admin/partners/requests'
+      fullPath: '/admin/partners/requests'
+      preLoaderRoute: typeof AdminPartnersRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/rotate-topics': {
       id: '/api/public/rotate-topics'
       path: '/api/public/rotate-topics'
@@ -684,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
+  BringYouthVoiceRoute: BringYouthVoiceRoute,
   ExplainRoute: ExplainRoute,
   ExploreRoute: ExploreRoute,
   InsightsRoute: InsightsRoute,
@@ -711,6 +752,7 @@ const rootRouteChildren: RootRouteChildren = {
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  AdminPartnersRequestsRoute: AdminPartnersRequestsRoute,
   ApiPublicRotateTopicsRoute: ApiPublicRotateTopicsRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

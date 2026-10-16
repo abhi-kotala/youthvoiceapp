@@ -121,7 +121,7 @@ function ExplorePage() {
         <section className="mt-14 rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
           <h2 className="font-display text-2xl font-bold">Bring Youth Voice to Your City</h2>
           <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">Don't see your community? Send a request — every new city is reviewed before it goes live.</p>
-          <Button asChild className="mt-4"><Link to="/request-city">Request your city</Link></Button>
+          <Button asChild className="mt-4"><Link to="/bring-youth-voice">Bring Youth Voice to Your Community</Link></Button>
         </section>
       </main>
       <SiteFooter />

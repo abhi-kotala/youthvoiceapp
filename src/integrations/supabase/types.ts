@@ -50,6 +50,50 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_log: {
+        Row: {
+          community_id: string | null
+          completion_tokens: number | null
+          created_at: string
+          drafts_created: number
+          est_cost_usd: number
+          feature: string
+          id: string
+          model: string | null
+          prompt_tokens: number | null
+        }
+        Insert: {
+          community_id?: string | null
+          completion_tokens?: number | null
+          created_at?: string
+          drafts_created?: number
+          est_cost_usd?: number
+          feature: string
+          id?: string
+          model?: string | null
+          prompt_tokens?: number | null
+        }
+        Update: {
+          community_id?: string | null
+          completion_tokens?: number | null
+          created_at?: string
+          drafts_created?: number
+          est_cost_usd?: number
+          feature?: string
+          id?: string
+          model?: string | null
+          prompt_tokens?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_log_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           body: string
@@ -93,42 +137,57 @@ export type Database = {
       }
       communities: {
         Row: {
+          ai_topics_enabled: boolean
+          approved_at: string | null
+          approved_by: string | null
           center_lat: number | null
           center_lng: number | null
           created_at: string
           id: string
           legacy_city: string | null
+          min_votes_for_results: number
           name: string
           slug: string
           state_code: string
           status: string
           timezone: string
+          topic_run_days: number
           type: string
         }
         Insert: {
+          ai_topics_enabled?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
           center_lat?: number | null
           center_lng?: number | null
           created_at?: string
           id?: string
           legacy_city?: string | null
+          min_votes_for_results?: number
           name: string
           slug: string
           state_code: string
           status?: string
           timezone?: string
+          topic_run_days?: number
           type?: string
         }
         Update: {
+          ai_topics_enabled?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
           center_lat?: number | null
           center_lng?: number | null
           created_at?: string
           id?: string
           legacy_city?: string | null
+          min_votes_for_results?: number
           name?: string
           slug?: string
           state_code?: string
           status?: string
           timezone?: string
+          topic_run_days?: number
           type?: string
         }
         Relationships: [
@@ -179,6 +238,63 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "communities"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_requests: {
+        Row: {
+          city_name: string
+          community_id: string | null
+          contact_email: string
+          created_at: string
+          id: string
+          message: string | null
+          organization: string | null
+          requester_role: string
+          reviewed_at: string | null
+          state_code: string
+          status: string
+        }
+        Insert: {
+          city_name: string
+          community_id?: string | null
+          contact_email: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          organization?: string | null
+          requester_role?: string
+          reviewed_at?: string | null
+          state_code: string
+          status?: string
+        }
+        Update: {
+          city_name?: string
+          community_id?: string | null
+          contact_email?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          organization?: string | null
+          requester_role?: string
+          reviewed_at?: string | null
+          state_code?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_requests_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -381,6 +497,95 @@ export type Database = {
         }
         Relationships: []
       }
+      topic_drafts: {
+        Row: {
+          category: string
+          community_id: string
+          created_at: string
+          description: string
+          id: string
+          published_issue_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          category?: string
+          community_id: string
+          created_at?: string
+          description: string
+          id?: string
+          published_issue_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          community_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          published_issue_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_drafts_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_drafts_published_issue_id_fkey"
+            columns: ["published_issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          community_id: string | null
+          created_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          community_id?: string | null
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          community_id?: string | null
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votes: {
         Row: {
           choice: string
@@ -418,10 +623,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_community: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
       close_expired_issues: { Args: never; Returns: number }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "platform_admin" | "community_admin" | "partner" | "official"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -548,6 +764,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["platform_admin", "community_admin", "partner", "official"],
+    },
   },
 } as const

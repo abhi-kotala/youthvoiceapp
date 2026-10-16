@@ -15,6 +15,13 @@
       "when": 1792119078163,
       "tag": "0001_issues_community_from_city",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792119401519,
+      "tag": "0002_phase2a_roles_cities_drafts",
+      "breakpoints": true
     }
   ]
 }

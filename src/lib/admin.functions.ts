@@ -7,20 +7,28 @@ async function getAdmin() {
   return supabaseAdmin;
 }
 
-async function checkSession(token: string) {
+/**
+ * `token` is the caller's signed-in access token. Verified server-side, then the
+ * caller must hold platform_admin in user_roles. Returns the admin's user id.
+ */
+async function checkSession(token: string): Promise<string> {
   if (!token) throw new Error("Not signed in");
   const admin = await getAdmin();
-  const { data, error } = await admin
-    .from("admin_sessions")
-    .select("token, expires_at")
-    .eq("token", token)
+  const { data: u, error } = await admin.auth.getUser(token);
+  if (error || !u?.user) throw new Error("Session expired — sign in again");
+  const { data: role } = await admin
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", u.user.id)
+    .eq("role", "platform_admin")
     .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Session expired");
-  if (new Date(data.expires_at).getTime() < Date.now()) {
-    await admin.from("admin_sessions").delete().eq("token", token);
-    throw new Error("Session expired");
-  }
+  if (!role) throw new Error("Not authorized");
+  return u.user.id;
+}
+
+export async function audit(actorId: string, action: string, targetType: string, targetId: string | null, details: Record<string, unknown> = {}) {
+  const admin = await getAdmin();
+  await admin.from("admin_audit_log").insert({ actor_id: actorId, action, target_type: targetType, target_id: targetId, details: details as never });
 }
 
 function randomToken() {
@@ -42,6 +50,8 @@ function timingSafeEqualStr(a: string, b: string): boolean {
 export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((d: { passcode: string }) => d)
   .handler(async ({ data }) => {
+    void data;
+    throw new Error("Passcode sign-in has been retired. Sign in with your admin account.");
     const expected = process.env.ADMIN_PASSCODE;
     if (!expected) throw new Error("Admin passcode not configured");
     if (!timingSafeEqualStr(data.passcode, expected)) {

@@ -43,6 +43,13 @@
       "when": 1792120064481,
       "tag": "0005_grant_issue_community_id",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792162874796,
+      "tag": "0006_phase3_onboarding_admin",
+      "breakpoints": true
     }
   ]
 }

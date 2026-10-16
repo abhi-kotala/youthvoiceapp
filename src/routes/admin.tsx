@@ -283,7 +283,7 @@ function IssuesPanel({ token }: { token: string }) {
       const res = await adminGenerateTopics({ data: { token, count: 3 } });
       setGenMsg(
         res.created.length
-          ? `Published ${res.created.length} new topic${res.created.length === 1 ? "" : "s"}.` +
+          ? `Created ${res.created.length} AI draft${res.created.length === 1 ? "" : "s"} — review them in the Cities tab.` +
               (res.closed ? ` Closed ${res.closed} expired.` : "")
           : (res.skipped ?? "No topics created."),
       );

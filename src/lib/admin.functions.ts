@@ -226,3 +226,204 @@ export const adminGenerateTopics = createServerFn({ method: "POST" })
     const result = await generateTopics({ count: data.count ?? 3, force: true });
     return { closed: closed.length, created: result.created, skipped: result.skipped ?? null };
   });
+
+// ---------- Phase 2A: cities, requests, AI drafts, usage, roles ----------
+
+const COMMUNITY_STATUSES = new Set(["draft", "pending", "pilot", "official", "paused"]);
+
+export const adminListCommunities = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const [{ data: communities }, { data: requests }, { data: usage }] = await Promise.all([
+      admin
+        .from("communities")
+        .select("id, slug, name, state_code, type, status, ai_topics_enabled, min_votes_for_results, topic_run_days, approved_at, approved_by")
+        .order("state_code")
+        .order("name"),
+      admin.from("community_requests").select("*").order("created_at", { ascending: false }).limit(100),
+      admin.from("ai_usage_log").select("community_id, drafts_created, est_cost_usd, created_at"),
+    ]);
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    let monthCost = 0;
+    let totalCost = 0;
+    let runs = 0;
+    for (const u of usage ?? []) {
+      const c = Number(u.est_cost_usd) || 0;
+      totalCost += c;
+      runs += 1;
+      if (new Date(u.created_at) >= monthStart) monthCost += c;
+    }
+    return {
+      communities: communities ?? [],
+      requests: requests ?? [],
+      usage: { runs, totalCost, monthCost },
+    };
+  });
+
+export const adminUpdateCommunity = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: { token: string; id: string; status?: string; aiTopicsEnabled?: boolean; minVotes?: number }) => {
+      if (d.status && !COMMUNITY_STATUSES.has(d.status)) throw new Error("Invalid status");
+      if (d.minVotes !== undefined && (d.minVotes < 1 || d.minVotes > 1000)) throw new Error("Invalid minimum");
+      return d;
+    },
+  )
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const update: Record<string, unknown> = {};
+    if (data.status) {
+      update.status = data.status;
+      if (data.status === "official") {
+        update.approved_at = new Date().toISOString();
+        update.approved_by = "platform_admin";
+      }
+    }
+    if (data.aiTopicsEnabled !== undefined) update.ai_topics_enabled = data.aiTopicsEnabled;
+    if (data.minVotes !== undefined) update.min_votes_for_results = data.minVotes;
+    const { error } = await admin.from("communities").update(update).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+function slugify(s: string) {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+}
+
+export const adminReviewRequest = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string; id: string; action: "draft" | "reject" }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: req } = await admin.from("community_requests").select("*").eq("id", data.id).single();
+    if (!req) throw new Error("Request not found");
+    if (data.action === "reject") {
+      await admin
+        .from("community_requests")
+        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+        .eq("id", data.id);
+      return { ok: true };
+    }
+    // Accepting a request only creates a DRAFT city — it is not public or official.
+    const slug = slugify(req.city_name);
+    const { data: existing } = await admin
+      .from("communities")
+      .select("id")
+      .eq("state_code", req.state_code)
+      .eq("slug", slug)
+      .maybeSingle();
+    let communityId = existing?.id;
+    if (!communityId) {
+      const { data: c, error } = await admin
+        .from("communities")
+        .insert({ slug, name: req.city_name, state_code: req.state_code, status: "draft" })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      communityId = c.id;
+    }
+    await admin
+      .from("community_requests")
+      .update({ status: "approved", community_id: communityId, reviewed_at: new Date().toISOString() })
+      .eq("id", data.id);
+    return { ok: true };
+  });
+
+export const adminListDrafts = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: drafts, error } = await admin
+      .from("topic_drafts")
+      .select("id, title, description, category, status, created_at, communities(name, state_code)")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return { drafts: drafts ?? [] };
+  });
+
+export const adminReviewDraft = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: { token: string; id: string; action: "approve" | "discard"; title?: string; description?: string }) => d,
+  )
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    if (data.title || data.description) {
+      const patch: Record<string, string> = {};
+      if (data.title) patch.title = data.title.trim().slice(0, 140);
+      if (data.description) patch.description = data.description.trim().slice(0, 1200);
+      await admin.from("topic_drafts").update(patch).eq("id", data.id).eq("status", "pending");
+    }
+    if (data.action === "discard") {
+      await admin
+        .from("topic_drafts")
+        .update({ status: "discarded", reviewed_by: "platform_admin", reviewed_at: new Date().toISOString() })
+        .eq("id", data.id)
+        .eq("status", "pending");
+      return { ok: true };
+    }
+    const { publishDraft } = await import("@/lib/topic-generation.server");
+    const issue = await publishDraft(data.id, "platform_admin");
+    return { ok: true, issueId: issue.id };
+  });
+
+const ROLES = new Set(["platform_admin", "community_admin", "partner", "official"]);
+
+export const adminListRoles = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { data: roles } = await admin
+      .from("user_roles")
+      .select("id, user_id, role, community_id, created_at, communities(name, state_code)")
+      .order("created_at");
+    const out = [];
+    for (const r of roles ?? []) {
+      const { data: u } = await admin.auth.admin.getUserById(r.user_id);
+      out.push({ ...r, email: u?.user?.email ?? "(unknown)" });
+    }
+    return { roles: out };
+  });
+
+export const adminGrantRole = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string; email: string; role: string; communityId?: string | null }) => {
+    if (!ROLES.has(d.role)) throw new Error("Invalid role");
+    if (d.role !== "platform_admin" && !d.communityId) throw new Error("Pick a city for this role");
+    return { ...d, email: d.email.trim().toLowerCase() };
+  })
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    let userId: string | null = null;
+    for (let page = 1; page <= 20 && !userId; page++) {
+      const { data: list } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+      const hit = list?.users.find((u) => u.email?.toLowerCase() === data.email);
+      if (hit) userId = hit.id;
+      if (!list || list.users.length < 200) break;
+    }
+    if (!userId) throw new Error("No YouthVoice account uses that email.");
+    const { error } = await admin.from("user_roles").insert({
+      user_id: userId,
+      role: data.role as "platform_admin" | "community_admin" | "partner" | "official",
+      community_id: data.role === "platform_admin" ? null : data.communityId,
+    });
+    if (error) throw new Error(error.code === "23505" ? "That person already has this role." : error.message);
+    return { ok: true };
+  });
+
+export const adminRevokeRole = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string; id: string }) => d)
+  .handler(async ({ data }) => {
+    await checkSession(data.token);
+    const admin = await getAdmin();
+    const { error } = await admin.from("user_roles").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

@@ -22,6 +22,13 @@
       "when": 1792119401519,
       "tag": "0002_phase2a_roles_cities_drafts",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792119761403,
+      "tag": "0003_phase2b_city_pages",
+      "breakpoints": true
     }
   ]
 }

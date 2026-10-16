@@ -27,6 +27,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminPartnersRouteImport } from './routes/admin_.partners'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as CitiesKeyRouteImport } from './routes/cities.$key'
@@ -133,6 +134,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminPartnersRoute = AdminPartnersRouteImport.update({
+  id: '/admin_/partners',
+  path: '/admin/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin_/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/partners'
     | '/api/chat'
     | '/cities/$key'
     | '/guide/get-involved'
@@ -355,6 +365,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/partners'
     | '/api/chat'
     | '/cities/$key'
     | '/guide/get-involved'
@@ -388,6 +399,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin_/partners'
     | '/api/chat'
     | '/cities/$key'
     | '/guide/get-involved'
@@ -422,6 +434,7 @@ export interface RootRouteChildren {
   SubmitRoute: typeof SubmitRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AdminPartnersRoute: typeof AdminPartnersRoute
   ApiChatRoute: typeof ApiChatRoute
   CitiesKeyRoute: typeof CitiesKeyRoute
   GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
@@ -565,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/partners': {
+      id: '/admin_/partners'
+      path: '/admin/partners'
+      fullPath: '/admin/partners'
+      preLoaderRoute: typeof AdminPartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -679,6 +699,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AdminPartnersRoute: AdminPartnersRoute,
   ApiChatRoute: ApiChatRoute,
   CitiesKeyRoute: CitiesKeyRoute,
   GuideGetInvolvedRoute: GuideGetInvolvedRoute,

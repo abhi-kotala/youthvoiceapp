@@ -116,6 +116,9 @@ export function SiteFooter() {
                     Bring YouthVoice to your city
                   </Link>
                 </li>
+                <li><Link to="/partners" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner with us</Link></li>
+                <li><Link to="/partners/directory" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner directory</Link></li>
+                <li><Link to="/partners/toolkit" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner toolkit</Link></li>
                 <li>
                   <Link
                     to="/admin"

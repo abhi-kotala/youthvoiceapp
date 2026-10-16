@@ -108,6 +108,14 @@ export function SiteFooter() {
               <ul className="mt-2 space-y-1.5">
                 <li>
                   <Link
+                    to="/request-city"
+                    className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Bring YouthVoice to your city
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/admin"
                     className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
                   >

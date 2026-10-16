@@ -29,6 +29,13 @@
       "when": 1792119761403,
       "tag": "0003_phase2b_city_pages",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792120006744,
+      "tag": "0004_restrict_community_update_columns",
+      "breakpoints": true
     }
   ]
 }

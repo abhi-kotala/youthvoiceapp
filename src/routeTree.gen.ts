@@ -19,6 +19,7 @@ import { Route as MapRouteImport } from './routes/map'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MyImpactRouteImport } from './routes/my-impact'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
+import { Route as RequestCityRouteImport } from './routes/request-city'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitRouteImport } from './routes/submit'
@@ -80,6 +81,11 @@ const MyImpactRoute = MyImpactRouteImport.update({
 const NewsletterRoute = NewsletterRouteImport.update({
   id: '/newsletter',
   path: '/newsletter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestCityRoute = RequestCityRouteImport.update({
+  id: '/request-city',
+  path: '/request-city',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
+  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
+    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   MyImpactRoute: typeof MyImpactRoute
   NewsletterRoute: typeof NewsletterRoute
+  RequestCityRoute: typeof RequestCityRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/newsletter'
       fullPath: '/newsletter'
       preLoaderRoute: typeof NewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/request-city': {
+      id: '/request-city'
+      path: '/request-city'
+      fullPath: '/request-city'
+      preLoaderRoute: typeof RequestCityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -490,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   MyImpactRoute: MyImpactRoute,
   NewsletterRoute: NewsletterRoute,
+  RequestCityRoute: RequestCityRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,

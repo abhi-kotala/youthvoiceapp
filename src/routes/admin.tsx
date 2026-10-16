@@ -1,3 +1,4 @@
+import { CitiesPanel, DraftsPanel, RolesPanel } from "@/components/admin-network";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
@@ -145,11 +146,11 @@ function AdminPage() {
 }
 
 function AdminDashboard({ token }: { token: string }) {
-  const [tab, setTab] = useState<"reports" | "issues">("reports");
+  const [tab, setTab] = useState<"reports" | "issues" | "cities" | "drafts" | "roles">("reports");
   return (
     <div className="mt-6">
-      <div className="flex gap-2 border-b border-border">
-        {(["reports", "issues"] as const).map((t) => (
+      <div className="flex gap-2 overflow-x-auto border-b border-border">
+        {(["reports", "issues", "cities", "drafts", "roles"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -165,11 +166,11 @@ function AdminDashboard({ token }: { token: string }) {
         ))}
       </div>
       <div className="mt-6">
-        {tab === "reports" ? (
-          <ReportsPanel token={token} />
-        ) : (
-          <IssuesPanel token={token} />
-        )}
+        {tab === "reports" && <ReportsPanel token={token} />}
+        {tab === "issues" && <IssuesPanel token={token} />}
+        {tab === "cities" && <CitiesPanel token={token} />}
+        {tab === "drafts" && <DraftsPanel token={token} />}
+        {tab === "roles" && <RolesPanel token={token} />}
       </div>
     </div>
   );
@@ -283,7 +284,7 @@ function IssuesPanel({ token }: { token: string }) {
       const res = await adminGenerateTopics({ data: { token, count: 3 } });
       setGenMsg(
         res.created.length
-          ? `Published ${res.created.length} new topic${res.created.length === 1 ? "" : "s"}.` +
+          ? `Created ${res.created.length} AI draft${res.created.length === 1 ? "" : "s"} — review them in the Drafts tab.` +
               (res.closed ? ` Closed ${res.closed} expired.` : "")
           : (res.skipped ?? "No topics created."),
       );

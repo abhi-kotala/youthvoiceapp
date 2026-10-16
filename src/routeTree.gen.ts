@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ExplainRouteImport } from './routes/explain'
+import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -26,6 +27,7 @@ import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involved'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
@@ -56,6 +58,11 @@ const AdminRoute = AdminRouteImport.update({
 const ExplainRoute = ExplainRouteImport.update({
   id: '/explain',
   path: '/explain',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -120,6 +127,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CitiesIndexRoute = CitiesIndexRouteImport.update({
+  id: '/cities/',
+  path: '/cities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideGetInvolvedRoute = GuideGetInvolvedRouteImport.update({
   id: '/guide/get-involved',
   path: '/guide/get-involved',
@@ -159,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
+  '/explore': typeof ExploreRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -174,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
+  '/cities/': typeof CitiesIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -184,6 +198,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
+  '/explore': typeof ExploreRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -199,6 +214,7 @@ export interface FileRoutesByTo {
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
+  '/cities': typeof CitiesIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -210,6 +226,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
+  '/explore': typeof ExploreRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -225,6 +242,7 @@ export interface FileRoutesById {
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
   '/results/$id': typeof ResultsIdRoute
+  '/cities/': typeof CitiesIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -237,6 +255,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/explain'
+    | '/explore'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -252,6 +271,7 @@ export interface FileRouteTypes {
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
+    | '/cities/'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -262,6 +282,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/explain'
+    | '/explore'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -277,6 +298,7 @@ export interface FileRouteTypes {
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
+    | '/cities'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -287,6 +309,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/explain'
+    | '/explore'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -302,6 +325,7 @@ export interface FileRouteTypes {
     | '/guide/get-involved'
     | '/issue/$id'
     | '/results/$id'
+    | '/cities/'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -313,6 +337,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   ExplainRoute: typeof ExplainRoute
+  ExploreRoute: typeof ExploreRoute
   LeaderboardRoute: typeof LeaderboardRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
@@ -328,6 +353,7 @@ export interface RootRouteChildren {
   GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
   IssueIdRoute: typeof IssueIdRoute
   ResultsIdRoute: typeof ResultsIdRoute
+  CitiesIndexRoute: typeof CitiesIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicRotateTopicsRoute: typeof ApiPublicRotateTopicsRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -368,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/explain'
       fullPath: '/explain'
       preLoaderRoute: typeof ExplainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -454,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cities/': {
+      id: '/cities/'
+      path: '/cities'
+      fullPath: '/cities/'
+      preLoaderRoute: typeof CitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide/get-involved': {
       id: '/guide/get-involved'
       path: '/guide/get-involved'
@@ -505,6 +545,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   ExplainRoute: ExplainRoute,
+  ExploreRoute: ExploreRoute,
   LeaderboardRoute: LeaderboardRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,
@@ -521,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuideGetInvolvedRoute: GuideGetInvolvedRoute,
   IssueIdRoute: IssueIdRoute,
   ResultsIdRoute: ResultsIdRoute,
+  CitiesIndexRoute: CitiesIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicRotateTopicsRoute: ApiPublicRotateTopicsRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

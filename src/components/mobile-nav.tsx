@@ -4,10 +4,9 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { NotificationsButton } from "@/components/notifications-button";
 
 const NAV_LINKS = [
+  { to: "/bring-youth-voice", label: "Request Your City" },
   { to: "/explore", label: "Explore Communities" },
   { to: "/insights", label: "Insights" },
-  { to: "/partners", label: "Partners" },
-  { to: "/bring-youth-voice", label: "Bring Youth Voice to Your Community" },
   { to: "/submit", label: "Submit a topic" },
   { to: "/my-impact", label: "My Impact" },
   { to: "/leaderboard", label: "Leaderboard" },

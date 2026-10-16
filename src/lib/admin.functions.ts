@@ -275,7 +275,7 @@ export const adminUpdateCommunity = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await checkSession(data.token);
     const admin = await getAdmin();
-    const update: Record<string, unknown> = {};
+    const update: { status?: string; approved_at?: string; approved_by?: string; ai_topics_enabled?: boolean; min_votes_for_results?: number } = {};
     if (data.status) {
       update.status = data.status;
       if (data.status === "official") {
@@ -355,7 +355,7 @@ export const adminReviewDraft = createServerFn({ method: "POST" })
     await checkSession(data.token);
     const admin = await getAdmin();
     if (data.title || data.description) {
-      const patch: Record<string, string> = {};
+      const patch: { title?: string; description?: string } = {};
       if (data.title) patch.title = data.title.trim().slice(0, 140);
       if (data.description) patch.description = data.description.trim().slice(0, 1200);
       await admin.from("topic_drafts").update(patch).eq("id", data.id).eq("status", "pending");

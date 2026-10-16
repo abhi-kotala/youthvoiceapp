@@ -8,8 +8,10 @@ INSERT INTO topic_drafts (community_id, title, description) VALUES
  ('11111111-1111-1111-1111-111111111111','Draft A title here','desc a desc a desc a'),
  ('22222222-2222-2222-2222-222222222222','Draft B title here','desc b desc b desc b');
 INSERT INTO community_requests (city_name, state_code, contact_email) VALUES ('Testville','ND','t@example.com');
-INSERT INTO user_roles (user_id, role, community_id)
- SELECT id, 'community_admin', '11111111-1111-1111-1111-111111111111' FROM auth.users WHERE lower(email) <> 'abhi.kotala561@gmail.com' LIMIT 1;
+-- reuse the founder account as a city-A-only admin inside this rolled-back transaction
+DELETE FROM user_roles WHERE user_id='3e0a7b7f-e971-4e1c-a4c4-2dc49ace8bc1';
+INSERT INTO user_roles (user_id, role, community_id) VALUES
+ ('3e0a7b7f-e971-4e1c-a4c4-2dc49ace8bc1','community_admin','11111111-1111-1111-1111-111111111111');
 
 -- anon
 SET LOCAL ROLE anon;
@@ -46,12 +48,5 @@ DO $$ BEGIN
 EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'PASS: cannot grant self a role'; END $$;
 RESET ROLE;
 
--- signup age gate
-DO $$ BEGIN
-  INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES (gen_random_uuid(), 'under13@example.com', '{}'::jsonb);
-  RAISE EXCEPTION 'FAIL: signup without 13+ confirmation';
-EXCEPTION WHEN raise_exception THEN
-  IF SQLERRM LIKE 'FAIL%' THEN RAISE; END IF;
-  RAISE NOTICE 'PASS: signup refused without 13+ confirmation';
-END $$;
+-- signup age gate is tested over the API: tests/signup-age.sh
 ROLLBACK;

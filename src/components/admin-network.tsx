@@ -292,8 +292,8 @@ export function RolesPanel({ token }: { token: string }) {
   );
 }
 
-const APP_TABS = ["pending", "needs_info", "approved", "rejected"] as const;
-const APP_LABEL: Record<string, string> = { pending: "Pending", needs_info: "Needs info", approved: "Approved", rejected: "Rejected" };
+const APP_TABS = ["pending", "under_review", "needs_info", "approved", "rejected"] as const;
+const APP_LABEL: Record<string, string> = { pending: "Submitted", under_review: "Under Review", needs_info: "Additional Information Requested", approved: "Approved", rejected: "Rejected" };
 
 export function ApplicationsPanel({ token }: { token: string }) {
   const [reqs, setReqs] = useState<Req[] | null>(null);
@@ -316,7 +316,7 @@ export function ApplicationsPanel({ token }: { token: string }) {
     reload();
   }, [reload]);
 
-  async function act(id: string, action: "draft" | "pending" | "reject" | "needs_info") {
+  async function act(id: string, action: "draft" | "pending" | "reject" | "needs_info" | "under_review") {
     setMsg(null);
     try {
       await adminReviewRequest({ data: { token, id, action, note } });
@@ -384,10 +384,11 @@ export function ApplicationsPanel({ token }: { token: string }) {
               {r.engagement_plan && <p><b>Engagement plan:</b> {r.engagement_plan}</p>}
               {r.admin_note && <p className="text-muted-foreground"><b>Admin note:</b> {r.admin_note}</p>}
               {r.decision_reason && <p className="text-muted-foreground"><b>Reason:</b> {r.decision_reason}</p>}
-              {(r.status === "pending" || r.status === "needs_info") && (
+              {(r.status === "pending" || r.status === "needs_info" || r.status === "under_review") && (
                 <>
                   <Textarea rows={2} placeholder="Note / reason (required to reject or request info)" value={note} onChange={(e) => setNote(e.target.value)} />
                   <div className="flex flex-wrap gap-2">
+                    {r.status !== "under_review" && <Button size="sm" variant="outline" onClick={() => act(r.id, "under_review")}>Mark under review</Button>}
                     <Button size="sm" onClick={() => act(r.id, "draft")}>Approve as hidden draft</Button>
                     <Button size="sm" variant="secondary" onClick={() => act(r.id, "pending")}>Approve as Pending (public)</Button>
                     <Button size="sm" variant="outline" onClick={() => act(r.id, "needs_info")}>Request more info</Button>

@@ -16,3 +16,5 @@
 - Officials' results recipients come from `community_recipients`, not code. Why: per-city lists.
 - Account signup is gated by an `auth.users` trigger requiring `age_13_confirmed` metadata. Why: server-side minimum-age enforcement.
 - Security checks live in `tests/rls-phase2.sql` (needs a privileged DB session) and `tests/signup-age.sh`.
+- Public city statuses are listed/pending/pilot/official (labels in `src/lib/cities.ts`); draft/paused stay hidden via RLS (`is_public_community`). Why: status labels must never overstate partnerships.
+- City pages live at `/cities/<slug>-<state>`; public city reads go through a publishable-key client so RLS, not code, enforces isolation. Managers may only update `description`/`resources` (column grants). Tested by `tests/rls-phase2b.sh`.

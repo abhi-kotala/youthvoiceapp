@@ -10,7 +10,7 @@ async function getAdmin() {
  * `token` is the caller's signed-in access token. Verified server-side, then the
  * caller must hold platform_admin in user_roles. Returns the admin's user id.
  */
-async function checkSession(token: string): Promise<string> {
+export async function checkSession(token: string): Promise<string> {
   if (!token) throw new Error("Not signed in");
   const admin = await getAdmin();
   const { data: u, error } = await admin.auth.getUser(token);

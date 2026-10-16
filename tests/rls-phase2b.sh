@@ -15,12 +15,12 @@ check "anon cannot edit city info" "$(psql "$SUPABASE_DB_URL" -Atc "select descr
 if [ -n "${USER_TOKEN:-}" ]; then
   B=(-s -H "apikey: $K" -H "Authorization: Bearer $USER_TOKEN" -H "Content-Type: application/json")
   code=$(curl "${B[@]}" -o /dev/null -w '%{http_code}' -X PATCH -d '{"status":"official"}' "$U/communities?slug=eq.west-fargo")
-  check "signed-in user cannot change city status" "$code" "401"
+  check "signed-in user cannot change city status" "$code" "403"
   check "status still pilot" "$(psql "$SUPABASE_DB_URL" -Atc "select status from communities where slug='west-fargo'")" "pilot"
   curl "${B[@]}" -X PATCH -d '{"description":"user edit test"}' "$U/communities?slug=eq.fargo" >/dev/null
   is_mgr=$(psql "$SUPABASE_DB_URL" -Atc "select count(*) from communities where slug='fargo' and description='user edit test'")
   echo "INFO description edit applied=$is_mgr (expected 1 only for platform/Fargo admins, 0 otherwise)"
   psql "$SUPABASE_DB_URL" -qc "update communities set description=\$\$Fargo is North Dakota's largest city. Youth Voice topics here are student-run discussions; the City of Fargo is not a Youth Voice partner.\$\$ where slug='fargo'"
 fi
-psql "$SUPABASE_DB_URL" -qc "delete from issues where id='00000000-0000-0000-0000-0000000000e1'; delete from communities where id='00000000-0000-0000-0000-0000000000d1';"
+echo "NOTE: delete the zz-test city/topic with a privileged session if this role cannot."
 exit $fail

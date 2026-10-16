@@ -1,46 +1,23 @@
-import type { MouseEvent } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { NotificationsButton } from "@/components/notifications-button";
 import { MobileNav } from "@/components/mobile-nav";
-import { useEmojiRain, playLogoChime } from "@/components/emoji-rain";
 import { AccountButton } from "@/components/account-button";
 
 const NAV_LINKS = [
-  { to: "/", label: "Issues" },
-  { to: "/cities", label: "Cities" },
-  { to: "/submit", label: "Submit" },
-  { to: "/explain", label: "Explain" },
+  { to: "/explore", label: "Explore" },
   { to: "/insights", label: "Insights" },
-  { to: "/map", label: "Map" },
-  { to: "/my-impact", label: "My Impact" },
-  { to: "/newsletter", label: "Newsletter" },
-  { to: "/about", label: "About" },
+  { to: "/partners", label: "Partners" },
 ];
 
 export function SiteHeader() {
-  const location = useLocation();
-  const { trigger, overlay } = useEmojiRain();
-  const isHome = location.pathname === "/";
-
-  const handleLogoClick = (e: MouseEvent) => {
-    if (!isHome) return; // let the link navigate home normally
-    e.preventDefault();
-    playLogoChime();
-    trigger();
-  };
-
   return (
-    <header className="sticky top-0 z-40 border-b border-primary/15 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:py-4">
-        <Link to="/" onClick={handleLogoClick} className="flex min-w-0 items-baseline gap-2">
-          <span className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-            Youth<span className="neon-text">Voice</span>
-          </span>
-          <span className="hidden text-[10px] uppercase tracking-[0.22em] text-primary/70 sm:inline">
-            Civic Grid
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <Link to="/" className="flex min-w-0 items-baseline gap-2">
+          <span className="font-display text-xl font-extrabold tracking-tight text-accent sm:text-2xl">
+            Youth<span className="text-primary">Voice</span>
           </span>
         </Link>
-        {overlay}
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-1 sm:flex">
@@ -48,15 +25,21 @@ export function SiteHeader() {
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
+              className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground"
             >
               {link.label}
             </Link>
           ))}
-          <div className="ml-2 flex items-center">
+          <div className="ml-2 flex items-center gap-2">
             <NotificationsButton />
+            <AccountButton />
+            <Link
+              to="/bring-youth-voice"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+            >
+              Bring Youth Voice to Your Community
+            </Link>
           </div>
-          <AccountButton />
         </nav>
 
         {/* Mobile nav */}
@@ -70,66 +53,39 @@ export function SiteHeader() {
   );
 }
 
+const FOOTER_LINKS = [
+  { to: "/about", label: "About" },
+  { to: "/explore", label: "Explore Communities" },
+  { to: "/partners", label: "Partners" },
+  { to: "/about", label: "Privacy" },
+  { to: "/about", label: "Contact" },
+];
+
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-primary/15 bg-card/40 backdrop-blur-xl">
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
+    <footer className="mt-16 border-t border-border bg-card">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <div>
-            <Link to="/" className="font-display text-lg font-extrabold tracking-tight text-foreground">
-              Youth<span className="text-accent">Voice</span>
+            <Link to="/" className="font-display text-lg font-extrabold tracking-tight text-accent">
+              Youth<span className="text-primary">Voice</span>
             </Link>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Built by a student. Results from each poll are delivered
-               to our city council and mayor's office. No account required — your
-              voice still counts.
+              Built by a student. Results from each poll are delivered to local decision-makers.
+              No account required — your voice still counts.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:justify-items-end">
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Explore
-              </h4>
-              <ul className="mt-2 space-y-1.5">
-                {NAV_LINKS.map((link) => (
-                  <li key={link.to}>
-                    <Link
-                      to={link.to}
-                      className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Manage
-              </h4>
-              <ul className="mt-2 space-y-1.5">
-                <li>
-                  <Link
-                    to="/request-city"
-                    className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
-                  >
-                    Bring YouthVoice to your city
-                  </Link>
-                </li>
-                <li><Link to="/partners" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner with us</Link></li>
-                <li><Link to="/partners/directory" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner directory</Link></li>
-                <li><Link to="/partners/toolkit" className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">Partner toolkit</Link></li>
-                <li>
-                  <Link
-                    to="/admin"
-                    className="text-sm text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
-                  >
-                    Admin
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
+            {FOOTER_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="text-sm text-muted-foreground underline-offset-4 transition hover:text-foreground hover:underline"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
         <div className="mt-8 border-t border-border pt-4 text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} Youth Voice. Made for Fargo, West Fargo, and Moorhead.

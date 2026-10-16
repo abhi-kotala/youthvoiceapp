@@ -171,3 +171,59 @@ export const updateCityInfo = createServerFn({ method: "POST" })
     if (!rows?.length) throw new Error("You can't edit this city");
     return { ok: true };
   });
+
+/** City managers: list, create and close topics for their own city. RLS + column grants enforce scope. */
+export const managerListTopics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { communityId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("issues")
+      .select("id, title, status, closes_at, impact_status")
+      .eq("community_id", data.communityId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return { topics: rows ?? [] };
+  });
+
+export const managerCreateTopic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { communityId: string; title: string; description: string; category: string }) => {
+    const title = d.title.trim();
+    const description = d.description.trim();
+    if (title.length < 8 || title.length > 140) throw new Error("Title must be 8–140 characters");
+    if (description.length < 20 || description.length > 1200) throw new Error("Description must be 20–1200 characters");
+    return { ...d, title, description, category: (d.category || "Community").trim().slice(0, 40) };
+  })
+  .handler(async ({ data, context }) => {
+    const { moderateText } = await import("@/lib/moderation.server");
+    const check = await moderateText(`${data.title}\n${data.description}`, "topic");
+    if (!check.allowed) throw new Error(check.reason || "Please rephrase this topic.");
+    const { data: city } = await context.supabase.from("communities").select("name").eq("id", data.communityId).maybeSingle();
+    if (!city) throw new Error("You can't add topics to this city");
+    const { data: row, error } = await context.supabase
+      .from("issues")
+      .insert({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        community_id: data.communityId,
+        city: city.name,
+        closes_at: new Date(Date.now() + 45 * 86400_000).toISOString(),
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.code === "42501" ? "You can't add topics to this city" : error.message);
+    return { id: row.id };
+  });
+
+export const managerCloseTopic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase.from("issues").update({ status: "closed" }).eq("id", data.id).select("id");
+    if (error) throw new Error(error.message);
+    if (!rows?.length) throw new Error("You can't change this topic");
+    return { ok: true };
+  });

@@ -8,7 +8,6 @@ const NAV_LINKS = [
   { to: "/explore", label: "Explore" },
   { to: "/leaderboard", label: "Leaderboard" },
   { to: "/insights", label: "Insights" },
-  { to: "/partners", label: "Partners" },
 ];
 
 export function SiteHeader() {
@@ -58,7 +57,7 @@ export function SiteHeader() {
 const FOOTER_LINKS = [
   { to: "/about", label: "About" },
   { to: "/explore", label: "Explore Communities" },
-  { to: "/partners", label: "Partners" },
+  { to: "/bring-youth-voice", label: "Request Your City" },
   { to: "/about", label: "Privacy" },
   { to: "/about", label: "Contact" },
 ];

@@ -32,6 +32,10 @@ import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as CitiesKeyRouteImport } from './routes/cities.$key'
 import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involved'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
+import { Route as PartnersIndexRouteImport } from './routes/partners.index'
+import { Route as PartnersDemoRouteImport } from './routes/partners.demo'
+import { Route as PartnersDirectoryRouteImport } from './routes/partners.directory'
+import { Route as PartnersToolkitRouteImport } from './routes/partners.toolkit'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicRotateTopicsRouteImport } from './routes/api/public/rotate-topics'
@@ -154,6 +158,26 @@ const IssueIdRoute = IssueIdRouteImport.update({
   path: '/issue/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersIndexRoute = PartnersIndexRouteImport.update({
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersDemoRoute = PartnersDemoRouteImport.update({
+  id: '/partners/demo',
+  path: '/partners/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersDirectoryRoute = PartnersDirectoryRouteImport.update({
+  id: '/partners/directory',
+  path: '/partners/directory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersToolkitRoute = PartnersToolkitRouteImport.update({
+  id: '/partners/toolkit',
+  path: '/partners/toolkit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultsIdRoute = ResultsIdRouteImport.update({
   id: '/results/$id',
   path: '/results/$id',
@@ -200,8 +224,12 @@ export interface FileRoutesByFullPath {
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
+  '/partners/demo': typeof PartnersDemoRoute
+  '/partners/directory': typeof PartnersDirectoryRoute
+  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
   '/cities/': typeof CitiesIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -229,8 +257,12 @@ export interface FileRoutesByTo {
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
+  '/partners/demo': typeof PartnersDemoRoute
+  '/partners/directory': typeof PartnersDirectoryRoute
+  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
   '/cities': typeof CitiesIndexRoute
+  '/partners': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -259,8 +291,12 @@ export interface FileRoutesById {
   '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
+  '/partners/demo': typeof PartnersDemoRoute
+  '/partners/directory': typeof PartnersDirectoryRoute
+  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
   '/cities/': typeof CitiesIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -290,8 +326,12 @@ export interface FileRouteTypes {
     | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
+    | '/partners/demo'
+    | '/partners/directory'
+    | '/partners/toolkit'
     | '/results/$id'
     | '/cities/'
+    | '/partners/'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -319,8 +359,12 @@ export interface FileRouteTypes {
     | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
+    | '/partners/demo'
+    | '/partners/directory'
+    | '/partners/toolkit'
     | '/results/$id'
     | '/cities'
+    | '/partners'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -348,8 +392,12 @@ export interface FileRouteTypes {
     | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
+    | '/partners/demo'
+    | '/partners/directory'
+    | '/partners/toolkit'
     | '/results/$id'
     | '/cities/'
+    | '/partners/'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
@@ -378,8 +426,12 @@ export interface RootRouteChildren {
   CitiesKeyRoute: typeof CitiesKeyRoute
   GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
   IssueIdRoute: typeof IssueIdRoute
+  PartnersDemoRoute: typeof PartnersDemoRoute
+  PartnersDirectoryRoute: typeof PartnersDirectoryRoute
+  PartnersToolkitRoute: typeof PartnersToolkitRoute
   ResultsIdRoute: typeof ResultsIdRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
+  PartnersIndexRoute: typeof PartnersIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicRotateTopicsRoute: typeof ApiPublicRotateTopicsRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -548,6 +600,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IssueIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/': {
+      id: '/partners/'
+      path: '/partners'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof PartnersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/demo': {
+      id: '/partners/demo'
+      path: '/partners/demo'
+      fullPath: '/partners/demo'
+      preLoaderRoute: typeof PartnersDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/directory': {
+      id: '/partners/directory'
+      path: '/partners/directory'
+      fullPath: '/partners/directory'
+      preLoaderRoute: typeof PartnersDirectoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/toolkit': {
+      id: '/partners/toolkit'
+      path: '/partners/toolkit'
+      fullPath: '/partners/toolkit'
+      preLoaderRoute: typeof PartnersToolkitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/results/$id': {
       id: '/results/$id'
       path: '/results/$id'
@@ -603,8 +683,12 @@ const rootRouteChildren: RootRouteChildren = {
   CitiesKeyRoute: CitiesKeyRoute,
   GuideGetInvolvedRoute: GuideGetInvolvedRoute,
   IssueIdRoute: IssueIdRoute,
+  PartnersDemoRoute: PartnersDemoRoute,
+  PartnersDirectoryRoute: PartnersDirectoryRoute,
+  PartnersToolkitRoute: PartnersToolkitRoute,
   ResultsIdRoute: ResultsIdRoute,
   CitiesIndexRoute: CitiesIndexRoute,
+  PartnersIndexRoute: PartnersIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicRotateTopicsRoute: ApiPublicRotateTopicsRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

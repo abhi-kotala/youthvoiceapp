@@ -4,7 +4,9 @@ import { MobileNav } from "@/components/mobile-nav";
 import { AccountButton } from "@/components/account-button";
 
 const NAV_LINKS = [
+  { to: "/", label: "Home" },
   { to: "/explore", label: "Explore" },
+  { to: "/leaderboard", label: "Leaderboard" },
   { to: "/insights", label: "Insights" },
   { to: "/partners", label: "Partners" },
 ];

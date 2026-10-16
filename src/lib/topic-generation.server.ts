@@ -157,12 +157,13 @@ export async function closeExpiredTopics(): Promise<{ id: string; city: string }
     .update({ status: "closed" })
     .eq("status", "open")
     .lt("closes_at", new Date().toISOString())
-    .select("id, title, category, city");
+    .select("id, title, category, city, community_id");
   const closed = (data ?? []) as {
     id: string;
     title: string;
     category: string;
     city: string;
+    community_id: string | null;
   }[];
 
   for (const issue of closed) {
@@ -182,7 +183,7 @@ export async function closeExpiredTopics(): Promise<{ id: string; city: string }
     }
     const total = tally.agree + tally.disagree + tally.neutral;
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    const issueCommunity = (issue as { community_id?: string | null }).community_id ?? null;
+    const issueCommunity = issue.community_id;
     let recipientQuery = supabaseAdmin
       .from("community_recipients")
       .select("email")

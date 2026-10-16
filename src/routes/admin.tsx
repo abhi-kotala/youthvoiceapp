@@ -97,7 +97,7 @@ function AdminDashboard({ token }: { token: string }) {
   return (
     <div className="mt-6">
       <div className="flex gap-2 overflow-x-auto border-b border-border">
-        {(["reports", "issues", "cities", "drafts", "roles"] as const).map((t) => (
+        {(["reports", "issues", "applications", "cities", "drafts", "roles", "audit"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}

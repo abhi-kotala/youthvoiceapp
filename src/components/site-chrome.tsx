@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: "/cities", label: "Cities" },
   { to: "/submit", label: "Submit" },
   { to: "/explain", label: "Explain" },
+  { to: "/insights", label: "Insights" },
   { to: "/map", label: "Map" },
   { to: "/my-impact", label: "My Impact" },
   { to: "/newsletter", label: "Newsletter" },

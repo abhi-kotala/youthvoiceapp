@@ -10,6 +10,37 @@ import { STATUS_HELP, SELECTED_CITY_KEY } from "@/lib/cities";
 import { getDeviceId } from "@/lib/device-id";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { getInsights } from "@/lib/insights.functions";
+import { ResultBars } from "@/components/result-bars";
+
+function CityInsights({ cityId, cityName }: { cityId: string; cityName: string }) {
+  const { data } = useQuery({ queryKey: ["insights"], queryFn: () => getInsights() });
+  const qs = (data?.questions ?? []).filter((q) => q.community.id === cityId);
+  const pub = qs.filter((q) => q.result.published);
+  const cats = [...new Set(qs.map((q) => q.category))].map((c) => [c, qs.filter((q) => q.category === c).length] as const);
+  return (
+    <section className="mt-10">
+      <h2 className="font-display text-2xl font-bold">Insights</h2>
+      {!data ? <p className="mt-3 text-sm text-muted-foreground">Loading…</p> : pub.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">No published results yet. Topics are posted by approved city managers or suggested by students and reviewed; results appear once a poll reaches the minimum number of votes.</p>
+      ) : (
+        <>
+          <p className="mt-1 text-xs text-muted-foreground">{pub.length} of {qs.length} polls have published results. Categories: {cats.map(([c, n]) => `${c} (${n})`).join(", ")}.</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {pub.slice(0, 6).map((q) => (
+              <li key={q.id} className="rounded-xl border border-border p-4">
+                <Link to="/issue/$id" params={{ id: q.id }} className="font-semibold hover:text-primary">{q.title}</Link>
+                <ResultBars result={q.result} open={q.open} title={q.title} city={cityName} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Link to="/insights" className="mt-3 inline-block text-sm text-primary underline">See national insights</Link>
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/cities/$key")({
   loader: async ({ params }) => {
@@ -112,6 +143,8 @@ function CityPage() {
             ))}
           </ul>
         )}
+
+        <CityInsights cityId={city.id} cityName={city.name} />
 
         <section className="mt-10">
           <h2 className="font-display text-2xl font-bold">Local information</h2>

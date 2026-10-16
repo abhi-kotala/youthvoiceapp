@@ -35,8 +35,9 @@ type Req = {
 
 const STATUS_HELP: Record<string, string> = {
   draft: "Hidden — setup only",
-  pending: "Hidden — awaiting your approval",
-  pilot: "Public, labeled Pilot (not an official partnership)",
+  pending: "Public, labeled Pending Approval (awaiting your review)",
+  listed: "Public, labeled Not Yet Participating (no partnership)",
+  pilot: "Public, labeled Pilot (testing only, not an official partnership)",
   official: "Public — verified partnership, approved by you",
   paused: "Hidden — temporarily off",
 };

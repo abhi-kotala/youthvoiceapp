@@ -182,7 +182,19 @@ export async function closeExpiredTopics(): Promise<{ id: string; city: string }
     }
     const total = tally.agree + tally.disagree + tally.neutral;
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-    for (const recipient of RESULTS_RECIPIENTS) {
+    const issueCommunity = (issue as { community_id?: string | null }).community_id ?? null;
+    let recipientQuery = supabaseAdmin
+      .from("community_recipients")
+      .select("email")
+      .eq("active", true);
+    recipientQuery = issueCommunity
+      ? recipientQuery.or(`community_id.is.null,community_id.eq.${issueCommunity}`)
+      : recipientQuery.is("community_id", null);
+    const { data: recipientRows, error: recipientErr } = await recipientQuery;
+    const recipients = recipientErr
+      ? [...RESULTS_RECIPIENTS]
+      : Array.from(new Set([...(recipientRows ?? []).map((r) => r.email), OWNER_EMAIL]));
+    for (const recipient of recipients) {
       try {
         await sendTemplateEmail("closed-topic-results", recipient, {
           idempotencyKey: `closed-topic-results-${issue.id}-${recipient}`,

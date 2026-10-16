@@ -4,12 +4,11 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { NotificationsButton } from "@/components/notifications-button";
 
 const NAV_LINKS = [
-  { to: "/bring-youth-voice", label: "Request Your City" },
-  { to: "/explore", label: "Explore Communities" },
-  { to: "/insights", label: "Insights" },
-  { to: "/submit", label: "Submit a topic" },
+  { to: "/", label: "Issues" },
+  { to: "/submit", label: "Submit topic" },
+  { to: "/explain", label: "Explain a policy" },
+  { to: "/map", label: "Map" },
   { to: "/my-impact", label: "My Impact" },
-  { to: "/leaderboard", label: "Leaderboard" },
   { to: "/newsletter", label: "Newsletter" },
   { to: "/about", label: "About" },
   { to: "/account", label: "Profile" },
@@ -20,7 +19,7 @@ export function MobileNav() {
     <Sheet>
       <SheetTrigger asChild>
         <button
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:bg-secondary"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary transition hover:bg-primary/20"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />

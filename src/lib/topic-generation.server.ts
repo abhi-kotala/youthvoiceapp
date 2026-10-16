@@ -57,11 +57,11 @@ async function recentTitles(limit = 40): Promise<string[]> {
   return (data ?? []).map((r: { title: string }) => r.title);
 }
 
-async function callModelWithUsage(
+async function callModel(
   existing: string[],
   count: number,
   cities: string[] = [],
-): Promise<{ topics: GeneratedTopic[]; usage: { prompt: number | null; completion: number | null } }> {
+): Promise<GeneratedTopic[]> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
@@ -85,7 +85,7 @@ Return strict JSON: {"topics":[{"title":"","description":"","category":"","city"
       "Lovable-API-Key": key,
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: "openai/gpt-5.5",
       response_format: { type: "json_object" },
       messages: [
         {
@@ -103,20 +103,15 @@ Return strict JSON: {"topics":[{"title":"","description":"","category":"","city"
   }
   const json = (await res.json()) as {
     choices?: { message?: { content?: string } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
   const content = json.choices?.[0]?.message?.content ?? "{}";
   const parsed = JSON.parse(content) as { topics?: unknown[] };
-  const topics = (parsed.topics ?? []).filter(isValid).map((t) => ({
+  return (parsed.topics ?? []).filter(isValid).map((t) => ({
     title: t.title.trim(),
     description: t.description.trim(),
     category: CATEGORIES.includes(t.category.trim()) ? t.category.trim() : "Community",
     city: t.city.trim(),
   }));
-  return {
-    topics,
-    usage: { prompt: json.usage?.prompt_tokens ?? null, completion: json.usage?.completion_tokens ?? null },
-  };
 }
 
 /**
@@ -224,14 +219,9 @@ export async function closeExpiredTopics(): Promise<{ id: string; city: string }
   return closed.map(({ id, city }) => ({ id, city }));
 }
 
-// Rough per-run cost estimate (USD per 1M tokens); shown to admins as an estimate only.
-const EST_INPUT_PER_M = 1.25;
-const EST_OUTPUT_PER_M = 10;
-const MODEL = "openai/gpt-5.5";
-
 /**
- * Creates AI draft suggestions ONLY for communities with AI topics enabled.
- * Drafts are never published automatically — an admin must approve each one.
+ * Generates and publishes fresh topics. Skips generation if topics were
+ * already auto-generated within `minHoursBetweenRuns` hours.
  */
 export async function generateTopics(opts?: {
   count?: number;
@@ -240,91 +230,60 @@ export async function generateTopics(opts?: {
   cities?: string[];
 }): Promise<{ created: { id: string; title: string }[]; skipped?: string }> {
   const count = Math.min(Math.max(opts?.count ?? 3, 1), 5);
+  const minHours = opts?.minHoursBetweenRuns ?? 24;
 
-  let q = supabaseAdmin
-    .from("communities")
-    .select("id, legacy_city")
-    .eq("ai_topics_enabled", true)
-    .in("status", ["pilot", "official"]);
-  if (opts?.cities?.length) q = q.in("legacy_city", opts.cities);
-  const { data: enabled } = await q;
-  const byCity = new Map(
-    (enabled ?? [])
-      .filter((c) => c.legacy_city && (CITIES as readonly string[]).includes(c.legacy_city))
-      .map((c) => [c.legacy_city as string, c.id]),
-  );
-  if (byCity.size === 0) {
-    return { created: [], skipped: "AI topics are off for these cities." };
+  if (!opts?.force) {
+    const since = new Date(Date.now() - minHours * 3600_000).toISOString();
+    const { count: recent } = await supabaseAdmin
+      .from("issues")
+      .select("id", { count: "exact", head: true })
+      .eq("source", "auto")
+      .gte("created_at", since);
+    if ((recent ?? 0) > 0) {
+      return { created: [], skipped: "Topics were already generated recently." };
+    }
   }
 
   const existing = await recentTitles();
-  const { topics, usage } = await callModelWithUsage(existing, count, [...byCity.keys()]);
-  const rows = topics
-    .filter((t) => byCity.has(t.city))
-    .map((t) => ({
-      community_id: byCity.get(t.city)!,
-      title: t.title,
-      description: t.description,
-      category: t.category,
-    }));
+  const wanted = (opts?.cities ?? []).filter((c) => (CITIES as readonly string[]).includes(c));
+  const topics = await callModel(existing, count, wanted);
+  if (topics.length === 0) return { created: [], skipped: "No usable topics returned." };
 
-  let created: { id: string; title: string }[] = [];
-  if (rows.length) {
-    const { data, error } = await supabaseAdmin.from("topic_drafts").insert(rows).select("id, title");
-    if (error) throw new Error(error.message);
-    created = data ?? [];
-  }
+  const closesAt = new Date(Date.now() + TOPIC_RUN_DAYS * 86400_000).toISOString();
+  const rows = topics.map((t) => ({
+    title: t.title,
+    description: t.description,
+    category: t.category,
+    city: t.city,
+    source: "auto",
+    status: "open",
+    review_status: "approved",
+    closes_at: closesAt,
+  }));
 
-  const est =
-    ((usage.prompt ?? 0) * EST_INPUT_PER_M + (usage.completion ?? 0) * EST_OUTPUT_PER_M) / 1e6;
-  await supabaseAdmin.from("ai_usage_log").insert({
-    community_id: byCity.size === 1 ? [...byCity.values()][0] : null,
-    feature: "topic_drafts",
-    model: MODEL,
-    drafts_created: created.length,
-    prompt_tokens: usage.prompt,
-    completion_tokens: usage.completion,
-    est_cost_usd: Number(est.toFixed(5)),
-  });
-
-  return created.length ? { created } : { created, skipped: "No usable drafts returned." };
-}
-
-/** Publishes an approved draft as a live topic. */
-export async function publishDraft(draftId: string, reviewer: string) {
-  const { data: d, error } = await supabaseAdmin
-    .from("topic_drafts")
-    .select("id, title, description, category, status, community_id, communities(legacy_city, name, topic_run_days)")
-    .eq("id", draftId)
-    .single();
-  if (error || !d) throw new Error("Draft not found");
-  if (d.status !== "pending") throw new Error("Draft was already reviewed");
-  const c = d.communities as unknown as { legacy_city: string | null; name: string; topic_run_days: number };
-  const { data: issue, error: e2 } = await supabaseAdmin
+  const { data: inserted, error } = await supabaseAdmin
     .from("issues")
-    .insert({
-      title: d.title,
-      description: d.description,
-      category: d.category,
-      city: c.legacy_city ?? c.name,
-      community_id: d.community_id,
-      source: "auto",
-      status: "open",
-      review_status: "approved",
-      closes_at: new Date(Date.now() + (c.topic_run_days || TOPIC_RUN_DAYS) * 86400_000).toISOString(),
-    })
-    .select("id, title")
-    .single();
-  if (e2) throw new Error(e2.message);
-  await supabaseAdmin
-    .from("topic_drafts")
-    .update({ status: "approved", published_issue_id: issue.id, reviewed_by: reviewer, reviewed_at: new Date().toISOString() })
-    .eq("id", draftId);
+    .insert(rows as never)
+    .select("id, title");
+  if (error) throw new Error(error.message);
+
+  const created = (inserted ?? []) as { id: string; title: string }[];
+
   try {
     const { broadcastPush } = await import("@/lib/fcm.server");
-    await broadcastPush({ title: "New topic on Youth Voice", body: issue.title, url: `/issue/${issue.id}` });
+    if (created[0]) {
+      await broadcastPush({
+        title:
+          created.length > 1
+            ? `${created.length} new topics on Youth Voice`
+            : "New topic on Youth Voice",
+        body: created[0].title,
+        url: `/issue/${created[0].id}`,
+      });
+    }
   } catch (e) {
     console.error("broadcastPush failed", e);
   }
-  return issue;
+
+  return { created };
 }

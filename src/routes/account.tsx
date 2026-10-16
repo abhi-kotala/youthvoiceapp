@@ -54,7 +54,6 @@ function AccountPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [handle, setHandle] = useState("");
-  const [ageOk, setAgeOk] = useState(false);
   const [bio, setBio] = useState("");
   const [profile, setProfile] = useState<ProfileState>({
     displayName: "",
@@ -109,18 +108,13 @@ function AccountPage() {
       setBusy(false);
       return;
     }
-    if (mode === "signup" && !ageOk) {
-      setError("You must be 13 or older to create an account. You can still vote anonymously without one.");
-      setBusy(false);
-      return;
-    }
     const result = mode === "signup"
       ? await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: displayName.trim(), handle: cleanUsername, age_13_confirmed: true },
+            data: { display_name: displayName.trim(), handle: cleanUsername },
           },
         })
       : await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -369,10 +363,6 @@ function AccountPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">This becomes your YouthVoice ID. You can edit it later.</p>
                   </div>
-                  <label className="flex items-start gap-2 text-sm">
-                    <input type="checkbox" className="mt-1" checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)} required />
-                    <span>I'm 13 or older. <span className="text-muted-foreground">(We don't store your birthday. Under 13? You can still vote anonymously.)</span></span>
-                  </label>
                 </>
               )}
               <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></div>

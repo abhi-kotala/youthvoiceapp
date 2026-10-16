@@ -13,34 +13,22 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as BringYouthVoiceRouteImport } from './routes/bring-youth-voice'
 import { Route as ExplainRouteImport } from './routes/explain'
-import { Route as ExploreRouteImport } from './routes/explore'
-import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MyImpactRouteImport } from './routes/my-impact'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
-import { Route as RequestCityRouteImport } from './routes/request-city'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
-import { Route as AdminPartnersRouteImport } from './routes/admin_.partners'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as CitiesIndexRouteImport } from './routes/cities.index'
-import { Route as CitiesKeyRouteImport } from './routes/cities.$key'
 import { Route as GuideGetInvolvedRouteImport } from './routes/guide.get-involved'
 import { Route as IssueIdRouteImport } from './routes/issue.$id'
-import { Route as PartnersIndexRouteImport } from './routes/partners.index'
-import { Route as PartnersDemoRouteImport } from './routes/partners.demo'
-import { Route as PartnersDirectoryRouteImport } from './routes/partners.directory'
-import { Route as PartnersToolkitRouteImport } from './routes/partners.toolkit'
 import { Route as ResultsIdRouteImport } from './routes/results.$id'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
-import { Route as AdminPartnersRequestsRouteImport } from './routes/admin_.partners_.requests'
 import { Route as ApiPublicRotateTopicsRouteImport } from './routes/api/public/rotate-topics'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -64,24 +52,9 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BringYouthVoiceRoute = BringYouthVoiceRouteImport.update({
-  id: '/bring-youth-voice',
-  path: '/bring-youth-voice',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ExplainRoute = ExplainRouteImport.update({
   id: '/explain',
   path: '/explain',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreRoute = ExploreRouteImport.update({
-  id: '/explore',
-  path: '/explore',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InsightsRoute = InsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -107,11 +80,6 @@ const MyImpactRoute = MyImpactRouteImport.update({
 const NewsletterRoute = NewsletterRouteImport.update({
   id: '/newsletter',
   path: '/newsletter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RequestCityRoute = RequestCityRouteImport.update({
-  id: '/request-city',
-  path: '/request-city',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -141,24 +109,9 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminPartnersRoute = AdminPartnersRouteImport.update({
-  id: '/admin_/partners',
-  path: '/admin/partners',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CitiesIndexRoute = CitiesIndexRouteImport.update({
-  id: '/cities/',
-  path: '/cities/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CitiesKeyRoute = CitiesKeyRouteImport.update({
-  id: '/cities/$key',
-  path: '/cities/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuideGetInvolvedRoute = GuideGetInvolvedRouteImport.update({
@@ -169,26 +122,6 @@ const GuideGetInvolvedRoute = GuideGetInvolvedRouteImport.update({
 const IssueIdRoute = IssueIdRouteImport.update({
   id: '/issue/$id',
   path: '/issue/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersIndexRoute = PartnersIndexRouteImport.update({
-  id: '/partners/',
-  path: '/partners/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersDemoRoute = PartnersDemoRouteImport.update({
-  id: '/partners/demo',
-  path: '/partners/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersDirectoryRoute = PartnersDirectoryRouteImport.update({
-  id: '/partners/directory',
-  path: '/partners/directory',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersToolkitRoute = PartnersToolkitRouteImport.update({
-  id: '/partners/toolkit',
-  path: '/partners/toolkit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsIdRoute = ResultsIdRouteImport.update({
@@ -202,11 +135,6 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminPartnersRequestsRoute = AdminPartnersRequestsRouteImport.update({
-  id: '/admin_/partners_/requests',
-  path: '/admin/partners/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicRotateTopicsRoute = ApiPublicRotateTopicsRouteImport.update({
   id: '/api/public/rotate-topics',
   path: '/api/public/rotate-topics',
@@ -224,34 +152,22 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
-  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
-  '/explore': typeof ExploreRoute
-  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
-  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/admin/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
-  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
-  '/partners/demo': typeof PartnersDemoRoute
-  '/partners/directory': typeof PartnersDirectoryRoute
-  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
-  '/cities/': typeof CitiesIndexRoute
-  '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/admin/partners/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -260,34 +176,22 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
-  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
-  '/explore': typeof ExploreRoute
-  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
-  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/admin/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
-  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
-  '/partners/demo': typeof PartnersDemoRoute
-  '/partners/directory': typeof PartnersDirectoryRoute
-  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
-  '/cities': typeof CitiesIndexRoute
-  '/partners': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/admin/partners/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -297,34 +201,22 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
-  '/bring-youth-voice': typeof BringYouthVoiceRoute
   '/explain': typeof ExplainRoute
-  '/explore': typeof ExploreRoute
-  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
   '/my-impact': typeof MyImpactRoute
   '/newsletter': typeof NewsletterRoute
-  '/request-city': typeof RequestCityRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit': typeof SubmitRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/admin_/partners': typeof AdminPartnersRoute
   '/api/chat': typeof ApiChatRoute
-  '/cities/$key': typeof CitiesKeyRoute
   '/guide/get-involved': typeof GuideGetInvolvedRoute
   '/issue/$id': typeof IssueIdRoute
-  '/partners/demo': typeof PartnersDemoRoute
-  '/partners/directory': typeof PartnersDirectoryRoute
-  '/partners/toolkit': typeof PartnersToolkitRoute
   '/results/$id': typeof ResultsIdRoute
-  '/cities/': typeof CitiesIndexRoute
-  '/partners/': typeof PartnersIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
-  '/admin_/partners_/requests': typeof AdminPartnersRequestsRoute
   '/api/public/rotate-topics': typeof ApiPublicRotateTopicsRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -335,34 +227,22 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
-    | '/bring-youth-voice'
     | '/explain'
-    | '/explore'
-    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
-    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/admin/partners'
     | '/api/chat'
-    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
-    | '/partners/demo'
-    | '/partners/directory'
-    | '/partners/toolkit'
     | '/results/$id'
-    | '/cities/'
-    | '/partners/'
     | '/.mcp/invoke-tool/$tool'
-    | '/admin/partners/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -371,34 +251,22 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
-    | '/bring-youth-voice'
     | '/explain'
-    | '/explore'
-    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
-    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/admin/partners'
     | '/api/chat'
-    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
-    | '/partners/demo'
-    | '/partners/directory'
-    | '/partners/toolkit'
     | '/results/$id'
-    | '/cities'
-    | '/partners'
     | '/.mcp/invoke-tool/$tool'
-    | '/admin/partners/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   id:
@@ -407,34 +275,22 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
-    | '/bring-youth-voice'
     | '/explain'
-    | '/explore'
-    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
     | '/my-impact'
     | '/newsletter'
-    | '/request-city'
     | '/reset-password'
     | '/sitemap.xml'
     | '/submit'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/admin_/partners'
     | '/api/chat'
-    | '/cities/$key'
     | '/guide/get-involved'
     | '/issue/$id'
-    | '/partners/demo'
-    | '/partners/directory'
-    | '/partners/toolkit'
     | '/results/$id'
-    | '/cities/'
-    | '/partners/'
     | '/.mcp/invoke-tool/$tool'
-    | '/admin_/partners_/requests'
     | '/api/public/rotate-topics'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -444,34 +300,22 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
-  BringYouthVoiceRoute: typeof BringYouthVoiceRoute
   ExplainRoute: typeof ExplainRoute
-  ExploreRoute: typeof ExploreRoute
-  InsightsRoute: typeof InsightsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
   MyImpactRoute: typeof MyImpactRoute
   NewsletterRoute: typeof NewsletterRoute
-  RequestCityRoute: typeof RequestCityRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitRoute: typeof SubmitRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  AdminPartnersRoute: typeof AdminPartnersRoute
   ApiChatRoute: typeof ApiChatRoute
-  CitiesKeyRoute: typeof CitiesKeyRoute
   GuideGetInvolvedRoute: typeof GuideGetInvolvedRoute
   IssueIdRoute: typeof IssueIdRoute
-  PartnersDemoRoute: typeof PartnersDemoRoute
-  PartnersDirectoryRoute: typeof PartnersDirectoryRoute
-  PartnersToolkitRoute: typeof PartnersToolkitRoute
   ResultsIdRoute: typeof ResultsIdRoute
-  CitiesIndexRoute: typeof CitiesIndexRoute
-  PartnersIndexRoute: typeof PartnersIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
-  AdminPartnersRequestsRoute: typeof AdminPartnersRequestsRoute
   ApiPublicRotateTopicsRoute: typeof ApiPublicRotateTopicsRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -506,32 +350,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bring-youth-voice': {
-      id: '/bring-youth-voice'
-      path: '/bring-youth-voice'
-      fullPath: '/bring-youth-voice'
-      preLoaderRoute: typeof BringYouthVoiceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/explain': {
       id: '/explain'
       path: '/explain'
       fullPath: '/explain'
       preLoaderRoute: typeof ExplainRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore': {
-      id: '/explore'
-      path: '/explore'
-      fullPath: '/explore'
-      preLoaderRoute: typeof ExploreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/insights': {
-      id: '/insights'
-      path: '/insights'
-      fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -569,13 +392,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsletterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/request-city': {
-      id: '/request-city'
-      path: '/request-city'
-      fullPath: '/request-city'
-      preLoaderRoute: typeof RequestCityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -611,32 +427,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin_/partners': {
-      id: '/admin_/partners'
-      path: '/admin/partners'
-      fullPath: '/admin/partners'
-      preLoaderRoute: typeof AdminPartnersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cities/': {
-      id: '/cities/'
-      path: '/cities'
-      fullPath: '/cities/'
-      preLoaderRoute: typeof CitiesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cities/$key': {
-      id: '/cities/$key'
-      path: '/cities/$key'
-      fullPath: '/cities/$key'
-      preLoaderRoute: typeof CitiesKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guide/get-involved': {
@@ -653,34 +448,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IssueIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/partners/': {
-      id: '/partners/'
-      path: '/partners'
-      fullPath: '/partners/'
-      preLoaderRoute: typeof PartnersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners/demo': {
-      id: '/partners/demo'
-      path: '/partners/demo'
-      fullPath: '/partners/demo'
-      preLoaderRoute: typeof PartnersDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners/directory': {
-      id: '/partners/directory'
-      path: '/partners/directory'
-      fullPath: '/partners/directory'
-      preLoaderRoute: typeof PartnersDirectoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners/toolkit': {
-      id: '/partners/toolkit'
-      path: '/partners/toolkit'
-      fullPath: '/partners/toolkit'
-      preLoaderRoute: typeof PartnersToolkitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/results/$id': {
       id: '/results/$id'
       path: '/results/$id'
@@ -693,13 +460,6 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin_/partners_/requests': {
-      id: '/admin_/partners_/requests'
-      path: '/admin/partners/requests'
-      fullPath: '/admin/partners/requests'
-      preLoaderRoute: typeof AdminPartnersRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/rotate-topics': {
@@ -724,35 +484,23 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
-  BringYouthVoiceRoute: BringYouthVoiceRoute,
   ExplainRoute: ExplainRoute,
-  ExploreRoute: ExploreRoute,
-  InsightsRoute: InsightsRoute,
   LeaderboardRoute: LeaderboardRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,
   MyImpactRoute: MyImpactRoute,
   NewsletterRoute: NewsletterRoute,
-  RequestCityRoute: RequestCityRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitRoute: SubmitRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
-  AdminPartnersRoute: AdminPartnersRoute,
   ApiChatRoute: ApiChatRoute,
-  CitiesKeyRoute: CitiesKeyRoute,
   GuideGetInvolvedRoute: GuideGetInvolvedRoute,
   IssueIdRoute: IssueIdRoute,
-  PartnersDemoRoute: PartnersDemoRoute,
-  PartnersDirectoryRoute: PartnersDirectoryRoute,
-  PartnersToolkitRoute: PartnersToolkitRoute,
   ResultsIdRoute: ResultsIdRoute,
-  CitiesIndexRoute: CitiesIndexRoute,
-  PartnersIndexRoute: PartnersIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
-  AdminPartnersRequestsRoute: AdminPartnersRequestsRoute,
   ApiPublicRotateTopicsRoute: ApiPublicRotateTopicsRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

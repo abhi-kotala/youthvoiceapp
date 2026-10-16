@@ -1,9 +1,10 @@
-import { CitiesPanel, DraftsPanel, RolesPanel, ApplicationsPanel, AuditPanel } from "@/components/admin-network";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import {
+  adminLogin,
   adminVerify,
+  adminLogout,
   adminListReports,
   adminSetCommentHidden,
   adminDismissReport,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
+const TOKEN_KEY = "civicvoice_admin_token";
 
 type Issue = {
   id: string;
@@ -51,41 +53,91 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
+  const [passcode, setPasscode] = useState("");
   const [token, setToken] = useState<string | null>(null);
-  const [state, setState] = useState<"loading" | "signedout" | "denied" | "ok">("loading");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    async function check(t: string | null) {
-      if (!t) return active && setState("signedout");
+    const saved = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+    if (!saved) return;
+    (async () => {
       try {
-        await adminVerify({ data: { token: t } });
-        if (!active) return;
-        setToken(t);
-        setState("ok");
+        await adminVerify({ data: { token: saved } });
+        setToken(saved);
       } catch {
-        if (active) setState("denied");
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    })();
+  }, []);
+
+  async function login(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const { token: t } = await adminLogin({ data: { passcode } });
+      localStorage.setItem(TOKEN_KEY, t);
+      setToken(t);
+      setPasscode("");
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function logout() {
+    const t = token;
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    if (t) {
+      try {
+        await adminLogout({ data: { token: t } });
+      } catch {
+        /* ignore */
       }
     }
-    supabase.auth.getSession().then(({ data }) => check(data.session?.access_token ?? null));
-    const { data } = supabase.auth.onAuthStateChange((event, s) => {
-      if (event === "TOKEN_REFRESHED" && s) setToken(s.access_token);
-      if (event === "SIGNED_OUT") { setToken(null); setState("signedout"); }
-    });
-    return () => { active = false; data.subscription.unsubscribe(); };
-  }, []);
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex items-center justify-between"><h1 className="text-2xl font-bold">Admin</h1>{state === "ok" && <Link to="/admin/partners" className="text-sm text-primary underline">Partnerships dashboard →</Link>}</div>
-        {state === "loading" && <p className="mt-4 text-sm text-muted-foreground">Checking access…</p>}
-        {state === "signedout" && (
-          <p className="mt-4 text-sm">Sign in with your admin account on the <a className="underline" href="/account">Profile page</a>, then come back.</p>
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Admin</h1>
+          {token && (
+            <button
+              onClick={logout}
+              className="text-sm text-muted-foreground hover:underline"
+            >
+              Sign out
+            </button>
+          )}
+        </div>
+
+        {!token ? (
+          <form onSubmit={login} className="mt-6 max-w-sm rounded-lg border border-border bg-card p-5">
+            <label className="text-sm font-medium">Admin passcode</label>
+            <input
+              type="password"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              autoFocus
+            />
+            {error && <p className="mt-2 text-sm text-accent">{error}</p>}
+            <button
+              type="submit"
+              disabled={busy || !passcode}
+              className="mt-3 w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {busy ? "Checking…" : "Enter"}
+            </button>
+          </form>
+        ) : (
+          <AdminDashboard token={token} />
         )}
-        {state === "denied" && <p className="mt-4 text-sm text-destructive">This account isn't a platform admin.</p>}
-        {state === "ok" && token && <AdminDashboard token={token} />}
       </main>
       <SiteFooter />
     </div>
@@ -93,11 +145,11 @@ function AdminPage() {
 }
 
 function AdminDashboard({ token }: { token: string }) {
-  const [tab, setTab] = useState<"reports" | "issues" | "applications" | "cities" | "drafts" | "roles" | "audit">("reports");
+  const [tab, setTab] = useState<"reports" | "issues">("reports");
   return (
     <div className="mt-6">
-      <div className="flex gap-2 overflow-x-auto border-b border-border">
-        {(["reports", "issues", "applications", "cities", "drafts", "roles", "audit"] as const).map((t) => (
+      <div className="flex gap-2 border-b border-border">
+        {(["reports", "issues"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -113,13 +165,11 @@ function AdminDashboard({ token }: { token: string }) {
         ))}
       </div>
       <div className="mt-6">
-        {tab === "reports" && <ReportsPanel token={token} />}
-        {tab === "issues" && <IssuesPanel token={token} />}
-        {tab === "cities" && <CitiesPanel token={token} />}
-        {tab === "drafts" && <DraftsPanel token={token} />}
-        {tab === "roles" && <RolesPanel token={token} />}
-        {tab === "applications" && <ApplicationsPanel token={token} />}
-        {tab === "audit" && <AuditPanel token={token} />}
+        {tab === "reports" ? (
+          <ReportsPanel token={token} />
+        ) : (
+          <IssuesPanel token={token} />
+        )}
       </div>
     </div>
   );
@@ -233,7 +283,7 @@ function IssuesPanel({ token }: { token: string }) {
       const res = await adminGenerateTopics({ data: { token, count: 3 } });
       setGenMsg(
         res.created.length
-          ? `Created ${res.created.length} AI draft${res.created.length === 1 ? "" : "s"} — review them in the Drafts tab.` +
+          ? `Published ${res.created.length} new topic${res.created.length === 1 ? "" : "s"}.` +
               (res.closed ? ` Closed ${res.closed} expired.` : "")
           : (res.skipped ?? "No topics created."),
       );

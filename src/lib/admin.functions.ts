@@ -10,7 +10,7 @@ async function getAdmin() {
  * `token` is the caller's signed-in access token. Verified server-side, then the
  * caller must hold platform_admin in user_roles. Returns the admin's user id.
  */
-async function checkSession(token: string): Promise<string> {
+export async function checkSession(token: string): Promise<string> {
   if (!token) throw new Error("Not signed in");
   const admin = await getAdmin();
   const { data: u, error } = await admin.auth.getUser(token);
@@ -284,8 +284,8 @@ function slugify(s: string) {
 }
 
 export const adminReviewRequest = createServerFn({ method: "POST" })
-  .inputValidator((d: { token: string; id: string; action: "draft" | "pending" | "reject" | "needs_info"; note?: string }) => {
-    if (!["draft", "pending", "reject", "needs_info"].includes(d.action)) throw new Error("Invalid action");
+  .inputValidator((d: { token: string; id: string; action: "draft" | "pending" | "reject" | "needs_info" | "under_review"; note?: string }) => {
+    if (!["draft", "pending", "reject", "needs_info", "under_review"].includes(d.action)) throw new Error("Invalid action");
     const note = (d.note ?? "").trim().slice(0, 1000);
     if ((d.action === "reject" || d.action === "needs_info") && note.length < 3) throw new Error("Add a short reason or note.");
     return { ...d, note };
@@ -295,7 +295,13 @@ export const adminReviewRequest = createServerFn({ method: "POST" })
     const admin = await getAdmin();
     const { data: req } = await admin.from("community_requests").select("*").eq("id", data.id).single();
     if (!req) throw new Error("Application not found");
+    if (req.status === "approved" || req.status === "rejected") throw new Error("This application was already decided");
     const now = new Date().toISOString();
+    if (data.action === "under_review") {
+      await admin.from("community_requests").update({ status: "under_review", reviewed_by: actor }).eq("id", data.id);
+      await audit(actor, "application.under_review", "application", data.id);
+      return { ok: true };
+    }
     if (data.action === "reject") {
       await admin.from("community_requests")
         .update({ status: "rejected", reviewed_at: now, reviewed_by: actor, decision_reason: data.note })

@@ -370,6 +370,42 @@ export type Database = {
           },
         ]
       }
+      demo_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          organization: string
+          state_code: string | null
+          status: string
+          submitter_device: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          organization: string
+          state_code?: string | null
+          status?: string
+          submitter_device?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          organization?: string
+          state_code?: string | null
+          status?: string
+          submitter_device?: string | null
+        }
+        Relationships: []
+      }
       impact_events: {
         Row: {
           action: string
@@ -399,6 +435,66 @@ export type Database = {
           ref_type?: string | null
         }
         Relationships: []
+      }
+      impact_records: {
+        Row: {
+          community_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          evidence_url: string | null
+          id: string
+          issue_id: string | null
+          occurred_on: string
+          public: boolean
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          evidence_url?: string | null
+          id?: string
+          issue_id?: string | null
+          occurred_on: string
+          public?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          evidence_url?: string | null
+          id?: string
+          issue_id?: string | null
+          occurred_on?: string
+          public?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_records_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "impact_records_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       issues: {
         Row: {
@@ -468,6 +564,192 @@ export type Database = {
           },
         ]
       }
+      onboarding_steps: {
+        Row: {
+          done_at: string
+          done_by: string | null
+          id: string
+          pipeline_id: string
+          step_no: number
+        }
+        Insert: {
+          done_at?: string
+          done_by?: string | null
+          id?: string
+          pipeline_id: string
+          step_no: number
+        }
+        Update: {
+          done_at?: string
+          done_by?: string | null
+          id?: string
+          pipeline_id?: string
+          step_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_steps_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "partner_pipeline"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_log: {
+        Row: {
+          channel: string
+          contacted_on: string
+          created_at: string
+          created_by: string | null
+          id: string
+          next_followup_at: string | null
+          organization: string
+          summary: string
+        }
+        Insert: {
+          channel?: string
+          contacted_on?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          next_followup_at?: string | null
+          organization: string
+          summary: string
+        }
+        Update: {
+          channel?: string
+          contacted_on?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          next_followup_at?: string | null
+          organization?: string
+          summary?: string
+        }
+        Relationships: []
+      }
+      partner_organizations: {
+        Row: {
+          community_id: string | null
+          created_at: string
+          id: string
+          name: string
+          org_type: string
+          public_description: string | null
+          public_listing: boolean
+          request_id: string | null
+          state_code: string | null
+          verification_note: string | null
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          community_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          org_type?: string
+          public_description?: string | null
+          public_listing?: boolean
+          request_id?: string | null
+          state_code?: string | null
+          verification_note?: string | null
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          community_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          org_type?: string
+          public_description?: string | null
+          public_listing?: boolean
+          request_id?: string | null
+          state_code?: string | null
+          verification_note?: string | null
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_organizations_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_organizations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "community_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_organizations_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      partner_pipeline: {
+        Row: {
+          activated_at: string | null
+          community_id: string | null
+          coordinator: string | null
+          created_at: string
+          id: string
+          last_contact_at: string | null
+          next_followup_at: string | null
+          notes: string | null
+          request_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          community_id?: string | null
+          coordinator?: string | null
+          created_at?: string
+          id?: string
+          last_contact_at?: string | null
+          next_followup_at?: string | null
+          notes?: string | null
+          request_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          community_id?: string | null
+          coordinator?: string | null
+          created_at?: string
+          id?: string
+          last_contact_at?: string | null
+          next_followup_at?: string | null
+          notes?: string | null
+          request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_pipeline_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_pipeline_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "community_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -495,6 +777,27 @@ export type Database = {
           handle?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      program_settings: {
+        Row: {
+          id: number
+          pilot_end: string
+          pilot_start: string
+          pilot_target: number
+        }
+        Insert: {
+          id?: number
+          pilot_end?: string
+          pilot_start?: string
+          pilot_target?: number
+        }
+        Update: {
+          id?: number
+          pilot_end?: string
+          pilot_start?: string
+          pilot_target?: number
         }
         Relationships: []
       }
@@ -566,6 +869,30 @@ export type Database = {
         Update: {
           code?: string
           name?: string
+        }
+        Relationships: []
+      }
+      toolkit_pages: {
+        Row: {
+          body: string
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }

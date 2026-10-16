@@ -13,6 +13,50 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getInsights } from "@/lib/insights.functions";
 import { ResultBars } from "@/components/result-bars";
+import { listImpactStories, managerPartnerData, managerAddImpact, ONBOARDING_STEPS } from "@/lib/partners.functions";
+
+function CityImpact({ id }: { id: string }) {
+  const { data } = useQuery({ queryKey: ["impact-stories", id], queryFn: () => listImpactStories({ data: { communityId: id } }) });
+  if (!data?.stories.length) return null;
+  return (
+    <section className="mt-10">
+      <h2 className="font-display text-2xl font-bold">Documented outcomes</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Reviewed by the Youth Voice founder before publishing.</p>
+      <ul className="mt-3 grid gap-2">{data.stories.map((s) => <li key={s.id} className="rounded-xl border border-border p-3 text-sm"><div className="text-xs text-muted-foreground">{s.occurred_on}</div><p>{s.description}</p>{s.evidence_url && <a href={s.evidence_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">Source</a>}</li>)}</ul>
+    </section>
+  );
+}
+
+function ManagerPartner({ id }: { id: string }) {
+  const [d, setD] = useState<Awaited<ReturnType<typeof managerPartnerData>> | null>(null);
+  const [f, setF] = useState({ occurredOn: new Date().toISOString().slice(0, 10), description: "", evidenceUrl: "", status: "proposed" });
+  const [msg, setMsg] = useState<string | null>(null);
+  const load = () => managerPartnerData({ data: { communityId: id } }).then(setD).catch(() => {});
+  useEffect(() => { load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function add() {
+    setMsg(null);
+    try { await managerAddImpact({ data: { communityId: id, ...f } }); setF({ ...f, description: "", evidenceUrl: "" }); setMsg("Saved. The founder reviews outcomes before anything is public."); load(); }
+    catch (e) { setMsg((e as Error).message); }
+  }
+  const done = new Set((d?.steps ?? []).map((s) => s.step_no));
+  return (
+    <section className="mt-8 rounded-2xl border border-primary/30 p-5">
+      <h2 className="font-display text-xl font-bold">Partnership (managers only)</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Onboarding steps are recorded by the Youth Voice founder. <Link to="/partners/toolkit" className="text-primary underline">Partner toolkit</Link></p>
+      <ol className="mt-2 grid gap-1 text-xs sm:grid-cols-2">{ONBOARDING_STEPS.map((l, i) => <li key={i}>{done.has(i + 1) ? "✓" : "○"} {l}</li>)}</ol>
+      <h3 className="mt-5 font-semibold">Record an outcome</h3>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <Input type="date" value={f.occurredOn} onChange={(e) => setF({ ...f, occurredOn: e.target.value })} />
+        <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}><option value="proposed">Proposed</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select>
+        <Textarea className="sm:col-span-2" rows={3} placeholder="What happened? e.g. 'Poll results were discussed at the youth advisory meeting.' Avoid names and private messages." value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
+        <Input className="sm:col-span-2" placeholder="Evidence link (https://…, optional)" value={f.evidenceUrl} onChange={(e) => setF({ ...f, evidenceUrl: e.target.value })} />
+      </div>
+      <Button size="sm" className="mt-2" onClick={add}>Save outcome</Button>
+      {msg && <p className="mt-2 text-xs text-muted-foreground">{msg}</p>}
+      {!!d?.impact.length && <ul className="mt-3 grid gap-1 text-xs">{d.impact.map((r) => <li key={r.id}>{r.occurred_on} · {r.status} · {r.public ? "public" : r.reviewed ? "reviewed" : "awaiting review"} — {r.description.slice(0, 90)}</li>)}</ul>}
+    </section>
+  );
+}
 
 function CityInsights({ cityId, cityName }: { cityId: string; cityName: string }) {
   const { data } = useQuery({ queryKey: ["insights"], queryFn: () => getInsights() });
@@ -162,6 +206,8 @@ function CityPage() {
 
         {canManage && <ManagerEditor id={city.id} description={city.description ?? ""} resources={city.resources} />}
         {canManage && <ManagerTopics id={city.id} />}
+        {canManage && <ManagerPartner id={city.id} />}
+        <CityImpact id={city.id} />
       </main>
       <SiteFooter />
     </div>

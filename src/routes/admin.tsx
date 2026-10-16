@@ -1,5 +1,5 @@
 import { CitiesPanel, DraftsPanel, RolesPanel, ApplicationsPanel, AuditPanel } from "@/components/admin-network";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import {
@@ -79,7 +79,7 @@ function AdminPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold">Admin</h1>
+        <div className="flex items-center justify-between"><h1 className="text-2xl font-bold">Admin</h1>{state === "ok" && <Link to="/admin/partners" className="text-sm text-primary underline">Partnerships dashboard →</Link>}</div>
         {state === "loading" && <p className="mt-4 text-sm text-muted-foreground">Checking access…</p>}
         {state === "signedout" && (
           <p className="mt-4 text-sm">Sign in with your admin account on the <a className="underline" href="/account">Profile page</a>, then come back.</p>

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const STYLE: Record<CityStatus, string> = {
   official: "border-primary/50 bg-primary/15 text-primary",
-  pilot: "border-accent/50 bg-accent/15 text-accent-foreground",
+  pilot: "border-primary/40 bg-secondary text-foreground",
   listed: "border-border bg-muted text-muted-foreground",
   pending: "border-border bg-secondary text-secondary-foreground",
 };

@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const SESSION_TTL_HOURS = 8;
 
 async function getAdmin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -31,42 +30,13 @@ export async function audit(actorId: string, action: string, targetType: string,
   await admin.from("admin_audit_log").insert({ actor_id: actorId, action, target_type: targetType, target_id: targetId, details: details as never });
 }
 
-function randomToken() {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-}
 
-function timingSafeEqualStr(a: string, b: string): boolean {
-  const enc = new TextEncoder();
-  const ab = enc.encode(a);
-  const bb = enc.encode(b);
-  if (ab.length !== bb.length) return false;
-  let diff = 0;
-  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
-  return diff === 0;
-}
 
+/** Retired: passcode sign-in replaced by platform_admin accounts. */
 export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((d: { passcode: string }) => d)
-  .handler(async ({ data }) => {
-    void data;
+  .handler(async () => {
     throw new Error("Passcode sign-in has been retired. Sign in with your admin account.");
-    const expected = process.env.ADMIN_PASSCODE;
-    if (!expected) throw new Error("Admin passcode not configured");
-    if (!timingSafeEqualStr(data.passcode, expected)) {
-      throw new Error("Invalid passcode");
-    }
-    const admin = await getAdmin();
-    const token = randomToken();
-    const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000).toISOString();
-    const { error } = await admin
-      .from("admin_sessions")
-      .insert({ token, expires_at: expiresAt });
-    if (error) throw new Error(error.message);
-    // Best-effort cleanup of expired rows.
-    await admin.from("admin_sessions").delete().lt("expires_at", new Date().toISOString());
-    return { token, expiresAt };
   });
 
 export const adminVerify = createServerFn({ method: "POST" })

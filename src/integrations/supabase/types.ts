@@ -245,6 +245,94 @@ export type Database = {
           },
         ]
       }
+      community_interest_requests: {
+        Row: {
+          admin_note: string | null
+          city_name: string
+          community_id: string | null
+          community_key: string
+          community_type: string
+          contact_email: string | null
+          created_at: string
+          device_hash: string
+          followup_at: string | null
+          id: string
+          organization: string | null
+          outreach_at: string | null
+          pipeline_id: string | null
+          reason: string | null
+          state_code: string
+          status: string
+          updated_at: string
+          verification_note: string | null
+          wants_to_help: boolean
+        }
+        Insert: {
+          admin_note?: string | null
+          city_name: string
+          community_id?: string | null
+          community_key: string
+          community_type: string
+          contact_email?: string | null
+          created_at?: string
+          device_hash: string
+          followup_at?: string | null
+          id?: string
+          organization?: string | null
+          outreach_at?: string | null
+          pipeline_id?: string | null
+          reason?: string | null
+          state_code: string
+          status?: string
+          updated_at?: string
+          verification_note?: string | null
+          wants_to_help?: boolean
+        }
+        Update: {
+          admin_note?: string | null
+          city_name?: string
+          community_id?: string | null
+          community_key?: string
+          community_type?: string
+          contact_email?: string | null
+          created_at?: string
+          device_hash?: string
+          followup_at?: string | null
+          id?: string
+          organization?: string | null
+          outreach_at?: string | null
+          pipeline_id?: string | null
+          reason?: string | null
+          state_code?: string
+          status?: string
+          updated_at?: string
+          verification_note?: string | null
+          wants_to_help?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_interest_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_interest_requests_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "partner_pipeline"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_interest_requests_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       community_recipients: {
         Row: {
           active: boolean

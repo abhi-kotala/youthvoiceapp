@@ -50,6 +50,13 @@
       "when": 1792162874796,
       "tag": "0006_phase3_onboarding_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792167182661,
+      "tag": "0007_phase5_partnerships",
+      "breakpoints": true
     }
   ]
 }

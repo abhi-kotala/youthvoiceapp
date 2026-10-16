@@ -18,3 +18,6 @@
 - Security checks live in `tests/rls-phase2.sql` (needs a privileged DB session) and `tests/signup-age.sh`.
 - Public city statuses are listed/pending/pilot/official (labels in `src/lib/cities.ts`); draft/paused stay hidden via RLS (`is_public_community`). Why: status labels must never overstate partnerships.
 - City pages live at `/cities/<slug>-<state>`; public city reads go through a publishable-key client so RLS, not code, enforces isolation. Managers may only update `description`/`resources` (column grants). Tested by `tests/rls-phase2b.sh`.
+- Admin server functions authenticate with the caller's Cloud access token and require `platform_admin` in `user_roles`; the passcode admin is retired. Every admin mutation writes to append-only `admin_audit_log`. Why: real accountability, no shared secret.
+- Official city status requires a verification note, enforced by a DB trigger; role grants and status changes by non-platform-admins are blocked by triggers. Why: defense in depth beyond server checks.
+- City managers create/close topics only in their own city via RLS + column grants on `issues`. Partner application contact details are platform-admin-only and purged after `retention_until`.

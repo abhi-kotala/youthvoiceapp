@@ -32,6 +32,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           created_at: string
@@ -155,6 +185,8 @@ export type Database = {
           timezone: string
           topic_run_days: number
           type: string
+          verification_note: string | null
+          verified_by: string | null
           zip_codes: string[]
         }
         Insert: {
@@ -176,6 +208,8 @@ export type Database = {
           timezone?: string
           topic_run_days?: number
           type?: string
+          verification_note?: string | null
+          verified_by?: string | null
           zip_codes?: string[]
         }
         Update: {
@@ -197,6 +231,8 @@ export type Database = {
           timezone?: string
           topic_run_days?: number
           type?: string
+          verification_note?: string | null
+          verified_by?: string | null
           zip_codes?: string[]
         }
         Relationships: [
@@ -252,43 +288,70 @@ export type Database = {
       }
       community_requests: {
         Row: {
+          admin_note: string | null
           city_name: string
           community_id: string | null
           contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
+          decision_reason: string | null
+          engagement_plan: string | null
           id: string
           message: string | null
+          org_type: string | null
           organization: string | null
           requester_role: string
+          retention_until: string
           reviewed_at: string | null
+          reviewed_by: string | null
           state_code: string
           status: string
+          submitter_device: string | null
         }
         Insert: {
+          admin_note?: string | null
           city_name: string
           community_id?: string | null
           contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
+          decision_reason?: string | null
+          engagement_plan?: string | null
           id?: string
           message?: string | null
+          org_type?: string | null
           organization?: string | null
           requester_role?: string
+          retention_until?: string
           reviewed_at?: string | null
+          reviewed_by?: string | null
           state_code: string
           status?: string
+          submitter_device?: string | null
         }
         Update: {
+          admin_note?: string | null
           city_name?: string
           community_id?: string | null
           contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
+          decision_reason?: string | null
+          engagement_plan?: string | null
           id?: string
           message?: string | null
+          org_type?: string | null
           organization?: string | null
           requester_role?: string
+          retention_until?: string
           reviewed_at?: string | null
+          reviewed_by?: string | null
           state_code?: string
           status?: string
+          submitter_device?: string | null
         }
         Relationships: [
           {
@@ -645,6 +708,7 @@ export type Database = {
         Returns: boolean
       }
       is_public_community: { Args: { _id: string }; Returns: boolean }
+      purge_expired_applications: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "platform_admin" | "community_admin" | "partner" | "official"

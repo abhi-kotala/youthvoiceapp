@@ -4,7 +4,8 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CityStatusBadge } from "@/components/city-status-badge";
-import { getCityPage, getMyVotedIssues, canManageCity, updateCityInfo } from "@/lib/cities.functions";
+import { getCityPage, getMyVotedIssues, canManageCity, updateCityInfo, managerListTopics, managerCreateTopic, managerCloseTopic } from "@/lib/cities.functions";
+import { Input } from "@/components/ui/input";
 import { STATUS_HELP, SELECTED_CITY_KEY } from "@/lib/cities";
 import { getDeviceId } from "@/lib/device-id";
 import { supabase } from "@/integrations/supabase/client";
@@ -127,6 +128,7 @@ function CityPage() {
         </section>
 
         {canManage && <ManagerEditor id={city.id} description={city.description ?? ""} resources={city.resources} />}
+        {canManage && <ManagerTopics id={city.id} />}
       </main>
       <SiteFooter />
     </div>
@@ -170,6 +172,56 @@ function ManagerEditor({ id, description, resources }: { id: string; description
       <label className="mt-3 block text-sm">Links — one per line: Label | https://…</label>
       <Textarea rows={4} value={links} onChange={(e) => setLinks(e.target.value)} />
       <Button className="mt-3" disabled={busy} onClick={save}>Save</Button>
+    </section>
+  );
+}
+
+function ManagerTopics({ id }: { id: string }) {
+  const [topics, setTopics] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [busy, setBusy] = useState(false);
+  const router = useRouter();
+  const reload = () => managerListTopics({ data: { communityId: id } }).then((r) => setTopics(r.topics)).catch(() => {});
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await managerCreateTopic({ data: { communityId: id, title, description: desc, category: "Community" } });
+      setTitle("");
+      setDesc("");
+      toast.success("Topic published");
+      reload();
+      router.invalidate();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="mt-6 rounded-xl border border-primary/30 bg-card/50 p-4">
+      <h2 className="font-display text-lg font-bold">Manage this city's topics</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Only city managers see this. Vote totals can't be edited.</p>
+      <form onSubmit={add} className="mt-3 space-y-2">
+        <Input placeholder="Topic question" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} required />
+        <Textarea rows={3} placeholder="Background (both sides, neutral)" value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={1200} required />
+        <Button size="sm" type="submit" disabled={busy}>{busy ? "Publishing…" : "Publish topic"}</Button>
+      </form>
+      <ul className="mt-4 space-y-2 text-sm">
+        {topics.map((t) => (
+          <li key={t.id} className="flex items-center justify-between gap-2 rounded-lg border border-border p-2">
+            <span>{t.title} <span className="text-muted-foreground">· {t.status}</span></span>
+            {t.status === "open" && (
+              <Button size="sm" variant="outline" onClick={async () => { if (window.confirm("Close this topic?")) { await managerCloseTopic({ data: { id: t.id } }).catch((e) => toast.error(e.message)); reload(); } }}>Close</Button>
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

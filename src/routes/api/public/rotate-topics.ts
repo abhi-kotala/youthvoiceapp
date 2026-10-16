@@ -14,6 +14,7 @@ export const Route = createFileRoute("/api/public/rotate-topics")({
             "@/lib/topic-generation.server"
           );
           const closed = await closeExpiredTopics();
+          try { const { supabaseAdmin } = await import("@/integrations/supabase/client.server"); await supabaseAdmin.rpc("purge_expired_applications" as never); } catch (e) { console.error("purge failed", e); }
           if (closed.length === 0) {
             return Response.json({
               ok: true,
@@ -42,6 +43,7 @@ export const Route = createFileRoute("/api/public/rotate-topics")({
         try {
           const { closeExpiredTopics } = await import("@/lib/topic-generation.server");
           const closed = await closeExpiredTopics();
+          try { const { supabaseAdmin } = await import("@/integrations/supabase/client.server"); await supabaseAdmin.rpc("purge_expired_applications" as never); } catch (e) { console.error("purge failed", e); }
           return Response.json({ ok: true, closed: closed.length });
         } catch (e) {
           return Response.json({ ok: false, error: (e as Error).message }, { status: 500 });

@@ -15,6 +15,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ExplainRouteImport } from './routes/explain'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -64,6 +65,11 @@ const ExplainRoute = ExplainRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
+  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
+  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/explain': typeof ExplainRoute
   '/explore': typeof ExploreRoute
+  '/insights': typeof InsightsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/map': typeof MapRoute
   '/mcp': typeof McpRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/explain'
     | '/explore'
+    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/explain'
     | '/explore'
+    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/explain'
     | '/explore'
+    | '/insights'
     | '/leaderboard'
     | '/map'
     | '/mcp'
@@ -350,6 +362,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ExplainRoute: typeof ExplainRoute
   ExploreRoute: typeof ExploreRoute
+  InsightsRoute: typeof InsightsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   MapRoute: typeof MapRoute
   McpRoute: typeof McpRoute
@@ -414,6 +427,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -566,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ExplainRoute: ExplainRoute,
   ExploreRoute: ExploreRoute,
+  InsightsRoute: InsightsRoute,
   LeaderboardRoute: LeaderboardRoute,
   MapRoute: MapRoute,
   McpRoute: McpRoute,

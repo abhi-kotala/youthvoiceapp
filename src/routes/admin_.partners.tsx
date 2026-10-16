@@ -39,7 +39,7 @@ function Page() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex items-center justify-between"><h1 className="text-2xl font-bold">Partnerships</h1><Link to="/admin" className="text-sm text-primary underline">Back to admin</Link></div>
+        <div className="flex items-center justify-between"><h1 className="text-2xl font-bold">Partnerships</h1><div className="flex gap-3 text-sm"><Link to="/admin/partners/requests" className="text-primary underline">Community requests</Link><Link to="/admin" className="text-primary underline">Back to admin</Link></div></div>
         {state === "loading" && <p className="mt-4 text-sm text-muted-foreground">Checking access…</p>}
         {state === "signedout" && <p className="mt-4 text-sm">Sign in with your admin account on the <Link to="/account" className="underline">Profile page</Link>.</p>}
         {state === "denied" && <p className="mt-4 text-sm text-destructive">This account isn't a platform admin.</p>}
@@ -121,6 +121,23 @@ function Pipeline({ d, token, run }: P) {
                   ) : <p className="text-xs text-muted-foreground">Save once to start tracking onboarding steps.</p>}
                 </div>
               )}
+            </li>
+          );
+        })}
+      </ul>
+      {d.pipeline.some((p) => !p.request_id) && <h3 className="mt-6 font-semibold">From community requests</h3>}
+      <ul className="mt-2 grid gap-2">
+        {d.pipeline.filter((p) => !p.request_id).map((p) => {
+          const c = d.communities.find((x) => x.id === p.community_id);
+          return (
+            <li key={p.id} className="rounded-xl border border-border p-3 text-sm">
+              <b>{c ? `${c.name}, ${c.state_code}` : "Community"}</b> <span className="text-xs text-muted-foreground">· {c?.status} · onboarding {d.steps.filter((s) => s.pipeline_id === p.id).length}/10</span>
+              <ol className="mt-2 grid gap-1 sm:grid-cols-2">
+                {ONBOARDING_STEPS.map((label, i) => {
+                  const st = d.steps.find((s) => s.pipeline_id === p.id && s.step_no === i + 1);
+                  return <li key={i}><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={!!st} onChange={(e) => run(() => adminToggleStep({ data: { token, pipelineId: p.id, step: i + 1, done: e.target.checked } }))} />{i + 1}. {label}</label></li>;
+                })}
+              </ol>
             </li>
           );
         })}

@@ -18,15 +18,15 @@ export const Route = createFileRoute("/explain")({
         { name: "twitter:card", content: "summary_large_image" },
         {
           property: "og:image",
-          content: "https://youthvoiceapp.lovable.app/youth-voice-og.png",
+          content: "https://youthvoice.world/youth-voice-og.png",
         },
         {
           name: "twitter:image",
-          content: "https://youthvoiceapp.lovable.app/youth-voice-og.png",
+          content: "https://youthvoice.world/youth-voice-og.png",
         },
       ],
       links: [
-        { rel: "canonical", href: "https://youthvoiceapp.lovable.app/explain" },
+        { rel: "canonical", href: "https://youthvoice.world/explain" },
       ],
     };
   },

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
-const URL = "https://youthvoiceapp.lovable.app/guide/get-involved";
+const URL = "https://youthvoice.world/guide/get-involved";
 
 export const Route = createFileRoute("/guide/get-involved")({
   head: () => ({

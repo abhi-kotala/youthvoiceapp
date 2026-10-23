@@ -17,12 +17,12 @@ export const Route = createFileRoute("/about")({
           "How the Youth Voice under-18 poll works, and how results reach the city council and mayor's office.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+      { property: "og:image", content: "https://youthvoice.world/youth-voice-og.png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
-      { property: "og:url", content: "https://youthvoiceapp.lovable.app/about" },
+      { name: "twitter:image", content: "https://youthvoice.world/youth-voice-og.png" },
+      { property: "og:url", content: "https://youthvoice.world/about" },
     ],
-    links: [{ rel: "canonical", href: "https://youthvoiceapp.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://youthvoice.world/about" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/about")({
           "@context": "https://schema.org",
           "@type": "AboutPage",
           name: "About Youth Voice",
-          url: "https://youthvoiceapp.lovable.app/about",
+          url: "https://youthvoice.world/about",
           description:
             "Nonpartisan under-18 poll for Fargo, West Fargo, and Moorhead. Results delivered to city council and mayors.",
         }),

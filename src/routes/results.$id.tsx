@@ -30,7 +30,7 @@ export const Route = createFileRoute("/results/$id")({
     const pageTitle = `Results: ${short} — Youth Voice`.slice(0, 60);
     const desc =
       "See how the community voted and read the debate. Results shared with the city council and mayor.";
-    const url = `https://youthvoiceapp.lovable.app/results/${params.id}`;
+    const url = `https://youthvoice.world/results/${params.id}`;
     return {
       meta: [
         { title: pageTitle },
@@ -39,9 +39,9 @@ export const Route = createFileRoute("/results/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { property: "og:image", content: "https://youthvoice.world/youth-voice-og.png" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { name: "twitter:image", content: "https://youthvoice.world/youth-voice-og.png" },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -186,11 +186,11 @@ function ResultsPage() {
               <ShareButton
                 title={`Results: ${issue.title}`}
                 text="See how the community voted on this city issue."
-                url={`https://youthvoiceapp.lovable.app/results/${issue.id}`}
+                url={`https://youthvoice.world/results/${issue.id}`}
                 variant="outline"
               />
               <CopyLinkButton
-                url={`https://youthvoiceapp.lovable.app/results/${issue.id}`}
+                url={`https://youthvoice.world/results/${issue.id}`}
               />
             </div>
 

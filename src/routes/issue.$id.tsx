@@ -65,7 +65,7 @@ export const Route = createFileRoute("/issue/$id")({
     const desc =
       loaderData?.issue?.description?.slice(0, 155) ??
       "Cast your vote and join the structured debate. Your voice goes straight to the city council.";
-    const url = `https://youthvoiceapp.lovable.app/issue/${params.id}`;
+    const url = `https://youthvoice.world/issue/${params.id}`;
     return {
       meta: [
         { title: pageTitle.slice(0, 60) },
@@ -74,9 +74,9 @@ export const Route = createFileRoute("/issue/$id")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        { property: "og:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { property: "og:image", content: "https://youthvoice.world/youth-voice-og.png" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: "https://youthvoiceapp.lovable.app/youth-voice-og.png" },
+        { name: "twitter:image", content: "https://youthvoice.world/youth-voice-og.png" },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: loaderData?.issue
@@ -401,7 +401,7 @@ function IssuePage() {
               <ShareButton
                 title={issue.title}
                 text="Vote and debate on this city issue on Youth Voice."
-                url={`https://youthvoiceapp.lovable.app/issue/${issue.id}`}
+                url={`https://youthvoice.world/issue/${issue.id}`}
                 variant="outline"
                 className="text-xs px-3 py-1.5"
               />

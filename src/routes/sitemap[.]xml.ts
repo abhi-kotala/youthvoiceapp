@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
-const BASE_URL = "https://youthvoiceapp.lovable.app";
+const BASE_URL = "https://youthvoice.world";
 
 interface SitemapEntry {
   path: string;

@@ -88,6 +88,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Youth Voice — Where under-18s weigh in on city issues" },
       { property: "og:description", content: "Vote and debate on the political issues happening in our city. Results go straight to the council and mayor." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Youth Voice" },
+      { name: "application-name", content: "Youth Voice" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@YouthVoice" },
       { name: "theme-color", content: "#0ea5e9" },
@@ -125,7 +127,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "WebSite",
               name: "Youth Voice",
-              url: "https://youthvoice.world",
+              alternateName: ["YouthVoice", "youthvoice.world"],
+              url: "https://youthvoice.world/",
             },
           ],
         }),

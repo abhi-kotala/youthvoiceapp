@@ -11,22 +11,26 @@ const BLOCKED_PATTERNS: { re: RegExp; reason: string }[] = [
     re: /\b(fuck|shit|bitch|cunt|asshole|dick|nigg(a|er)|fag(got)?|whore|slut|retard)\b/i,
     reason: "It contains language that isn't allowed here. Please rewrite it without slurs or profanity.",
   },
+  // Only unambiguous direct threats are hard-blocked here; other violent wording
+  // (e.g. quoting a slogan) goes to the AI review, which understands context.
   {
-    re: /\b(kill|shoot|stab|beat up|hurt)\s+(you|him|her|them|yourself|everyone|all)\b/i,
+    re: /\bi('?m| am| will|'ll| wanna| want to| gonna| going to)\s+(kill|shoot|stab|beat up|hurt)\s+(you|u)\b/i,
     reason: "It reads as a threat of violence. Please make your point without threatening anyone.",
   },
   {
     re: /\b(kys|kill yourself)\b/i,
     reason: "It reads as a threat or self-harm encouragement. Please rewrite it respectfully.",
   },
+  // Only clearly crude/sexual terms. Everyday words with civic uses ("sex education",
+  // "nuts", "butt") are left to the AI review.
   {
-    re: /\b(balls|nuts|penis|vagina|boobs|tits|butt|ass|booty|twerk|sex|sexy|horny|porn|nude|naked|masturbat\w*|jerk off|blow job|blowjob|hump|suck my|lick my)\b/i,
+    re: /\b(penis|vagina|boobs|tits|twerk\w*|sexy|horny|porn\w*|masturbat\w*|jerk off|blow ?job|suck my|lick (my|his|its|her|your) \w+|my balls|his balls|its balls|your balls)\b/i,
     reason: "It contains sexual or crude content. Please post a real civic topic instead.",
   },
 ];
 
 
-function quickCheck(text: string): ModerationResult | null {
+export function quickCheck(text: string): ModerationResult | null {
   for (const p of BLOCKED_PATTERNS) {
     if (p.re.test(text)) return { allowed: false, reason: p.reason };
   }

@@ -30,7 +30,7 @@ const BLOCKED_PATTERNS: { re: RegExp; reason: string }[] = [
 ];
 
 
-function quickCheck(text: string): ModerationResult | null {
+export function quickCheck(text: string): ModerationResult | null {
   for (const p of BLOCKED_PATTERNS) {
     if (p.re.test(text)) return { allowed: false, reason: p.reason };
   }

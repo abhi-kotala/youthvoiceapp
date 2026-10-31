@@ -70,18 +70,38 @@ export const connectCurrentDevice = createServerFn({ method: "POST" })
       .select("display_name")
       .eq("user_id", context.userId)
       .maybeSingle();
+    let handleTaken = false;
     if (!profile && data.displayName) {
-      const { error } = await context.supabase.from("profiles").insert({
-        user_id: context.userId,
-        display_name: cleanDisplayName(data.displayName),
-        handle: data.handle ?? defaultHandle(context.userId),
-      });
-      if (error) {
-        if (error.code === "23505") throw new Error("That username is already taken.");
-        throw new Error(error.message);
+      const displayName = cleanDisplayName(data.displayName);
+      const insertProfile = (handle: string) =>
+        context.supabase.from("profiles").insert({
+          user_id: context.userId,
+          display_name: displayName,
+          handle,
+        });
+      let { error } = await insertProfile(data.handle ?? defaultHandle(context.userId));
+      if (error?.code === "23505" && data.handle) {
+        // Chosen username was claimed by someone else before this account was confirmed.
+        // Still create the profile with a unique fallback so the account works; the user can rename it.
+        handleTaken = true;
+        ({ error } = await insertProfile(defaultHandle(context.userId)));
       }
+      if (error) throw new Error(error.message);
     }
-    return { connected: true };
+    return { connected: true, handleTaken };
+  });
+
+export const isHandleAvailable = createServerFn({ method: "POST" })
+  .inputValidator((data: { handle: string }) => ({ handle: cleanRequiredHandle(data.handle) }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id")
+      .ilike("handle", data.handle)
+      .maybeSingle();
+    if (error) throw new Error("Could not check that username. Please try again.");
+    return { available: !row };
   });
 
 export async function signAvatar(path: string | null | undefined) {

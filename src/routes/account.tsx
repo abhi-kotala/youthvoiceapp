@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import {
   getAccountImpact,
   getAccountProfile,
+  isHandleAvailable,
   updateAccountProfile,
 } from "@/lib/account.functions";
 import { levelFor } from "@/lib/impact";
@@ -107,6 +108,20 @@ function AccountPage() {
       setError("Choose a username with 3–20 letters, numbers or underscores.");
       setBusy(false);
       return;
+    }
+    if (mode === "signup") {
+      try {
+        const { available } = await isHandleAvailable({ data: { handle: cleanUsername } });
+        if (!available) {
+          setError("That username is already taken. Try a different one.");
+          setBusy(false);
+          return;
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not check that username.");
+        setBusy(false);
+        return;
+      }
     }
     const result = mode === "signup"
       ? await supabase.auth.signUp({
